@@ -22,10 +22,10 @@ import { LinkPreset } from "./types/config";
 const SITE_LANG = "zh_CN"; // 语言代码，例如：'en', 'zh_CN', 'ja' 等。
 const SITE_TIMEZONE = 8; //设置你的网站时区 from -12 to 12 default in UTC+8
 export const siteConfig: SiteConfig = {
-	title: "Mizuki",
-	subtitle: "One demo website",
-	siteURL: "https://mizuki.mysqil.com/", // 请替换为你的站点URL，以斜杠结尾
-	siteStartDate: "2025-01-01", // 站点开始运行日期，用于站点统计组件计算运行天数
+	title: "Darwin",
+	subtitle: "也可以叫我十二",
+	siteURL: "https://www.bettercall12.cc/", // 请替换为你的站点URL，以斜杠结尾
+	siteStartDate: "2026-03-02", // 站点开始运行日期，用于站点统计组件计算运行天数
 
 	timeZone: SITE_TIMEZONE,
 
@@ -53,11 +53,11 @@ export const siteConfig: SiteConfig = {
 		// 显示模式："text-icon" 显示图标+文本，"logo" 仅显示Logo
 		mode: "logo",
 		// 顶栏标题文本
-		text: "MizukiUI",
+		text: "Darwin123",
 		// 顶栏标题图标路径，默认使用 public/assets/home/home.png
-		icon: "assets/home/home.png",
+		icon: "assets/home/liverbird.png",
 		// 网站Logo图片路径
-		logo: "assets/home/default-logo.png",
+		logo: "assets/home/Darwin.png",
 	},
 
 	// 页面自动缩放配置
@@ -119,20 +119,26 @@ export const siteConfig: SiteConfig = {
 		// 支持单张图片或图片数组，当数组长度 > 1 时自动启用轮播
 		src: {
 			desktop: [
-				"/assets/desktop-banner/1.webp",
-				"/assets/desktop-banner/2.webp",
-				"/assets/desktop-banner/3.webp",
-				"/assets/desktop-banner/4.webp",
-				"/assets/desktop-banner/5.webp",
-				"/assets/desktop-banner/6.webp",
+				"/assets/desktop-banner/desk2.webp",
+				"/assets/desktop-banner/desk3.webp",
+				"/assets/desktop-banner/desk4.webp",
+				"/assets/desktop-banner/desk5.webp",
+				"/assets/desktop-banner/desk6.webp",
+				"/assets/desktop-banner/desk7.webp",
+				"/assets/desktop-banner/desk8.webp",
+				"/assets/desktop-banner/desk9.jpg",
+				"/assets/desktop-banner/desk10.jpg",
+				"/assets/desktop-banner/desk11.jpg",
 			], // 桌面横幅图片
 			mobile: [
-				"/assets/mobile-banner/1.webp",
-				"/assets/mobile-banner/2.webp",
-				"/assets/mobile-banner/3.webp",
-				"/assets/mobile-banner/4.webp",
-				"/assets/mobile-banner/5.webp",
-				"/assets/mobile-banner/6.webp",
+				"/assets/mobile-banner/mob1.webp",
+				"/assets/mobile-banner/mob2.webp",
+				"/assets/mobile-banner/mob3.webp",
+				"/assets/mobile-banner/mob4.jpg",
+				"/assets/mobile-banner/mob5.jpg",
+				"/assets/mobile-banner/mob6.jpg",
+				"/assets/mobile-banner/mob7.jpg",
+				"/assets/mobile-banner/mob8.jpg",
 			], // 移动横幅图片
 		}, // 使用本地横幅图片
 
@@ -160,14 +166,14 @@ export const siteConfig: SiteConfig = {
 
 		homeText: {
 			enable: true, // 在主页显示自定义文本
-			title: "わたしの部屋", // 主页横幅主标题
+			title: "你好，这里是Darwin", // 主页横幅主标题
 
 			subtitle: [
-				"特別なことはないけど、君がいると十分です",
-				"今でもあなたは私の光",
-				"君ってさ、知らないうちに私の毎日になってたよ",
-				"君と話すと、なんか毎日がちょっと楽しくなるんだ",
-				"今日はなんでもない日。でも、ちょっとだけいい日",
+				"始于2026.3.2",
+				"为期十年的决定",
+				"站在我的23岁",
+				"留下一点点痕迹",
+				"好孩子要健健康康",
 			],
 			typewriter: {
 				enable: true, // 启用副标题打字机效果
@@ -220,9 +226,9 @@ export const siteConfig: SiteConfig = {
 		},
 		cjkFont: {
 			// 中日韩字体 - 作为回退字体
-			fontFamily: "萝莉体 第二版",
+			fontFamily: "思源黑体",
 			fontWeight: "500",
-			localFonts: ["萝莉体 第二版.ttf"],
+			localFonts: ["SourceHanSerifSC-VF.ttf"],
 			enableCompress: true, // 启用字体子集优化，减少字体文件大小
 		},
 	},
@@ -231,26 +237,32 @@ export const siteConfig: SiteConfig = {
 export const fullscreenWallpaperConfig: FullscreenWallpaperConfig = {
 	src: {
 		desktop: [
-			"/assets/desktop-banner/1.webp",
-			"/assets/desktop-banner/2.webp",
-			"/assets/desktop-banner/3.webp",
-			"/assets/desktop-banner/4.webp",
-			"/assets/desktop-banner/5.webp",
-			"/assets/desktop-banner/6.webp",
+			"/assets/desktop-banner/desk2.webp",
+			"/assets/desktop-banner/desk3.webp",
+			"/assets/desktop-banner/desk4.webp",
+			"/assets/desktop-banner/desk5.webp",
+			"/assets/desktop-banner/desk6.webp",
+			"/assets/desktop-banner/desk7.webp",
+			"/assets/desktop-banner/desk8.webp",
+			"/assets/desktop-banner/desk9.jpg",
+			"/assets/desktop-banner/desk10.jpg",
+			"/assets/desktop-banner/desk11.jpg",
 		], // 桌面横幅图片
 		mobile: [
-			"/assets/mobile-banner/1.webp",
-			"/assets/mobile-banner/2.webp",
-			"/assets/mobile-banner/3.webp",
-			"/assets/mobile-banner/4.webp",
-			"/assets/mobile-banner/5.webp",
-			"/assets/mobile-banner/6.webp",
+			"/assets/mobile-banner/mob1.webp",
+			"/assets/mobile-banner/mob2.webp",
+			"/assets/mobile-banner/mob3.webp",
+			"/assets/mobile-banner/mob4.jpg",
+			"/assets/mobile-banner/mob5.jpg",
+			"/assets/mobile-banner/mob6.jpg",
+			"/assets/mobile-banner/mob7.jpg",
+			"/assets/mobile-banner/mob8.jpg",
 		], // 移动横幅图片
 	}, // 使用本地横幅图片
 	position: "center", // 壁纸位置，等同于 object-position
 	carousel: {
 		enable: true, // 启用轮播
-		interval: 5, // 轮播间隔时间（秒）
+		interval: 10, // 轮播间隔时间（秒）
 	},
 	zIndex: -1, // 层级，确保壁纸在背景层
 	opacity: 0.8, // 壁纸透明度
@@ -469,8 +481,8 @@ export const musicPlayerConfig: MusicPlayerConfig = {
 };
 
 export const footerConfig: FooterConfig = {
-	enable: false, // 是否启用Footer HTML注入功能
-	customHtml: "", // HTML格式的自定义页脚信息，例如备案号等，默认留空
+	enable: true, // 是否启用Footer HTML注入功能
+	customHtml: "Have a nice day！ ", // HTML格式的自定义页脚信息，例如备案号等，默认留空
 	// 也可以直接编辑 FooterConfig.html 文件来添加备案号等自定义内容
 	// 注意：若 customHtml 不为空，则使用 customHtml 中的内容；若 customHtml 留空，则使用 FooterConfig.html 文件中的内容
 	// FooterConfig.html 可能会在未来的某个版本弃用
