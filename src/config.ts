@@ -168,13 +168,7 @@ export const siteConfig: SiteConfig = {
 			enable: true, // 在主页显示自定义文本
 			title: "你好，这里是Darwin", // 主页横幅主标题
 
-			subtitle: [
-				"始于2026.3.2",
-				"为期十年的决定",
-				"站在我的23岁",
-				"留下一点点痕迹",
-				"好孩子要健健康康",
-			],
+			subtitle: ["Football", "Life", "Fitness", "好孩子要健健康康"],
 			typewriter: {
 				enable: true, // 启用副标题打字机效果
 
@@ -475,14 +469,14 @@ export const musicPlayerConfig: MusicPlayerConfig = {
 	mode: "meting", // 音乐播放器模式，可选 "local" 或 "meting"
 	meting_api:
 		"https://meting.mysqil.com/api?server=:server&type=:type&id=:id&auth=:auth&r=:r", // Meting API 地址
-	id: "14164869977", // 歌单ID
+	id: "9095421927", // 歌单ID
 	server: "netease", // 音乐源服务器。有的meting的api源支持更多平台,一般来说,netease=网易云音乐, tencent=QQ音乐, kugou=酷狗音乐, xiami=虾米音乐, baidu=百度音乐
 	type: "playlist", // 播单类型
 };
 
 export const footerConfig: FooterConfig = {
 	enable: true, // 是否启用Footer HTML注入功能
-	customHtml: "Have a nice day！ ", // HTML格式的自定义页脚信息，例如备案号等，默认留空
+	customHtml: "始于2026.3.2", // HTML格式的自定义页脚信息，例如备案号等，默认留空
 	// 也可以直接编辑 FooterConfig.html 文件来添加备案号等自定义内容
 	// 注意：若 customHtml 不为空，则使用 customHtml 中的内容；若 customHtml 留空，则使用 FooterConfig.html 文件中的内容
 	// FooterConfig.html 可能会在未来的某个版本弃用
