@@ -76,32 +76,7 @@ let audio: HTMLAudioElement;
 let progressBar: HTMLElement;
 let volumeBar: HTMLElement;
 
-const localPlaylist = [
-	{
-		id: 1,
-		title: "ひとり上手",
-		artist: "Kaya",
-		cover: "assets/music/cover/hitori.jpg",
-		url: "assets/music/url/hitori.mp3",
-		duration: 240,
-	},
-	{
-		id: 2,
-		title: "眩耀夜行",
-		artist: "スリーズブーケ",
-		cover: "assets/music/cover/xryx.jpg",
-		url: "assets/music/url/xryx.mp3",
-		duration: 180,
-	},
-	{
-		id: 3,
-		title: "春雷の頃",
-		artist: "22/7",
-		cover: "assets/music/cover/cl.jpg",
-		url: "assets/music/url/cl.mp3",
-		duration: 200,
-	},
-];
+// localPlaylist 已迁移至 src/config.ts
 
 // 从localStorage加载音量设置
 function loadVolumeSettings() {
@@ -421,7 +396,15 @@ onMount(() => {
 		fetchMetingPlaylist();
 	} else {
 		// 使用本地播放列表，不发送任何API请求
-		playlist = [...localPlaylist];
+		const loadedSongs = musicPlayerConfig.local?.songs || [];
+		playlist = loadedSongs.map((song, index) => ({
+			id: index + 1,
+			title: song.title,
+			artist: song.artist,
+			cover: song.cover || "",
+			url: song.url,
+			duration: 0,
+		}));
 		if (playlist.length > 0) {
 			loadSong(playlist[0]);
 		} else {
