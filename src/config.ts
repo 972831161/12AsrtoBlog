@@ -55,7 +55,7 @@ export const siteConfig: SiteConfig = {
 		// 顶栏标题文本
 		text: "Darwin123",
 		// 顶栏标题图标路径，默认使用 public/assets/home/home.png
-		icon: "assets/home/liverbird.png",
+		icon: "assets/home/liverbird_sq.png",
 		// 网站Logo图片路径
 		logo: "assets/home/Darwin.png",
 	},
@@ -198,12 +198,9 @@ export const siteConfig: SiteConfig = {
 	showCoverInContent: true, // 在文章内容页显示文章封面
 	generateOgImages: false, // 启用生成OpenGraph图片功能,注意开启后要渲染很长时间，不建议本地调试的时候开启
 	favicon: [
-		// 留空以使用默认 favicon
-		// {
-		//   src: '/favicon/icon.png',    // 图标文件路径
-		//   theme: 'light',              // 可选，指定主题 'light' | 'dark'
-		//   sizes: '32x32',              // 可选，图标大小
-		// }
+		{
+			src: "/assets/home/liverbird_sq.png",
+		},
 	],
 
 	// 字体配置
@@ -281,7 +278,7 @@ export const navBarConfig: NavBarConfig = {
 				},
 				{
 					name: "Bilibili",
-					url: "https://space.bilibili.com/701864046",
+					url: "https://space.bilibili.com/13477682",
 					external: true,
 					icon: "fa7-brands:bilibili",
 				},
@@ -1371,24 +1368,21 @@ export const sakuraConfig: SakuraConfig = {
 // Pio 看板娘配置
 export const pioConfig: import("./types/config").PioConfig = {
 	enable: true, // 启用看板娘
-	models: ["/pio/models/pio/model.json"], // 默认模型路径
+	// models: ["/pio/models/pio/model.json"], // 刚才下载并解压放入的 Live2D 模型文件路径
+	models: ["/pio/models/dog_transparent.webp"], // 处理后去除了白底的透明视频动图
+	// models: ["/pio/models/MyLove/monkey.model3.json"], // 刚才下载并解压放入的 Live2D 模型文件路径
 	position: "left", // 模型位置
-	width: 280, // 默认宽度
-	height: 250, // 默认高度
+	width: 150, // 默认宽度（为了配合动图比例微调）
+	height: 150, // 默认高度
 	mode: "draggable", // 默认为可拖拽模式
 	hiddenOnMobile: true, // 默认在移动设备上隐藏
 	dialog: {
-		welcome: "Welcome to Mizuki Website!", // 欢迎词
-		touch: [
-			"What are you doing?",
-			"Stop touching me!",
-			"HENTAI!",
-			"Don't bully me like that!",
-		], // 触摸提示
-		home: "Click here to go back to homepage!", // 首页提示
+		welcome: "Welcome to Darwin's world!", // 欢迎词
+		touch: ["What's the dog doing?", "我的刀盾！"], // 触摸提示
+		home: "返回主页", // 首页提示
 		skin: ["Want to see my new outfit?", "The new outfit looks great~"], // 换装提示
-		close: "QWQ See you next time~", // 关闭提示
-		link: "https://github.com/matsuzaka-yuki/Mizuki", // 关于链接
+		close: "下次再见~", // 关闭提示
+		link: "https://space.bilibili.com/13477682", // 关于链接
 	},
 };
 
