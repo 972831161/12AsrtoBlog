@@ -23,11 +23,11 @@ export const skillsData: Skill[] = [
 		id: "javascript",
 		name: "JavaScript",
 		description:
-			"Modern JavaScript development, including ES6+ syntax, asynchronous programming, and modular development.",
+			"在GEE平台基于JS处理各种遥感数据，包含数据分析、数据可视化等等。",
 		icon: "logos:javascript",
 		category: "frontend",
 		level: "advanced",
-		experience: { years: 3, months: 6 },
+		experience: { years: 1, months: 6 },
 		projects: [
 			"mizuki-blog",
 			"portfolio-website",

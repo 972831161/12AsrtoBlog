@@ -51,12 +51,14 @@ const subtitle = i18n(I18nKey.projectsSubtitle);
 // 获取分类文本的国际化翻译
 const getCategoryText = (category: string) => {
 	switch (category) {
-		case "web":
-			return i18n(I18nKey.projectsWeb);
-		case "mobile":
-			return i18n(I18nKey.projectsMobile);
-		case "desktop":
-			return i18n(I18nKey.projectsDesktop);
+		case "rs":
+			return i18n(I18nKey.projectsRS);
+		case "photography":
+			return i18n(I18nKey.projectsPhotography);
+		case "media":
+			return i18n(I18nKey.projectsMedia);
+		case "ai":
+			return i18n(I18nKey.projectsAI);
 		case "other":
 			return i18n(I18nKey.projectsOther);
 		case UNCATEGORIZED:
@@ -64,6 +66,10 @@ const getCategoryText = (category: string) => {
 		default:
 			return category;
 	}
+};
+
+const isGitHubUrl = (url?: string) => {
+	return typeof url === "string" && url.includes("github.com");
 };
 ---
 
@@ -170,22 +176,52 @@ const getCategoryText = (category: string) => {
                         href={project.visitUrl} 
                         target="_blank" 
                         rel="noopener noreferrer"
-                        class="btn-gradient btn-gradient-primary btn-gradient-md"
+                        class="btn-gradient btn-gradient-primary btn-gradient-md inline-flex items-center gap-2"
                       >
-                        <iconify-icon icon="material-symbols:open-in-new" width="18" height="18"></iconify-icon>
+                        <iconify-icon icon="material-symbols:open-in-new" width="18" height="18" class="relative -translate-y-[1px]"></iconify-icon>
                         {i18n(I18nKey.projectsVisit)}
                       </a>
                     )}
-                    {project.sourceCode && (
-                      <a 
-                        href={project.sourceCode} 
-                        target="_blank" 
+                    {project.bilibiliSource && (
+                      <a
+                        href={project.bilibiliSource}
+                        target="_blank"
                         rel="noopener noreferrer"
-                        class="btn-gradient btn-github btn-gradient-md"
+                        class="btn-gradient btn-bilibili btn-gradient-md inline-flex items-center gap-2"
                       >
-                        <iconify-icon icon="mdi:github" width="18" height="18"></iconify-icon>
-                        {i18n(I18nKey.projectsGitHub)}
+                        <iconify-icon
+                          icon="fa7-brands:bilibili"
+                          width="18"
+                          height="18"
+                          class="relative -translate-y-[1px]"
+                        ></iconify-icon>
+                        {project.bilibiliSourceLabel ?? "B站"}
                       </a>
+                    )}
+                    {project.sourceCode && (
+                      <>
+                        {isGitHubUrl(project.sourceCode) ? (
+                          <a
+                            href={project.sourceCode}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            class="btn-gradient btn-github btn-gradient-md inline-flex items-center gap-2"
+                          >
+                            <iconify-icon icon="mdi:github" width="18" height="18" class="relative -translate-y-[1px]"></iconify-icon>
+                            {project.sourceCodeLabel ?? i18n(I18nKey.projectsGitHub)}
+                          </a>
+                        ) : (
+                          <a
+                            href={project.sourceCode}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            class="btn-gradient btn-gradient-primary btn-gradient-md inline-flex items-center gap-2"
+                          >
+                            <iconify-icon icon="material-symbols:open-in-new" width="18" height="18" class="relative -translate-y-[1px]"></iconify-icon>
+                            {project.sourceCodeLabel ?? i18n(I18nKey.projectsSource)}
+                          </a>
+                        )}
+                      </>
                     )}
                   </div>
                 </div>
@@ -261,22 +297,52 @@ const getCategoryText = (category: string) => {
                             href={project.visitUrl} 
                             target="_blank" 
                             rel="noopener noreferrer"
-                            class="btn-gradient btn-gradient-primary btn-gradient-md"
+                            class="btn-gradient btn-gradient-primary btn-gradient-md inline-flex items-center gap-2"
                           >
-                            <iconify-icon icon="material-symbols:open-in-new" width="18" height="18"></iconify-icon>
+                            <iconify-icon icon="material-symbols:open-in-new" width="18" height="18" class="relative -translate-y-[1px]"></iconify-icon>
                             {i18n(I18nKey.projectsVisit)}
                           </a>
                         )}
-                        {project.sourceCode && (
-                          <a 
-                            href={project.sourceCode} 
-                            target="_blank" 
+                        {project.bilibiliSource && (
+                          <a
+                            href={project.bilibiliSource}
+                            target="_blank"
                             rel="noopener noreferrer"
-                            class="btn-gradient btn-github btn-gradient-md"
+                            class="btn-gradient btn-bilibili btn-gradient-md inline-flex items-center gap-2"
                           >
-                            <iconify-icon icon="mdi:github" width="18" height="18"></iconify-icon>
-                            {i18n(I18nKey.projectsGitHub)}
+                            <iconify-icon
+                              icon="fa7-brands:bilibili"
+                              width="18"
+                              height="18"
+                              class="relative -translate-y-[1px]"
+                            ></iconify-icon>
+                            {project.bilibiliSourceLabel ?? "B站"}
                           </a>
+                        )}
+                        {project.sourceCode && (
+                          <>
+                            {isGitHubUrl(project.sourceCode) ? (
+                              <a
+                                href={project.sourceCode}
+                                target="_blank"
+                                rel="noopener noreferrer"
+                                class="btn-gradient btn-github btn-gradient-md inline-flex items-center gap-2"
+                              >
+                                <iconify-icon icon="mdi:github" width="18" height="18" class="relative -translate-y-[1px]"></iconify-icon>
+                              {project.sourceCodeLabel ?? i18n(I18nKey.projectsGitHub)}
+                              </a>
+                            ) : (
+                              <a
+                                href={project.sourceCode}
+                                target="_blank"
+                                rel="noopener noreferrer"
+                                class="btn-gradient btn-gradient-primary btn-gradient-md inline-flex items-center gap-2"
+                              >
+                                <iconify-icon icon="material-symbols:open-in-new" width="18" height="18" class="relative -translate-y-[1px]"></iconify-icon>
+                              {project.sourceCodeLabel ?? i18n(I18nKey.projectsSource)}
+                              </a>
+                            )}
+                          </>
                         )}
                       </div>
                     </div>

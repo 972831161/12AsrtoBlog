@@ -6,11 +6,14 @@ export interface Project {
 	title: string;
 	description: string;
 	image: string;
-	category: "web" | "mobile" | "desktop" | "other";
+	category: "rs" | "photography" | "media" | "ai" | "other";
 	techStack: string[];
 	status: "completed" | "in-progress" | "planned";
 	liveDemo?: string;
 	sourceCode?: string;
+	sourceCodeLabel?: string; // 源码按钮文字（可选：每个项目自定义）
+	bilibiliSource?: string; // B站跳转链接（在项目卡片上展示按钮）
+	bilibiliSourceLabel?: string; // B站按钮文字（可选：每个项目自定义）
 	startDate: string;
 	endDate?: string;
 	featured?: boolean;
@@ -20,65 +23,100 @@ export interface Project {
 
 export const projectsData: Project[] = [
 	{
-		id: "mizuki-blog",
-		title: "Mizuki Blog Theme",
+		id: "Yangtze ssc",
+		title: "长江悬浮泥沙研究论文",
 		description:
-			"Modern blog theme developed based on the Astro framework, supporting multilingual, dark mode, and responsive design features.",
-		image: "",
-		category: "web",
-		techStack: ["Astro", "TypeScript", "Tailwind CSS", "Svelte"],
+			"基于landsat影像反演1984-2021年长江中下游河口悬浮泥沙浓度",
+		image: "/images/projects/yangtzeSSC.png",
+		category: "rs",
+		techStack: ["ArcGIS", "Python", "ML"],
 		status: "completed",
 		liveDemo: "https://blog.example.com",
-		sourceCode: "https://github.com/example/mizuki", // 更改为GitHub链接
-		visitUrl: "https://blog.example.com", // 添加前往项目链接
-		startDate: "2024-01-01",
-		endDate: "2024-06-01",
+		sourceCode: "https://doi.org/10.6084/m9.figshare.29951894.v3", // DOI / 论文数据链接
+		sourceCodeLabel:"数据分享",
+		visitUrl: "https://doi.org/10.1016/j.isprsjprs.2026.03.023", // 添加前往项目链接
+		startDate: "2024-04-01",
+		endDate: "2026-03-14",
 		featured: true,
-		tags: ["Blog", "Theme", "Open Source"],
+		tags: ["遥感", "科研", "sci"],
 	},
 	{
-		id: "portfolio-website",
-		title: "Personal Portfolio",
+		id: "Collapse monitoring method",
+		title: "崩岸识别算法发明专利",
 		description:
-			"Personal portfolio website showcasing project experience and technical skills.",
-		image: "",
-		category: "web",
-		techStack: ["React", "Next.js", "TypeScript", "Framer Motion"],
+			"利用长时许遥感产品进行河道崩岸识别",
+		image: "/images/projects/collapse_monitor.png",
+		category: "rs",
+		techStack: ["时序分析", "Mann-kendall", "发明专利"],
 		status: "completed",
 		liveDemo: "https://portfolio.example.com",
-		sourceCode: "https://github.com/example/portfolio",
-		visitUrl: "https://portfolio.example.com", // 添加前往项目链接
-		startDate: "2023-09-01",
-		endDate: "2023-12-01",
+		sourceCode: "http://epub.cnipa.gov.cn/cred/CN121167370B",
+		sourceCodeLabel:"专利链接",
+		// visitUrl: "https://portfolio.example.com", // 添加前往项目链接
+		startDate: "2024-04-01",
+		endDate: "2026-03-18",
 		featured: true,
 		tags: ["Portfolio", "React", "Animation"],
 	},
 	{
-		id: "task-manager-app",
-		title: "Task Manager App",
+		id: "anticheating",
+		title: "反诈微电影破局",
 		description:
-			"Cross-platform task management application supporting team collaboration and project management.",
+			"反诈微电影《破局》于2022年4月18日上线.",
 		image: "",
-		category: "mobile",
-		techStack: ["React Native", "TypeScript", "Redux", "Firebase"],
-		status: "in-progress",
-		startDate: "2024-03-01",
-		tags: ["Mobile", "Productivity", "Team Collaboration"],
+		category: "media",
+		techStack: ["剧本设计", "人员调度", "组织排练"],
+		status: "completed",
+		bilibiliSource: "https://www.bilibili.com/", // TODO: 替换为该项目对应的具体视频/页面链接
+		bilibiliSourceLabel: "B站链接",
+		startDate: "2022-04-01",
+		tags: ["微电影", "反诈", "剧情"],
+	},
+
+	{
+		id: "national-epidemic-prevention",
+		title: "全名抗疫",
+		description:
+			"党史情景剧《全民抗疫》于2021年5月28日登上荧幕！",
+		image: "",
+		category: "media",
+		techStack: ["剧本设计", "人员调度", "组织排练"],
+		status: "completed",
+		bilibiliSource: "https://www.bilibili.com/", // TODO: 替换为该项目对应的具体视频/页面链接
+		bilibiliSourceLabel: "B站链接",
+		startDate: "2021-05-28",
+		tags: ["情景剧", "抗疫", "党史"],
+	},
+
+	{
+		id: "darwin-blog",
+		title: "Darwin的博客",
+		description:
+			"正如你当前所在.",
+		image: "",
+		category: "ai",
+		techStack: ["Astro", "TypeScript", "Tailwind CSS", "Git"],
+		status: "completed",
+		liveDemo: "https://www.bettercall12.cc/",
+		visitUrl: "https://www.bettercall12.cc/", // 添加前往项目链接
+		startDate: "2026-03-02",
+		endDate: "至今",
+		tags: ["Data Visualization", "Analytics", "Charts"],
 	},
 	{
-		id: "data-visualization-tool",
-		title: "Data Visualization Tool",
+		id: "photography-set1",
+		title: "我的所见",
 		description:
-			"Data visualization tool supporting multiple chart types and interactive analysis.",
+			"镜头记录不了全部的震撼，但快门可以留下属于自己的那一刻回忆。",
 		image: "",
-		category: "web",
-		techStack: ["Vue.js", "D3.js", "TypeScript", "Node.js"],
-		status: "completed",
-		liveDemo: "https://dataviz.example.com",
-		visitUrl: "https://dataviz.example.com", // 添加前往项目链接
-		startDate: "2023-06-01",
-		endDate: "2023-11-01",
-		tags: ["Data Visualization", "Analytics", "Charts"],
+		category: "photography",
+		techStack: ["摄影", "修图"],
+		status: "in-progress",
+		liveDemo: "/albums/",
+		visitUrl: "/albums/", // 跳转到站内相册界面
+		startDate: "2026-03-02",
+		endDate: "至今",
+		tags: ["摄影", "所见", "所闻"],
 	},
 	{
 		id: "e-commerce-platform",
@@ -86,7 +124,7 @@ export const projectsData: Project[] = [
 		description:
 			"Full-stack e-commerce platform including user management, product management, and order processing features.",
 		image: "",
-		category: "web",
+		category: "other",
 		techStack: ["Next.js", "Node.js", "PostgreSQL", "Stripe"],
 		status: "planned",
 		startDate: "2024-07-01",

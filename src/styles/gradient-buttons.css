@@ -70,6 +70,24 @@
   box-shadow: 0 2px 4px rgba(36, 41, 46, 0.3);
 }
 
+/* Bilibili按钮样式（粉色） */
+.btn-bilibili {
+  background: linear-gradient(135deg, #ff4db8, #ff8bd8);
+  color: white;
+  box-shadow: 0 2px 4px rgba(255, 77, 184, 0.25);
+}
+
+.btn-bilibili:hover {
+  background: linear-gradient(135deg, #ff37aa, #ff79d0);
+  box-shadow: 0 4px 8px rgba(255, 77, 184, 0.35);
+  transform: translateY(-2px);
+}
+
+.btn-bilibili:active {
+  transform: translateY(0);
+  box-shadow: 0 2px 4px rgba(255, 77, 184, 0.25);
+}
+
 /* 小尺寸按钮 */
 .btn-gradient-sm {
   padding: 0.25rem 0.75rem;
