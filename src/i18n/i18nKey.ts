@@ -75,6 +75,8 @@ enum I18nKey {
 	animeEmptyLocal = "animeEmptyLocal",
 	animeConfigBilibili = "animeConfigBilibili",
 	animeConfigBangumi = "animeConfigBangumi",
+	animeEmptyDouban = "animeEmptyDouban",
+	animeConfigDouban = "animeConfigDouban",
 
 	// 短文页面
 	diarySubtitle = "diarySubtitle",

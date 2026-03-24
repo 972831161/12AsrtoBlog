@@ -73,7 +73,7 @@ export const siteConfig: SiteConfig = {
 
 	bilibili: {
 		vmid: "13477682", // 在此处设置你的Bilibili用户ID (uid)，例如 "1129280784"
-		fetchOnDev: false, // 是否在开发环境下获取 Bilibili 数据（默认 false）
+		fetchOnDev: true, // 是否在开发环境下获取 Bilibili 数据（默认 false）
 		coverMirror: "", // 封面图片镜像源（可选，如果需要使用镜像源，例如 "https://images.weserv.nl/?url="）
 		useWebp: true, // 是否使用WebP格式（默认 true）
 
@@ -84,8 +84,16 @@ export const siteConfig: SiteConfig = {
 		// 安全提示：如 SESSDATA 已泄露，请打开 B站手机端 —— 我的 —— 设置 —— 安全隐私 —— 登陆设备管理 —— 一键退登，销毁已泄露的账号凭证
 	},
 
+	douban: {
+		uid: "Bettercall12", // 豆瓣用户 ID（主页 URL 中的 ID）
+		fetchOnDev: true, // 是否在开发环境下获取数据
+		useWebp: true, // 是否使用WebP格式（默认 true）
+		coverMirror: "", // 封面图片镜像源（可选，如果需要使用镜像源，例如 "https://images.weserv.nl/?url="）
+		enableImageRepair: true, // 启用封面自动搜索修复
+	},
+
 	anime: {
-		mode: "bilibili", // 番剧页面模式："bangumi" 使用Bangumi API，"local" 使用本地配置，"bilibili" 使用Bilibili API
+		mode: "douban", // 番剧页面模式："bangumi" 使用Bangumi API，"local" 使用本地配置，"bilibili" 使用Bilibili API，"douban" 使用豆瓣RSS
 	},
 
 	// 文章列表布局配置

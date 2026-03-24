@@ -92,9 +92,7 @@ const brands = Object.keys(devices);
                   <span class="font-medium">{device.specs}</span>
                 </div>
 
-                <p class="text-sm text-60 leading-relaxed line-clamp-2">
-                  {device.description}
-                </p>
+                <p class="text-sm text-60 leading-relaxed line-clamp-2" set:html={device.description} />
               </div>
 
               <!-- 查看详情按钮 -->

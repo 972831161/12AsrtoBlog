@@ -82,6 +82,10 @@ export const ja: Translation = {
 		"src/config.tsファイルでBilibili vmidを設定してください",
 	[Key.animeConfigBangumi]:
 		"src/config.tsファイルでBangumi userIdを設定してください",
+	[Key.animeEmptyDouban]:
+		"豆瓣RSSの設定またはネットワーク接続を確認してください",
+	[Key.animeConfigDouban]:
+		"src/config.tsファイルで豆瓣 uidを設定してください",
 
 	// 日記ページ
 	[Key.diarySubtitle]: "いつでも、どこでも生活を共有",

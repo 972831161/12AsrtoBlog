@@ -92,7 +92,7 @@ export const projectsData: Project[] = [
 		id: "darwin-blog",
 		title: "Darwin的博客",
 		description:
-			"正如你当前所在.",
+			"正如你当前所在",
 		image: "",
 		category: "ai",
 		techStack: ["Astro", "TypeScript", "Tailwind CSS", "Git"],
@@ -107,10 +107,10 @@ export const projectsData: Project[] = [
 		id: "photography-set1",
 		title: "我的所见",
 		description:
-			"镜头记录不了全部的震撼，但快门可以留下属于自己的那一刻回忆。",
+			"镜头记录回忆",
 		image: "",
 		category: "photography",
-		techStack: ["摄影", "修图"],
+		techStack: ["Fuji", "Photoshop", "Lightroom"],
 		status: "in-progress",
 		liveDemo: "/albums/",
 		visitUrl: "/albums/", // 跳转到站内相册界面
@@ -118,18 +118,18 @@ export const projectsData: Project[] = [
 		endDate: "至今",
 		tags: ["摄影", "所见", "所闻"],
 	},
-	{
-		id: "e-commerce-platform",
-		title: "E-commerce Platform",
-		description:
-			"Full-stack e-commerce platform including user management, product management, and order processing features.",
-		image: "",
-		category: "other",
-		techStack: ["Next.js", "Node.js", "PostgreSQL", "Stripe"],
-		status: "planned",
-		startDate: "2024-07-01",
-		tags: ["E-commerce", "Full Stack", "Payment Integration"],
-	},
+	// {
+	// 	id: "e-commerce-platform",
+	// 	title: "E-commerce Platform",
+	// 	description:
+	// 		"Full-stack e-commerce platform including user management, product management, and order processing features.",
+	// 	image: "",
+	// 	category: "other",
+	// 	techStack: ["Next.js", "Node.js", "PostgreSQL", "Stripe"],
+	// 	status: "planned",
+	// 	startDate: "2024-07-01",
+	// 	tags: ["E-commerce", "Full Stack", "Payment Integration"],
+	// },
 ];
 
 // Get project statistics

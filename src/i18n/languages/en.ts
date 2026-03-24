@@ -82,6 +82,10 @@ export const en: Translation = {
 		"Please set your Bilibili vmid in the src/config.ts file",
 	[Key.animeConfigBangumi]:
 		"Please set your Bangumi userId in the src/config.ts file",
+	[Key.animeEmptyDouban]:
+		"Please check Douban RSS configuration or network connection",
+	[Key.animeConfigDouban]:
+		"Please set your Douban uid in the src/config.ts file",
 
 	// Diary Page
 	[Key.diarySubtitle]: "Share life, anytime, anywhere",

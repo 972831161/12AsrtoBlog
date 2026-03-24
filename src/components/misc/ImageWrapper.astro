@@ -49,10 +49,13 @@ if (isLocal) {
 const imageClass = "w-full h-full object-cover";
 const imageStyle = `object-position: ${position}`;
 
-// 检查是否是 Bilibili 图片
+// 检查是否是需要 no-referrer 的外部图片（如 Bilibili 或 豆瓣）
 const isBilibiliImage = !isLocal && src.includes("hdslb.com");
-// 对于外部图片（特别是Bilibili），需要设置referrerpolicy避免403错误
-const referrerPolicy = !isLocal && isBilibiliImage ? "no-referrer" : undefined;
+const isDoubanImage = !isLocal && src.includes("doubanio.com");
+const isSensitiveImage = isBilibiliImage || isDoubanImage;
+
+// 对于外部图片，设置 referrerpolicy 避免 403 错误
+const referrerPolicy = isSensitiveImage ? "no-referrer" : undefined;
 ---
 <div id={id} class:list={[className, 'overflow-hidden relative']}>
     <div class="transition absolute inset-0 dark:bg-black/10 bg-opacity-50 pointer-events-none"></div>

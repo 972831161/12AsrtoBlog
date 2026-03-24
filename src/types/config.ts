@@ -119,9 +119,18 @@ export type SiteConfig = {
 		useWebp?: boolean; // 是否使用WebP格式（默认 true）
 	};
 
+	// 添加豆瓣配置
+	douban?: {
+		uid?: string; // 豆瓣用户 ID
+		fetchOnDev?: boolean;
+		useWebp?: boolean; // 是否使用WebP格式（默认 true）
+		coverMirror?: string; // 封面图片镜像源（可选，如果需要使用镜像源，例如 "https://images.weserv.nl/?url="）
+		enableImageRepair?: boolean; // 是否启用封面自动搜索修复（默认 false）
+	};
+
 	// 添加番剧页面配置
 	anime?: {
-		mode?: "bangumi" | "local" | "bilibili"; // 番剧页面模式
+		mode?: "bangumi" | "local" | "bilibili" | "douban"; // 番剧页面模式
 	};
 
 	// 标签样式配置

@@ -52,12 +52,14 @@ export const timelineData: TimelineItem[] = [
 		type: "education",
 		startDate: "2020-09-01",
 		endDate:"2024-6-23",
-		location: "珠海",
+		location: "南京",
 		organization: "河海大学",
 		skills: ["Java", "Python", "JavaScript", "HTML/CSS", "MySQL"],
 		achievements: [
-			"发表SCI一区TOP论文一份",
-			"发表国家发明专利一项",
+			"尝试了许多传媒相关工作",
+			"交到人生好友",
+			"疫情3年让我有充足时间、空间思考我的人生价值与目标所在",
+			"2022开始听播客，我在一方空间聆听世界"
 
 		],
 		icon: "material-symbols:school",

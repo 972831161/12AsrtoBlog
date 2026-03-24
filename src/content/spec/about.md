@@ -1,49 +1,26 @@
+### 很开心能被你看见:-)
 
-This website is built with the **Astro** framework using the [Mizuki](https://github.com/matsuzaka-yuki/mizuki) theme.
 
-::github{repo="matsuzaka-yuki/Mizuki"}
-
-## 🌟 Theme Features
-
-### 🎨 Design & User Experience
-- **Modern & Elegant Design** - Clean, minimalist interface with beautiful typography
+## 🌟 为瞬间而活着
+- **2024.2.26** - 利物浦联赛杯夺冠，我成为一名kop
 - **Fully Responsive** - Optimized for all devices from mobile to desktop
 - **Dark/Light Mode** - Automatic theme switching with smooth transitions
 - **Beautiful Typography** - Enhanced readability with JetBrains Mono font
 - **Smooth Animations** - Fluid page transitions and interactive elements
 
-### 🔍 Content & Search
-- **Advanced Search** - Powered by [Pagefind](https://pagefind.app/) for fast, accurate results
-- **Enhanced Markdown** - Extended syntax with code highlighting and math support
-- **Interactive Table of Contents** - Auto-scroll navigation for long articles
-- **RSS Feed Generation** - Stay updated with automatic feed generation
-- **Reading Time Estimation** - Know how long articles take to read
-- **Post Categorization** - Organize content with tags and categories
+## 💡 始终的自信
+- **不被打垮** - 很难知道动力源自何处，但我回想起来，自己从没有放弃过想实现的目标。
+- **INFP** - 作为典型的INFP，我是个很好的聆听者、旁观者。认为自己有掌握全局的能力。
+- **心流驱动** - 当我进入心流，那我明白这件任务已经在它的正轨上，只待到达终点。
+- **宇宙会给我答案** - 高中毕业之后，因为焦虑带来的恐慌不复存在了，更多的是兴奋与动力，每当我踌躇不前，我会让子弹飞一会儿，宇宙会给我答案。
 
-
-
-### 📱 Special Pages
-- **Anime Tracking Page** - Track your anime watching progress with ratings
-- **Friends Links Page** - Showcase friend websites with beautiful cards
-- **Diary/Moments Page** - Share life moments like social media posts
-- **Archive Page** - Organized timeline view of all posts
-- **About Page** - Customizable personal introduction (this page!)
-
-### 🛠 Technical Features
-- **Enhanced Code Blocks** - Powered by [Expressive Code](https://expressive-code.com/)
-- **Math Support** - LaTeX rendering with KaTeX for mathematical expressions
-- **Image Optimization** - PhotoSwipe gallery with lazy loading
-- **SEO Optimized** - Built-in sitemap and meta tags for better search visibility
-- **Performance Optimized** - Fast loading with caching and optimization
-- **Comment System Ready** - Integration support for Twikoo comments
-
-### 🎯 Advanced Markdown Features
-- **Callouts & Admonitions** - Beautiful info boxes with `> [!NOTE]`, `> [!TIP]`, `> [!WARNING]`
-- **Mathematical Equations** - Write LaTeX math with `$inline$` and `$$block$$` syntax
-- **GitHub Cards** - Embed repository cards with `::github{repo="user/repo"}`
-- **Syntax Highlighting** - Advanced code highlighting with line numbers
-- **Copy Code Buttons** - Easy code copying functionality
+## 📷 路旁的叶修
+- **2015西日暮里天台** - 你好呀叶修，初次见面。要说一个人在他12岁时遇到了他所认为的世界真理，那他将是极其幸运的。我想我也是。
+- **2020.7.4羊山公园** - 高考结束，我正准备走向世界，你决定去另一个世界航海，我将替你继续在这里战斗。
+- **童年** - 最伟大的作品。钥匙打不开的家门，关闭的小卖部，不变的假山，等你回家的小狗，无数元素组成每个人平淡、深刻、不可复制的童年。
+- **陶喆就是最好的** - 我的童年BGM一首是有没有人告诉你，另一首是Melody。当时确实对他不感冒，但是后来初恋的英文名，再到kirby的《普通朋友》，我成为陶喆最虔诚的信徒，陶喆就是最好的。
+- **三岛就是最好的** - 如果将最美的事物摧毁是你的信念，那我理解你做的决定。
 
 ---
 
-*Built with ❤️ using Astro and inspired by modern web design principles.*
+*希望你天天开心❤️好好吃饭，好好睡觉.*

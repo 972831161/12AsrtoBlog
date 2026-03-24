@@ -119,17 +119,40 @@
   border-color: var(--primary);
 }
 
+.anime-filter-tag.anime-filter-top {
+  border-color: #f59e0b;
+  color: #d97706;
+  background: linear-gradient(135deg, #fffbeb 0%, #fef3c7 100%);
+}
+.dark .anime-filter-tag.anime-filter-top {
+  border-color: #d97706;
+  color: #fbbf24;
+  background: linear-gradient(135deg, #451a03 0%, #78350f 100%);
+}
+.anime-filter-tag.anime-filter-top:hover {
+  background: linear-gradient(135deg, #fef3c7 0%, #fde68a 100%);
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(245, 158, 11, 0.2);
+}
+.anime-filter-tag.anime-filter-top.anime-active {
+  background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%);
+  color: white;
+  border-color: #b45309;
+}
+
+/* === Pagination === */
+#anime-pagination button:disabled {
+  opacity: 0.3;
+  cursor: not-allowed;
+  filter: grayscale(1);
+}
+
 .anime-grid-container [data-anime-status].anime-hidden {
   display: none !important;
 }
 
 .anime-grid-container [data-anime-status] {
-  transition:
-    opacity 0.5s cubic-bezier(0.4, 0, 0.2, 1),
-    transform 0.5s cubic-bezier(0.4, 0, 0.2, 1),
-    box-shadow 0.15s ease-out;
-  content-visibility: auto;
-  contain-intrinsic-size: 1px 350px;
+  transition: opacity 0.4s ease, transform 0.4s ease;
 }
 
 .anime-grid-container [data-anime-status].anime-fade-out {

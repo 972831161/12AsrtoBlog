@@ -84,6 +84,9 @@ export const zh_TW: Translation = {
 		"請在 src/config.ts 檔案中設定您的 Bilibili vmid",
 	[Key.animeConfigBangumi]:
 		"請在 src/config.ts 檔案中設定您的 Bangumi userId",
+	[Key.animeEmptyDouban]: "請檢查豆瓣 RSS 設定或網路連線",
+	[Key.animeConfigDouban]:
+		"請在 src/config.ts 檔案中設定您的豆瓣 uid",
 
 	// 短文頁面
 	[Key.diarySubtitle]: "隨時隨地，分享生活",
