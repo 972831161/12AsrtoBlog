@@ -1,0 +1,1114 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>宇宙 Planet Between | 电助力自行车竞品分析报告</title>
+  <meta name="description" content="宇宙Planet Between电助力自行车竞品分析，覆盖Giant、Specialized、Trek、Merida、Riese & Müller、Super73六大品牌，聚焦中国市场产品经理视角。">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Space+Grotesk:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --bg: #0a0a0f;
+      --bg-card: #111118;
+      --bg-card2: #16161f;
+      --border: rgba(255,255,255,0.07);
+      --border-accent: rgba(99,179,237,0.3);
+      --primary: #63b3ed;
+      --primary-glow: rgba(99,179,237,0.15);
+      --accent: #7c3aed;
+      --accent2: #10b981;
+      --text: #e2e8f0;
+      --text-muted: #718096;
+      --text-dim: #4a5568;
+      --danger: #fc8181;
+      --warning: #f6ad55;
+      --success: #68d391;
+    }
+    * { margin:0; padding:0; box-sizing:border-box; }
+    html { scroll-behavior:smooth; }
+    body {
+      font-family:'Inter',sans-serif;
+      background:var(--bg);
+      color:var(--text);
+      line-height:1.6;
+      overflow-x:hidden;
+    }
+
+    /* NAV */
+    nav {
+      position:fixed; top:0; left:0; right:0; z-index:100;
+      background:rgba(10,10,15,0.85);
+      backdrop-filter:blur(20px);
+      border-bottom:1px solid var(--border);
+      padding:0 40px;
+      height:60px;
+      display:flex;
+      align-items:center;
+      justify-content:space-between;
+    }
+    .nav-brand {
+      font-family:'Space Grotesk',sans-serif;
+      font-size:14px;
+      font-weight:600;
+      letter-spacing:0.1em;
+      color:var(--primary);
+    }
+    .nav-links { display:flex; gap:28px; list-style:none; }
+    .nav-links a {
+      color:var(--text-muted); font-size:13px; text-decoration:none;
+      transition:color .2s;
+    }
+    .nav-links a:hover { color:var(--text); }
+    .nav-tag {
+      background:rgba(124,58,237,0.2);
+      border:1px solid rgba(124,58,237,0.4);
+      color:#a78bfa;
+      font-size:11px;
+      padding:3px 10px;
+      border-radius:20px;
+      letter-spacing:0.05em;
+    }
+
+    /* HERO */
+    .hero {
+      min-height:100vh;
+      display:flex;
+      align-items:center;
+      padding:80px 40px 60px;
+      max-width:1200px;
+      margin:0 auto;
+      position:relative;
+    }
+    .hero::before {
+      content:'';
+      position:fixed; top:0; left:0; right:0; bottom:0;
+      background:radial-gradient(ellipse 80% 60% at 50% -20%,rgba(99,179,237,0.07),transparent);
+      pointer-events:none;
+      z-index:0;
+    }
+    .hero-content { position:relative; z-index:1; max-width:760px; }
+    .hero-label {
+      font-size:11px;
+      letter-spacing:.18em;
+      text-transform:uppercase;
+      color:var(--primary);
+      margin-bottom:20px;
+      display:flex;
+      align-items:center;
+      gap:10px;
+    }
+    .hero-label::after {
+      content:'';
+      display:block;
+      width:40px;
+      height:1px;
+      background:var(--primary);
+      opacity:.5;
+    }
+    .hero h1 {
+      font-family:'Space Grotesk',sans-serif;
+      font-size:clamp(36px,5vw,64px);
+      font-weight:700;
+      line-height:1.1;
+      margin-bottom:24px;
+      letter-spacing:-.02em;
+    }
+    .hero h1 span { color:var(--primary); }
+    .hero-sub {
+      font-size:17px;
+      color:var(--text-muted);
+      max-width:560px;
+      margin-bottom:40px;
+      line-height:1.7;
+    }
+    .hero-meta {
+      display:flex;
+      gap:30px;
+      flex-wrap:wrap;
+    }
+    .meta-item { display:flex; flex-direction:column; gap:4px; }
+    .meta-label { font-size:11px; color:var(--text-dim); letter-spacing:.1em; text-transform:uppercase; }
+    .meta-value { font-size:15px; font-weight:600; font-family:'Space Grotesk',sans-serif; }
+    .hero-right {
+      position:absolute;
+      right:0; top:50%;
+      transform:translateY(-50%);
+      width:420px;
+      z-index:1;
+      display:flex;
+      align-items:center;
+      justify-content:center;
+    }
+    .hero-img-wrap {
+      width:380px; height:260px;
+      border-radius:16px;
+      overflow:hidden;
+      border:1px solid var(--border);
+      position:relative;
+    }
+    .hero-img-wrap img {
+      width:100%; height:100%;
+      object-fit:cover;
+      filter:brightness(.9);
+    }
+    .img-overlay {
+      position:absolute; inset:0;
+      background:linear-gradient(135deg,rgba(99,179,237,.12),transparent);
+    }
+
+    /* SECTIONS */
+    .section {
+      max-width:1200px;
+      margin:0 auto;
+      padding:80px 40px;
+    }
+    .section-label {
+      font-size:11px;
+      letter-spacing:.15em;
+      text-transform:uppercase;
+      color:var(--primary);
+      margin-bottom:12px;
+    }
+    .section-title {
+      font-family:'Space Grotesk',sans-serif;
+      font-size:clamp(24px,3vw,36px);
+      font-weight:700;
+      margin-bottom:48px;
+      color:var(--text);
+      letter-spacing:-.02em;
+    }
+    .divider {
+      border:none;
+      border-top:1px solid var(--border);
+      margin:0;
+    }
+
+    /* MARKET OVERVIEW */
+    .stat-grid { display:grid; grid-template-columns:repeat(4,1fr); gap:16px; margin-bottom:48px; }
+    .stat-card {
+      background:var(--bg-card);
+      border:1px solid var(--border);
+      border-radius:12px;
+      padding:24px;
+      position:relative;
+      overflow:hidden;
+    }
+    .stat-card::before {
+      content:'';
+      position:absolute;
+      top:0; left:0; right:0;
+      height:2px;
+      background:linear-gradient(90deg,var(--primary),transparent);
+    }
+    .stat-num {
+      font-family:'Space Grotesk',sans-serif;
+      font-size:32px;
+      font-weight:700;
+      color:var(--primary);
+      white-space:nowrap;
+    }
+    .stat-unit { font-size:14px; color:var(--text-muted); margin-top:4px; }
+    .stat-desc { font-size:12px; color:var(--text-dim); margin-top:8px; }
+
+    /* PLANET BETWEEN INTRO */
+    .pb-intro {
+      display:grid;
+      grid-template-columns:1fr 1fr;
+      gap:32px;
+      margin-bottom:48px;
+    }
+    .pb-card {
+      background:var(--bg-card);
+      border:1px solid var(--border-accent);
+      border-radius:16px;
+      padding:32px;
+    }
+    .pb-card h3 {
+      font-family:'Space Grotesk',sans-serif;
+      font-size:18px;
+      font-weight:600;
+      margin-bottom:16px;
+      color:var(--text);
+    }
+    .product-list { display:flex; flex-direction:column; gap:12px; }
+    .product-item {
+      display:flex;
+      justify-content:space-between;
+      align-items:center;
+      padding:12px 16px;
+      background:rgba(99,179,237,.05);
+      border-radius:8px;
+      border:1px solid rgba(99,179,237,.1);
+    }
+    .product-name { font-weight:600; font-size:14px; }
+    .product-price { color:var(--primary); font-family:'Space Grotesk',sans-serif; font-size:14px; font-weight:600; }
+    .product-type { font-size:12px; color:var(--text-muted); }
+    .tag {
+      display:inline-block;
+      padding:2px 8px;
+      border-radius:4px;
+      font-size:11px;
+      background:rgba(99,179,237,.15);
+      color:var(--primary);
+      margin-top:4px;
+    }
+
+    /* COMPETITOR CARDS */
+    .competitor-grid { display:grid; grid-template-columns:repeat(3,1fr); gap:20px; }
+    .comp-card {
+      background:var(--bg-card);
+      border:1px solid var(--border);
+      border-radius:16px;
+      overflow:hidden;
+      transition:border-color .2s, transform .2s;
+      cursor:default;
+    }
+    .comp-card:hover {
+      border-color:rgba(99,179,237,.3);
+      transform:translateY(-2px);
+    }
+    .comp-img {
+      width:100%; height:180px;
+      object-fit:contain;
+      padding:24px;
+      display:block;
+      background:var(--bg-card2);
+    }
+    .comp-body { padding:20px; }
+    .comp-header { display:flex; justify-content:space-between; align-items:center; margin-bottom:10px; }
+    .comp-name {
+      font-family:'Space Grotesk',sans-serif;
+      font-size:17px;
+      font-weight:700;
+    }
+    .comp-country {
+      font-size:11px;
+      color:var(--text-dim);
+      background:var(--bg-card2);
+      padding:3px 8px;
+      border-radius:4px;
+    }
+    .comp-tagline { font-size:13px; color:var(--primary); margin-bottom:10px; font-style:italic; }
+    .comp-desc { font-size:13px; color:var(--text-muted); line-height:1.6; margin-bottom:14px; }
+    .comp-specs { display:flex; flex-wrap:wrap; gap:6px; margin-bottom:14px; }
+    .spec-tag {
+      font-size:11px;
+      padding:3px 8px;
+      border-radius:4px;
+      border:1px solid var(--border);
+      color:var(--text-muted);
+    }
+    .comp-price-row { display:flex; justify-content:space-between; align-items:center; }
+    .comp-price-label { font-size:12px; color:var(--text-dim); }
+    .comp-price-val { font-family:'Space Grotesk',sans-serif; font-size:15px; font-weight:600; color:var(--warning); }
+
+    /* COMPARISON TABLE */
+    .table-wrap { overflow-x:auto; }
+    table {
+      width:100%;
+      border-collapse:collapse;
+      font-size:13px;
+    }
+    th {
+      background:var(--bg-card2);
+      color:var(--text-muted);
+      font-size:11px;
+      letter-spacing:.08em;
+      text-transform:uppercase;
+      padding:14px 16px;
+      text-align:left;
+      border-bottom:1px solid var(--border);
+    }
+    th:first-child { border-radius:8px 0 0 0; }
+    th:last-child { border-radius:0 8px 0 0; }
+    td { padding:14px 16px; border-bottom:1px solid var(--border); color:var(--text); vertical-align:middle; }
+    tr:hover td { background:rgba(255,255,255,.02); }
+    .highlight-row td { color:var(--primary); font-weight:600; }
+    .highlight-row td:first-child { position:relative; }
+    .highlight-row td:first-child::before {
+      content:'★';
+      margin-right:6px;
+      color:var(--primary);
+      font-size:10px;
+    }
+    .bar-wrap { background:rgba(255,255,255,0.05); border-radius:3px; height:6px; min-width:80px; }
+    .bar { height:6px; border-radius:3px; background:linear-gradient(90deg,var(--primary),var(--accent)); }
+    .score { font-family:'Space Grotesk',sans-serif; font-weight:600; }
+    .score-high { color:var(--success); }
+    .score-mid { color:var(--warning); }
+    .score-low { color:var(--danger); }
+
+    /* SWOT */
+    .swot-grid { display:grid; grid-template-columns:1fr 1fr; gap:16px; }
+    .swot-card {
+      background:var(--bg-card);
+      border:1px solid var(--border);
+      border-radius:12px;
+      padding:24px;
+    }
+    .swot-card h4 {
+      font-family:'Space Grotesk',sans-serif;
+      font-size:15px;
+      font-weight:600;
+      margin-bottom:14px;
+      display:flex;
+      align-items:center;
+      gap:8px;
+    }
+    .swot-s h4 { color:var(--success); }
+    .swot-w h4 { color:var(--danger); }
+    .swot-o h4 { color:var(--primary); }
+    .swot-t h4 { color:var(--warning); }
+    .swot-list { list-style:none; display:flex; flex-direction:column; gap:8px; }
+    .swot-list li {
+      font-size:13px;
+      color:var(--text-muted);
+      padding-left:16px;
+      position:relative;
+    }
+    .swot-list li::before { content:'—'; position:absolute; left:0; color:var(--text-dim); }
+
+    /* PM RECO */
+    .reco-grid { display:grid; grid-template-columns:repeat(3,1fr); gap:20px; }
+    .reco-card {
+      background:var(--bg-card);
+      border:1px solid var(--border);
+      border-radius:12px;
+      padding:24px;
+    }
+    .reco-num {
+      font-family:'Space Grotesk',sans-serif;
+      font-size:32px;
+      font-weight:700;
+      color:rgba(99,179,237,.2);
+      margin-bottom:10px;
+    }
+    .reco-title {
+      font-size:15px;
+      font-weight:600;
+      margin-bottom:10px;
+      color:var(--text);
+    }
+    .reco-body { font-size:13px; color:var(--text-muted); line-height:1.7; }
+
+    /* POSITIONING MAP */
+    .map-wrap {
+      background:var(--bg-card);
+      border:1px solid var(--border);
+      border-radius:16px;
+      padding:40px;
+    }
+    .map-container {
+      position:relative;
+      width:100%;
+      aspect-ratio:1.6;
+      max-width:700px;
+      margin:0 auto;
+      border-left:1px solid rgba(255,255,255,0.1);
+      border-bottom:1px solid rgba(255,255,255,0.1);
+    }
+    .axis-label-x {
+      position:absolute;
+      bottom:-28px; right:0;
+      font-size:12px;
+      color:var(--text-dim);
+    }
+    .axis-label-y {
+      position:absolute;
+      top:0; left:-90px;
+      font-size:12px;
+      color:var(--text-dim);
+      writing-mode:vertical-lr;
+      transform:rotate(180deg);
+    }
+    .axis-label-x0 {
+      position:absolute;
+      bottom:-28px; left:0;
+      font-size:12px;
+      color:var(--text-dim);
+    }
+    .axis-label-y0 {
+      position:absolute;
+      bottom:-4px; left:-80px;
+      font-size:12px;
+      color:var(--text-dim);
+      writing-mode:vertical-lr;
+      transform:rotate(180deg);
+    }
+    .map-dot {
+      position:absolute;
+      transform:translate(-50%,-50%);
+      display:flex;
+      flex-direction:column;
+      align-items:center;
+      cursor:default;
+    }
+    .dot-circle {
+      width:12px; height:12px;
+      border-radius:50%;
+      background:var(--primary);
+      border:2px solid rgba(10,10,15,.8);
+      box-shadow:0 0 12px rgba(99,179,237,.4);
+      margin-bottom:4px;
+    }
+    .dot-hero .dot-circle {
+      width:18px; height:18px;
+      background:var(--accent);
+      box-shadow:0 0 18px rgba(124,58,237,.6);
+    }
+    .dot-label {
+      font-size:11px;
+      font-weight:600;
+      white-space:nowrap;
+      color:var(--text);
+      text-shadow:0 1px 4px rgba(0,0,0,.8);
+    }
+
+    /* FOOTER */
+    footer {
+      border-top:1px solid var(--border);
+      padding:40px;
+      text-align:center;
+      color:var(--text-dim);
+      font-size:13px;
+    }
+    footer a { color:var(--primary); text-decoration:none; }
+    footer a:hover { text-decoration:underline; }
+
+    /* UTIL */
+    .badge {
+      display:inline-block;
+      padding:4px 10px;
+      border-radius:20px;
+      font-size:11px;
+      font-weight:600;
+      letter-spacing:.04em;
+    }
+    .badge-blue { background:rgba(99,179,237,.15); color:var(--primary); border:1px solid rgba(99,179,237,.25); }
+    .badge-purple { background:rgba(124,58,237,.15); color:#a78bfa; border:1px solid rgba(124,58,237,.25); }
+    .badge-green { background:rgba(16,185,129,.15); color:var(--success); border:1px solid rgba(16,185,129,.25); }
+    .badge-red { background:rgba(252,129,129,.12); color:var(--danger); border:1px solid rgba(252,129,129,.25); }
+
+    .flex { display:flex; }
+    .gap-8 { gap:8px; }
+    .flex-wrap { flex-wrap:wrap; }
+    .mt-24 { margin-top:24px; }
+    .mt-40 { margin-top:40px; }
+
+    /* GRID LINES BG */
+    .grid-bg {
+      background-image:
+        linear-gradient(rgba(255,255,255,.02) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(255,255,255,.02) 1px, transparent 1px);
+      background-size:40px 40px;
+    }
+
+    @media (max-width:900px) {
+      .stat-grid { grid-template-columns:repeat(2,1fr); }
+      .competitor-grid { grid-template-columns:1fr; }
+      .pb-intro { grid-template-columns:1fr; }
+      .reco-grid { grid-template-columns:1fr; }
+      .swot-grid { grid-template-columns:1fr; }
+      .hero { flex-direction:column; }
+      .hero-right { position:relative; transform:none; width:100%; margin-top:40px; }
+      .hero-img-wrap { width:100%; }
+      nav { padding:0 20px; }
+      .nav-links { display:none; }
+    }
+  </style>
+</head>
+<body class="grid-bg">
+
+<!-- NAV -->
+<nav>
+  <div class="nav-brand">PLANET BETWEEN 竞品分析</div>
+  <ul class="nav-links">
+    <li><a href="#market">市场</a></li>
+    <li><a href="#brands">竞品</a></li>
+    <li><a href="#compare">对比</a></li>
+    <li><a href="#swot">SWOT</a></li>
+    <li><a href="#strategy">策略建议</a></li>
+  </ul>
+  <span class="nav-tag">PM 视角 · 2025</span>
+</nav>
+
+<!-- HERO -->
+<section class="hero">
+  <div class="hero-content">
+    <div class="hero-label">竞品分析报告</div>
+    <h1>宇宙 <span>Planet Between</span><br>电助力自行车<br>中国市场战局</h1>
+    <p class="hero-sub">聚焦高端运动电助力自行车赛道，从产品参数、价格带、用户定位三个维度深度拆解六大国际竞品，探索宇宙的差异化突破路径。</p>
+    <div class="hero-meta">
+      <div class="meta-item">
+        <span class="meta-label">报告日期</span>
+        <span class="meta-value">2025.03</span>
+      </div>
+      <div class="meta-item">
+        <span class="meta-label">覆盖竞品</span>
+        <span class="meta-value">6 个品牌</span>
+      </div>
+      <div class="meta-item">
+        <span class="meta-label">市场规模</span>
+        <span class="meta-value">$178 亿</span>
+      </div>
+      <div class="meta-item">
+        <span class="meta-label">分析视角</span>
+        <span class="meta-value">产品经理</span>
+      </div>
+    </div>
+  </div>
+  <div class="hero-right">
+    <div class="hero-img-wrap">
+      <!-- VAPOR 官网图（如无法加载请补充本地图片） -->
+      <img
+        src="images/vapor.webp"
+        onerror="this.style.background='linear-gradient(135deg,#1a1a2e,#16213e)';this.style.display='flex';this.alt='宇宙 VAPOR — 旗舰电助力公路车 · 12kg · ¥29,999'"
+        alt="宇宙 VAPOR 旗舰电助力公路车"
+      />
+      <div class="img-overlay"></div>
+    </div>
+  </div>
+</section>
+
+<hr class="divider">
+
+<!-- MARKET OVERVIEW -->
+<section class="section" id="market">
+  <div class="section-label">01 · 市场背景</div>
+  <div class="section-title">中国电助力自行车市场概览</div>
+
+  <div class="stat-grid">
+    <div class="stat-card">
+      <div class="stat-num">$178亿</div>
+      <div class="stat-unit">2024年中国市场规模</div>
+      <div class="stat-desc">全球最大单一电助力自行车市场</div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-num">12.4%</div>
+      <div class="stat-unit">预期年复合增长率 CAGR</div>
+      <div class="stat-desc">2025—2033年高端赛道增速</div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-num">19.1%</div>
+      <div class="stat-unit">中高端车型占比</div>
+      <div class="stat-desc">¥10,000+ 价格带正在快速扩张</div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-num">78.8%</div>
+      <div class="stat-unit">个人/家庭骑行用途</div>
+      <div class="stat-desc">运动休闲需求推动高端消费升级</div>
+    </div>
+  </div>
+
+  <div class="pb-intro">
+    <div class="pb-card">
+      <h3>🚀 宇宙 Planet Between · 品牌定位</h3>
+      <p style="font-size:14px;color:var(--text-muted);line-height:1.7;margin-bottom:16px;">
+        成立于 2021 年，总部杭州。国内高端电助力自行车先锋品牌，以「性能超越国际品牌，价格仅为四分之一」为核心卖点，通过骑行文化社区（骑行宇宙）建立用户心智。
+      </p>
+      <div class="flex gap-8 flex-wrap">
+        <span class="badge badge-blue">2021 年创立</span>
+        <span class="badge badge-purple">杭州品牌</span>
+        <span class="badge badge-green">运动 / 文化 定位</span>
+        <span class="badge badge-blue">线下体验 + 线上电商</span>
+      </div>
+    </div>
+    <div class="pb-card">
+      <h3>📦 核心产品线</h3>
+      <div class="product-list">
+        <div class="product-item">
+          <div>
+            <div class="product-name">VAPOR SL</div>
+            <div class="product-type">碳纤维电助力公路车 · 旗舰</div>
+            <span class="tag">12kg · 90min 快充</span>
+          </div>
+          <div class="product-price">¥29,999</div>
+        </div>
+        <div class="product-item">
+          <div>
+            <div class="product-name">VAPOR</div>
+            <div class="product-type">电助力公路车 · 主力款</div>
+            <span class="tag">电子变速 · 集成把组</span>
+          </div>
+          <div class="product-price">¥17,900</div>
+        </div>
+        <div class="product-item">
+          <div>
+            <div class="product-name">NOMAD</div>
+            <div class="product-type">电助力砾石车</div>
+            <span class="tag">碳纤维轮组可选</span>
+          </div>
+          <div class="product-price">¥17,900</div>
+        </div>
+        <div class="product-item">
+          <div>
+            <div class="product-name">Model R</div>
+            <div class="product-type">铝合金电助力山地车</div>
+            <span class="tag">29" · 油气前叉</span>
+          </div>
+          <div class="product-price">¥13,800</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<hr class="divider">
+
+<!-- COMPETITOR CARDS -->
+<section class="section" id="brands">
+  <div class="section-label">02 · 竞品画像</div>
+  <div class="section-title">六大竞品深度拆解</div>
+
+  <div class="competitor-grid">
+
+    <!-- Giant -->
+    <div class="comp-card">
+      <img class="comp-img"
+        src="images/giant.webp"
+        alt="Giant Road E+ 电助力公路车">
+      <div class="comp-body">
+        <div class="comp-header">
+          <span class="comp-name">Giant 捷安特</span>
+          <span class="comp-country">🇹🇼 台湾</span>
+        </div>
+        <div class="comp-tagline">"全球最大自行车制造商"</div>
+        <p class="comp-desc">
+          全球最大单一品牌自行车制造商，中国市场渠道最完善（500+ 门店）。电助力产品线覆盖山地、公路、城市，供应链掌控力极强，制造成本优势明显。
+        </p>
+        <div class="comp-specs">
+          <span class="spec-tag">RideControl 一体把组</span>
+          <span class="spec-tag">SyncDrive 中置电机</span>
+          <span class="spec-tag">500+ 门店</span>
+          <span class="spec-tag">全品类覆盖</span>
+        </div>
+        <div class="comp-price-row">
+          <span class="comp-price-label">电助力公路 E+ 系列</span>
+          <span class="comp-price-val">¥14,000 ~ ¥28,000</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- Specialized -->
+    <div class="comp-card">
+      <img class="comp-img"
+        src="images/specialized.webp"
+        alt="Specialized Turbo Vado SL">
+      <div class="comp-body">
+        <div class="comp-header">
+          <span class="comp-name">Specialized</span>
+          <span class="comp-country">🇺🇸 美国</span>
+        </div>
+        <div class="comp-tagline">"Born in the USA. Ridden Everywhere."</div>
+        <p class="comp-desc">
+          高端公路 / 山地自行车标杆品牌，Turbo 电助力系列是行业技术基准。轻量化中置电机（320Wh 内置电池，仅 320g）代表顶级工艺，全球核心骑行社区认可度最高。
+        </p>
+        <div class="comp-specs">
+          <span class="spec-tag">Turbo SL 1.1 轻量电机</span>
+          <span class="spec-tag">320g 电机</span>
+          <span class="spec-tag">Mission Control APP</span>
+          <span class="spec-tag">专业骑行赛事赞助</span>
+        </div>
+        <div class="comp-price-row">
+          <span class="comp-price-label">Turbo Vado SL 系列</span>
+          <span class="comp-price-val">¥32,000 ~ ¥60,000</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- Trek -->
+    <div class="comp-card">
+      <img class="comp-img"
+        src="images/trek.webp"
+        alt="Trek Domane+ AL e-Road">
+      <div class="comp-body">
+        <div class="comp-header">
+          <span class="comp-name">Trek</span>
+          <span class="comp-country">🇺🇸 美国</span>
+        </div>
+        <div class="comp-tagline">"We build bikes for everyone."</div>
+        <p class="comp-desc">
+          与 Specialized 齐名的美国顶级品牌，Domane+ 系列电助力公路车内置 360Wh 电池于上管，外观近乎普通公路车。中国渠道通过授权经销商覆盖，品牌溢价能力强。
+        </p>
+        <div class="comp-specs">
+          <span class="spec-tag">IsoSpeed 减震技术</span>
+          <span class="spec-tag">360Wh 内置电池</span>
+          <span class="spec-tag">FAZUA / Bosch 电机双选</span>
+          <span class="spec-tag">竞技骑行品牌调性</span>
+        </div>
+        <div class="comp-price-row">
+          <span class="comp-price-label">Domane+ 系列</span>
+          <span class="comp-price-val">¥28,000 ~ ¥65,000</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- Merida -->
+    <div class="comp-card">
+      <img class="comp-img"
+        src="images/merida.webp"
+        alt="Merida eScultura 电助力公路车">
+      <div class="comp-body">
+        <div class="comp-header">
+          <span class="comp-name">Merida 美利达</span>
+          <span class="comp-country">🇹🇼 台湾</span>
+        </div>
+        <div class="comp-tagline">"Inspired to ride."</div>
+        <p class="comp-desc">
+          台湾品牌，大陆渠道布局完善，性价比定位介于入门与高端之间。eSCULTURA 系列电助力公路车覆盖 Shimano EP8 中置电机，是综合性能/价格比最接近宇宙的直接竞品。
+        </p>
+        <div class="comp-specs">
+          <span class="spec-tag">Shimano EP8 电机</span>
+          <span class="spec-tag">大陆广泛布点</span>
+          <span class="spec-tag">eScultura 碳纤维</span>
+          <span class="spec-tag">中高端性价比</span>
+        </div>
+        <div class="comp-price-row">
+          <span class="comp-price-label">eScultura / eONE-SIXTY</span>
+          <span class="comp-price-val">¥12,000 ~ ¥35,000</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- R&M -->
+    <div class="comp-card">
+      <img class="comp-img"
+        src="images/rm.webp"
+        alt="Riese and Müller Delite">
+      <div class="comp-body">
+        <div class="comp-header">
+          <span class="comp-name">Riese & Müller</span>
+          <span class="comp-country">🇩🇪 德国</span>
+        </div>
+        <div class="comp-tagline">"The Ultimate Electric Bicycle."</div>
+        <p class="comp-desc">
+          德国高端电助力专属品牌，主打双电池、全悬挂、长续航，是全球电助力自行车天花板产品的代名词。中国市场渠道稀少，但在欧洲骑行爱好者中拥有极高声誉，代表市场上限高度。
+        </p>
+        <div class="comp-specs">
+          <span class="spec-tag">双电池系统 1000Wh</span>
+          <span class="spec-tag">全悬挂平台</span>
+          <span class="spec-tag">Bosch Performance</span>
+          <span class="spec-tag">德国精工制造</span>
+        </div>
+        <div class="comp-price-row">
+          <span class="comp-price-label">Delite / Superdelite</span>
+          <span class="comp-price-val">¥38,000 ~ ¥80,000</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- Super73 -->
+    <div class="comp-card">
+      <img class="comp-img"
+        src="images/super73.webp"
+        alt="Super73 S2 Lifestyle Ebike">
+      <div class="comp-body">
+        <div class="comp-header">
+          <span class="comp-name">Super73</span>
+          <span class="comp-country">🇺🇸 美国</span>
+        </div>
+        <div class="comp-tagline">"Riding Reimagined."</div>
+        <p class="comp-desc">
+          生活方式品牌标杆，Moto 复古造型 + 社区文化打法与宇宙最相似。主要市场在美国，通过 KOL 种草 / 快闪活动建立品牌口碑，代入感强，对宇宙的 <strong style="color:var(--primary)">社区策略有极强参考价值</strong>。
+        </p>
+        <div class="comp-specs">
+          <span class="spec-tag">复古 Moto 造型</span>
+          <span class="spec-tag">社群 KOL 营销</span>
+          <span class="spec-tag">限定款驱动话题</span>
+          <span class="spec-tag">生活方式 IP</span>
+        </div>
+        <div class="comp-price-row">
+          <span class="comp-price-label">S2 / RX 系列</span>
+          <span class="comp-price-val">¥14,000 ~ ¥25,000</span>
+        </div>
+      </div>
+    </div>
+
+  </div>
+</section>
+
+<hr class="divider">
+
+<!-- COMPARISON TABLE -->
+<section class="section" id="compare">
+  <div class="section-label">03 · 横向对比</div>
+  <div class="section-title">六维竞争力矩阵</div>
+
+  <div class="table-wrap">
+    <table>
+      <thead>
+        <tr>
+          <th>品牌</th>
+          <th>旗舰电助力价格区间</th>
+          <th>中国市场渠道</th>
+          <th>整车重量</th>
+          <th>核心技术亮点</th>
+          <th>品牌调性</th>
+          <th>宇宙相对优势</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr class="highlight-row">
+          <td>宇宙 Planet Between</td>
+          <td>¥13,800 ~ ¥29,999</td>
+          <td>杭州线下 + 京东 / 淘宝</td>
+          <td><strong>12 kg</strong>（VAPOR）</td>
+          <td>轻量电机 · 90min 快充 · 集成把组</td>
+          <td>运动文化 · 社区 · 国产先锋</td>
+          <td>——</td>
+        </tr>
+        <tr>
+          <td>Giant 捷安特</td>
+          <td>¥14,000 ~ ¥28,000</td>
+          <td>全国 500+ 门店</td>
+          <td>14 ~ 18 kg</td>
+          <td>SyncDrive 中置 · 全品类矩阵</td>
+          <td>大众专业品牌</td>
+          <td>
+            <span class="badge badge-green">更轻</span>
+            <span class="badge badge-blue">更快充</span>
+            <span class="badge badge-purple">文化属性更强</span>
+          </td>
+        </tr>
+        <tr>
+          <td>Specialized 闪电</td>
+          <td>¥32,000 ~ ¥60,000</td>
+          <td>核心城市授权店</td>
+          <td>12 ~ 14 kg</td>
+          <td>Turbo SL 轻量电机 · 全碳车架</td>
+          <td>专业竞技 · 科技高端</td>
+          <td>
+            <span class="badge badge-green">价格 1/4</span>
+            <span class="badge badge-blue">本土快响应</span>
+          </td>
+        </tr>
+        <tr>
+          <td>Trek 崔克</td>
+          <td>¥28,000 ~ ¥65,000</td>
+          <td>核心城市授权店</td>
+          <td>13 ~ 16 kg</td>
+          <td>IsoSpeed · 内置电池设计</td>
+          <td>专业竞技 · 高端质感</td>
+          <td>
+            <span class="badge badge-green">价格优势</span>
+            <span class="badge badge-blue">本土服务更便</span>
+          </td>
+        </tr>
+        <tr>
+          <td>Merida 美利达</td>
+          <td>¥12,000 ~ ¥35,000</td>
+          <td>全国经销网络</td>
+          <td>13 ~ 17 kg</td>
+          <td>Shimano EP8 · 全系铝/碳选择</td>
+          <td>中高端 · 骑行爱好者</td>
+          <td>
+            <span class="badge badge-green">更轻量</span>
+            <span class="badge badge-purple">品牌故事更独特</span>
+          </td>
+        </tr>
+        <tr>
+          <td>Riese & Müller</td>
+          <td>¥38,000 ~ ¥80,000</td>
+          <td>极少，进口渠道</td>
+          <td>22 ~ 28 kg</td>
+          <td>双电池 · 全悬挂 · 长续航</td>
+          <td>顶奢 · 通勤长途</td>
+          <td>
+            <span class="badge badge-green">轻 12kg vs 25kg+</span>
+            <span class="badge badge-blue">价格亲民</span>
+            <span class="badge badge-green">本地易购</span>
+          </td>
+        </tr>
+        <tr>
+          <td>Super73</td>
+          <td>¥14,000 ~ ¥25,000</td>
+          <td>几乎无大陆渠道</td>
+          <td>30 ~ 38 kg（摩托型）</td>
+          <td>复古造型 · 社群营销</td>
+          <td>生活方式 · 街头文化</td>
+          <td>
+            <span class="badge badge-green">运动极轻量优势</span>
+            <span class="badge badge-blue">中国本土渠道</span>
+          </td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+
+  <!-- Positioning Map -->
+  <div class="mt-40">
+    <h3 style="font-family:'Space Grotesk',sans-serif;font-size:18px;font-weight:600;margin-bottom:24px;">品牌定位坐标图</h3>
+    <div class="map-wrap">
+      <p style="font-size:12px;color:var(--text-dim);margin-bottom:30px;">横轴：价格亲民 → 高端溢价 &nbsp;|&nbsp; 纵轴：大众通勤 → 运动/生活方式</p>
+      <div class="map-container">
+        <span class="axis-label-x">高端溢价 →</span>
+        <span class="axis-label-x0">← 价格亲民</span>
+        <span class="axis-label-y">← 大众通勤</span>
+        <!-- Dots: left% = 价格低到高, bottom% = 通勤到运动 -->
+        <div class="map-dot dot-hero" style="left:28%;bottom:72%;">
+          <div class="dot-circle"></div>
+          <span class="dot-label" style="color:#a78bfa;">🚀 宇宙</span>
+        </div>
+        <div class="map-dot" style="left:35%;bottom:60%;">
+          <div class="dot-circle"></div>
+          <span class="dot-label">Giant</span>
+        </div>
+        <div class="map-dot" style="left:75%;bottom:85%;">
+          <div class="dot-circle"></div>
+          <span class="dot-label">Specialized</span>
+        </div>
+        <div class="map-dot" style="left:70%;bottom:82%;">
+          <div class="dot-circle"></div>
+          <span class="dot-label">Trek</span>
+        </div>
+        <div class="map-dot" style="left:42%;bottom:65%;">
+          <div class="dot-circle"></div>
+          <span class="dot-label">Merida</span>
+        </div>
+        <div class="map-dot" style="left:88%;bottom:55%;">
+          <div class="dot-circle"></div>
+          <span class="dot-label">R&M</span>
+        </div>
+        <div class="map-dot" style="left:33%;bottom:78%;">
+          <div class="dot-circle"></div>
+          <span class="dot-label">Super73</span>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<hr class="divider">
+
+<!-- SWOT -->
+<section class="section" id="swot">
+  <div class="section-label">04 · SWOT 分析</div>
+  <div class="section-title">宇宙 Planet Between 战略态势</div>
+
+  <div class="swot-grid">
+    <div class="swot-card swot-s">
+      <h4>✅ Strengths · 优势</h4>
+      <ul class="swot-list">
+        <li>整车仅 12kg，轻于同价位大多数竞品 20~40%</li>
+        <li>90 分钟快充，远优于同类产品 3~5 小时充电</li>
+        <li>价格仅 Specialized / Trek 的 1/4，性价比极强</li>
+        <li>本土品牌，供应链灵活，迭代速度快</li>
+        <li>「骑行宇宙」社区已积累核心骑行爱好者基础</li>
+        <li>创始人持续对外发声，品牌人格化效果佳</li>
+      </ul>
+    </div>
+    <div class="swot-card swot-w">
+      <h4>⚠️ Weaknesses · 劣势</h4>
+      <ul class="swot-list">
+        <li>品牌成立仅 4 年，国际知名度接近零</li>
+        <li>线下体验门店极少（以杭州为主），渠道薄弱</li>
+        <li>产品线仍较窄，缺乏城市通勤电助力覆盖</li>
+        <li>专业赛事赞助 / KOL 资源远不及国际品牌</li>
+        <li>售后服务网络建设滞后于品牌知名度扩张速度</li>
+      </ul>
+    </div>
+    <div class="swot-card swot-o">
+      <h4>🔷 Opportunities · 机遇</h4>
+      <ul class="swot-list">
+        <li>国内中高端电助力赛道尚无强势本土品牌</li>
+        <li>政策红利：碳中和目标 + 城市微出行补贴推动</li>
+        <li>年轻骑行爱好者群体快速扩大（小红书、抖音效应）</li>
+        <li>R&M / Specialized 等国际品牌中国渠道布局薄弱</li>
+        <li>定制化 / 限定款文化在单车圈日渐成熟</li>
+        <li>与国内顶尖赛事 / 骑行活动合作空间巨大</li>
+      </ul>
+    </div>
+    <div class="swot-card swot-t">
+      <h4>🔶 Threats · 威胁</h4>
+      <ul class="swot-list">
+        <li>Giant / Merida 随时可迅速推出对标产品</li>
+        <li>九号电动等科技品牌向高端电助力赛道扩张</li>
+        <li>进口电助力关税及汇率波动影响竞争格局</li>
+        <li>国内用户对国产高端自行车品牌认可度尚需培育</li>
+        <li>融资环境趋紧，高端 Ebike 硬件研发资本密度高</li>
+      </ul>
+    </div>
+  </div>
+</section>
+
+<hr class="divider">
+
+<!-- PM RECOMMENDATIONS -->
+<section class="section" id="strategy">
+  <div class="section-label">05 · 产品经理视角</div>
+  <div class="section-title">差异化产品策略建议</div>
+
+  <div class="reco-grid">
+    <div class="reco-card">
+      <div class="reco-num">01</div>
+      <div class="reco-title">构建「轻量化」护城河</div>
+      <p class="reco-body">12kg 整车重量是当前最直接的产品差异点。建议持续在研发推进更轻量化电机，将「12kg」作为产品代号和营销核心，类似 MacBook Air 之于苹果的"轻"战略语言，让宇宙与"轻量电助力"强绑定。</p>
+    </div>
+    <div class="reco-card">
+      <div class="reco-num">02</div>
+      <div class="reco-title">Super73 社群打法本土化落地</div>
+      <p class="reco-body">对标 Super73 的社区营销策略：建立骑行日历（线下骑行活动）、KOL 共创内容（短视频 / 骑行 Vlog）、限定配色联名款，将用户从「消费者」升级为「社区共建者」，品牌黏性是最难被复制的护城河。</p>
+    </div>
+    <div class="reco-card">
+      <div class="reco-num">03</div>
+      <div class="reco-title">渠道补强：先深耕再扩张</div>
+      <p class="reco-body">建议"体验中心"优先于传统经销商网络，在北京、上海、深圳、成都选址旗舰体验中心，配合骑行活动常态化运营。参考 NIU 小牛的「城市旗舰店 + 骑行打卡」模式，将线下门店变成内容产出场域而非仅仅销售据点。</p>
+    </div>
+    <div class="reco-card">
+      <div class="reco-num">04</div>
+      <div class="reco-title">产品线双向延伸</div>
+      <p class="reco-body">向上：与国际高端套件品牌（Campagnolo / SRAM eTAP）联名推出顶配版，刷新价格上限认知；向下：推出 ¥9,999 入门款，降低转化门槛，建立「入门进阶」的用户成长路径，提升生命周期价值（LTV）。</p>
+    </div>
+    <div class="reco-card">
+      <div class="reco-num">05</div>
+      <div class="reco-title">数字化骑行生态</div>
+      <p class="reco-body">开发「宇宙 App」或接入 Strava / Komoot 生态，提供骑行数据追踪、电池管理、社区挑战等功能，将硬件产品延伸为软件服务。参考 Specialized 的 Mission Control APP 架构，形成数据飞轮障壁。</p>
+    </div>
+    <div class="reco-card">
+      <div class="reco-num">06</div>
+      <div class="reco-title">国际化「出海」准备</div>
+      <p class="reco-body">欧洲 ebike 渗透率远高于中国（德国 55.4% 骑行者使用电助力），而国内品牌在欧洲几乎空白。建议在巩固国内基本盘的同时，针对欧洲电助力市场规划 2~3 年出海路线图，通过参加欧洲展览（Eurobike）建立国际声誉。</p>
+    </div>
+  </div>
+</section>
+
+<hr class="divider">
+
+<!-- FOOTER -->
+<footer>
+  <p style="margin-bottom:8px;">本报告为 <strong>产品经理岗位申请</strong> 分析作品，数据来源于公开资料（2024—2025年）</p>
+  <p style="margin-bottom:16px;">官方网站：<a href="https://www.planetbetween.com/" target="_blank">planetbetween.com</a> &nbsp;·&nbsp; 更多内容见 <a href="/" target="_blank">博客主页</a></p>
+  <p style="color:var(--text-dim);font-size:12px;">© 2025 · 数据仅供参考，不构成商业建议 · 图片版权归各品牌所有</p>
+</footer>
+
+<script>
+  // Smooth scroll with offset
+  document.querySelectorAll('a[href^="#"]').forEach(a=>{
+    a.addEventListener('click',e=>{
+      e.preventDefault();
+      const target=document.querySelector(a.getAttribute('href'));
+      if(target) window.scrollTo({top:target.offsetTop-70,behavior:'smooth'});
+    });
+  });
+
+  // Scroll reveal
+  const els=document.querySelectorAll('.comp-card,.reco-card,.swot-card,.stat-card,.pb-card');
+  const obs=new IntersectionObserver(entries=>{
+    entries.forEach(entry=>{
+      if(entry.isIntersecting){
+        entry.target.style.opacity='1';
+        entry.target.style.transform='translateY(0)';
+      }
+    });
+  },{threshold:0.1});
+  els.forEach(el=>{
+    el.style.opacity='0';
+    el.style.transform='translateY(20px)';
+    el.style.transition='opacity 0.5s ease, transform 0.5s ease';
+    obs.observe(el);
+  });
+</script>
+
+</body>
+</html>

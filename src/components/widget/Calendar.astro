@@ -39,6 +39,7 @@ const weekDays = [
 
 const isChinese = siteConfig.lang.startsWith("zh");
 const yearSuffix = isChinese ? "年" : " ";
+const currentMonthDiariesLabel = i18n(I18nKey.diary);
 ---
 
 <WidgetLayout
@@ -133,6 +134,7 @@ const yearSuffix = isChinese ? "年" : " ";
 	define:vars={{
 		monthNames,
 		yearSuffix,
+		currentMonthDiariesLabel,
 	}}
 >
 	let allPostsData = [];
@@ -279,8 +281,8 @@ const yearSuffix = isChinese ? "年" : " ";
 			else selectedDateKey = dateKey;
 
 			renderCalendar();
-			if (selectedDateKey && postDateMap[selectedDateKey]) {
-				renderPostList(postDateMap[selectedDateKey]);
+			if (selectedDateKey) {
+				renderPostList(postDateMap[selectedDateKey] || []);
 			} else {
 				showMonthlyPosts();
 			}
@@ -375,8 +377,8 @@ const yearSuffix = isChinese ? "年" : " ";
 		}
 
 		dom.grid.innerHTML = html;
-		if (selectedDateKey && postDateMap[selectedDateKey]) {
-			renderPostList(postDateMap[selectedDateKey]);
+		if (selectedDateKey) {
+			renderPostList(postDateMap[selectedDateKey] || []);
 		} else {
 			showMonthlyPosts();
 		}
@@ -399,39 +401,68 @@ const yearSuffix = isChinese ? "年" : " ";
 		dom.divider.classList.remove("hidden");
 		const currentPostId = getCurrentPostId();
 
-		const listHtml = posts
-			.map((post) => {
-				const [, m, d] = post.date.split("-");
-				const dateStr = `${parseInt(m)}-${parseInt(d)}`;
+		const articles = posts.filter((p) => p.type === "post");
+		const diaries = posts.filter((p) => p.type === "diary");
 
-				const isCurrentPost = post.id === currentPostId;
-				let containerClass =
-					"flex items-center justify-between text-sm transition-colors px-2 py-2 rounded-lg group border border-transparent";
-				let titleClass = "truncate flex-1 font-bold transition-colors";
-				let dateClass =
-					"text-xs ml-2 whitespace-nowrap transition-colors";
+		const renderItem = (post) => {
+			const [, m, d] = post.date.split("-");
+			const dateStr = `${parseInt(m)}-${parseInt(d)}`;
+			const isCurrentPost =
+				post.type === "post" && post.id === currentPostId;
+			const link =
+				post.type === "post"
+					? `/posts/${post.id}/`
+					: `/diary/#diary-${post.id}`;
+			const icon = post.type === "post" ? "📄" : "📝";
 
-				if (isCurrentPost) {
-					containerClass +=
-						" bg-(--primary)/10 text-(--primary) border-(--primary)/10";
-					dateClass += " text-(--primary)/80";
-				} else {
-					containerClass +=
-						" text-neutral-700 dark:text-neutral-300 hover:text-(--primary) dark:hover:text-(--primary) hover:bg-(--btn-plain-bg-hover)";
-					dateClass +=
-						" text-neutral-400 group-hover:text-(--primary)/70";
-				}
+			let containerClass =
+				"flex items-center justify-between text-sm transition-colors px-2 py-2 rounded-lg group border border-transparent";
+			let titleClass = "truncate flex-1 font-bold transition-colors";
+			let dateClass = "text-xs ml-2 whitespace-nowrap transition-colors";
 
-				return `
-            <a href="/posts/${post.id}/" class="${containerClass}">
-                <span class="${titleClass}">${post.title}</span>
+			if (isCurrentPost) {
+				containerClass +=
+					" bg-(--primary)/10 text-(--primary) border-(--primary)/10";
+				dateClass += " text-(--primary)/80";
+			} else {
+				containerClass +=
+					" text-neutral-700 dark:text-neutral-300 hover:text-(--primary) dark:hover:text-(--primary) hover:bg-(--btn-plain-bg-hover)";
+				dateClass +=
+					" text-neutral-400 group-hover:text-(--primary)/70";
+			}
+
+			return `
+            <a href="${link}" class="${containerClass}">
+                <span class="${titleClass} flex items-center gap-1.5">
+                    <span class="text-[10px] opacity-70 group-hover:opacity-100">${icon}</span>
+                    <span class="truncate">${post.title}</span>
+                </span>
                 <span class="${dateClass}">${dateStr}</span>
             </a>
         `;
-			})
-			.join("");
+		};
 
-		dom.postsList.innerHTML = listHtml;
+		let finalHtml = articles.map(renderItem).join("");
+
+		if (diaries.length > 0) {
+			finalHtml += `
+            <div class="mt-1">
+                <details class="group/diary" ${diaries.length > 0 ? "open" : ""}>
+                    <summary class="flex items-center justify-between px-2 py-1.5 cursor-pointer rounded-lg hover:bg-(--btn-plain-bg-hover) transition-colors text-xs font-bold text-50 group-hover/diary:text-(--primary)">
+                        <div class="flex items-center gap-1.5">
+                            <svg class="w-2.5 h-2.5 transition-transform group-open/diary:rotate-90" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M9 5l7 7-7 7"></path></svg>
+                            <span>${currentMonthDiariesLabel} (${diaries.length})</span>
+                        </div>
+                    </summary>
+                    <div class="flex flex-col gap-0.5 mt-0.5 ml-1 border-l-2 border-(--line-divider) pl-1">
+                        ${diaries.map(renderItem).join("")}
+                    </div>
+                </details>
+            </div>
+        `;
+		}
+
+		dom.postsList.innerHTML = finalHtml;
 	}
 
 	function showMonthPicker() {

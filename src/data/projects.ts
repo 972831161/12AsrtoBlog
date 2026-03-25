@@ -65,12 +65,12 @@ export const projectsData: Project[] = [
 			"反诈微电影《破局》于2022年4月18日上线.",
 		image: "",
 		category: "media",
-		techStack: ["剧本设计", "人员调度", "组织排练"],
+		techStack: ["校园", "轮回", "改变"],
 		status: "completed",
-		bilibiliSource: "https://www.bilibili.com/", // TODO: 替换为该项目对应的具体视频/页面链接
+		bilibiliSource: "https://www.bilibili.com/video/BV14uQ1BvErS/?share_source=copy_web&vd_source=a057885a70a5bac2476c1519393dd2e7", // TODO: 替换为该项目对应的具体视频/页面链接
 		bilibiliSourceLabel: "B站链接",
 		startDate: "2022-04-01",
-		tags: ["微电影", "反诈", "剧情"],
+		tags: ["校园", "轮回", "改变"],
 	},
 
 	{
@@ -80,7 +80,7 @@ export const projectsData: Project[] = [
 			"党史情景剧《全民抗疫》于2021年5月28日登上荧幕！",
 		image: "",
 		category: "media",
-		techStack: ["剧本设计", "人员调度", "组织排练"],
+		techStack: ["情景剧", "抗疫", "党史"],
 		status: "completed",
 		bilibiliSource: "https://www.bilibili.com/", // TODO: 替换为该项目对应的具体视频/页面链接
 		bilibiliSourceLabel: "B站链接",

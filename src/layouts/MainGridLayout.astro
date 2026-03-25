@@ -113,8 +113,12 @@ const hasBannerLink = !!siteConfig.banner.credit.url;
 // 检查是否为首页
 const isHomePage = Astro.url.pathname === "/" || Astro.url.pathname === "";
 const showHomeText = siteConfig.banner.homeText?.enable && isHomePage;
-// 手机端非首页不显示banner的CSS类
-const mobileNonHomeBannerClass = !isHomePage ? "mobile-hide-banner" : "";
+// 手机端非首页是否隐藏banner的逻辑
+// 如果默认开启了 banner 或 fullscreen 模式，则不再强制隐藏，让用户可以手动切换
+const mobileNonHomeBannerClass =
+	siteConfig.wallpaperMode.defaultMode === "none" && !isHomePage
+		? "mobile-hide-banner"
+		: "";
 
 // 计算主内容区域位置，考虑手机端非首页时banner被隐藏
 // 当默认模式为 banner 时，使用banner高度；否则使用顶栏高度
