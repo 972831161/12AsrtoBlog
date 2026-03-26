@@ -224,11 +224,11 @@ export const siteConfig: SiteConfig = {
 			enableCompress: true, // 启用字体子集优化，减少字体文件大小
 		},
 		cjkFont: {
-			// 中日韩字体 - 作为回退字体
-			fontFamily: "思源黑体",
+			// 中日韩字体 - 资源柔黑 (Resource Han Rounded CN)
+			fontFamily: "ResourceHanRoundedCN",
 			fontWeight: "500",
-			localFonts: ["SourceHanSerifSC-VF.ttf"],
-			enableCompress: true, // 启用字体子集优化，减少字体文件大小
+			localFonts: ["ResourceHanRoundedCN-Medium.ttf", "ResourceHanRoundedCN-Bold.ttf"],
+			enableCompress: true, // 启用字体子集优化
 		},
 	},
 	showLastModified: true, // 控制“上次编辑”卡片显示的开关
