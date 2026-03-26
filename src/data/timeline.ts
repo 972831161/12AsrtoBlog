@@ -28,9 +28,9 @@ export const timelineData: TimelineItem[] = [
 		id: "current-study",
 		title: "水环境遥感研究",
 		description:
-			"长江悬浮泥沙浓度反演相关研究",
-		type: "education",
-		startDate: "2024-09-01",
+			"极地红绿雪藻反演及演替研究",
+		type: "project",
+		startDate: "2025-09-01",
 		location: "珠海",
 		organization: "中山大学",
 		skills: ["Java", "Python", "JavaScript", "HTML/CSS", "MySQL"],

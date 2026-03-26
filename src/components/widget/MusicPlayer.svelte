@@ -434,7 +434,7 @@ onDestroy(() => {
 	on:error={handleLoadError}
 	on:loadeddata={handleLoadSuccess}
 	on:loadstart={handleLoadStart}
-	preload="auto"
+	preload="metadata"
 ></audio>
 
 <svelte:window 

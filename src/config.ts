@@ -142,11 +142,11 @@ export const siteConfig: SiteConfig = {
 				"/assets/mobile-banner/mob1.webp",
 				"/assets/mobile-banner/mob2.webp",
 				"/assets/mobile-banner/mob3.webp",
-				"/assets/mobile-banner/mob4.jpg",
-				"/assets/mobile-banner/mob5.jpg",
-				"/assets/mobile-banner/mob6.jpg",
-				"/assets/mobile-banner/mob7.jpg",
-				"/assets/mobile-banner/mob8.jpg",
+				"/assets/mobile-banner/mob4.webp",
+				"/assets/mobile-banner/mob5.webp",
+				"/assets/mobile-banner/mob6.webp",
+				"/assets/mobile-banner/mob7.webp",
+				"/assets/mobile-banner/mob8.webp",
 			], // 移动横幅图片
 		}, // 使用本地横幅图片
 
@@ -251,11 +251,11 @@ export const fullscreenWallpaperConfig: FullscreenWallpaperConfig = {
 			"/assets/mobile-banner/mob1.webp",
 			"/assets/mobile-banner/mob2.webp",
 			"/assets/mobile-banner/mob3.webp",
-			"/assets/mobile-banner/mob4.jpg",
-			"/assets/mobile-banner/mob5.jpg",
-			"/assets/mobile-banner/mob6.jpg",
-			"/assets/mobile-banner/mob7.jpg",
-			"/assets/mobile-banner/mob8.jpg",
+			"/assets/mobile-banner/mob4.webp",
+			"/assets/mobile-banner/mob5.webp",
+			"/assets/mobile-banner/mob6.webp",
+			"/assets/mobile-banner/mob7.webp",
+			"/assets/mobile-banner/mob8.webp",
 		], // 移动横幅图片
 	}, // 使用本地横幅图片
 	position: "center", // 壁纸位置，等同于 object-position
@@ -371,7 +371,7 @@ export const navBarConfig: NavBarConfig = {
 export const profileConfig: ProfileConfig = {
 	avatar: "assets/images/蓝专.webp", // 相对于 /src 目录。如果以 '/' 开头，则相对于 /public 目录
 	name: "十二",
-	bio: "主动学习｜摄影｜足球｜影音｜阅读",
+	bio: "主动学习｜足球｜影音｜阅读",
 	typewriter: {
 		enable: true, // 启用个人简介打字机效果
 		speed: 80, // 打字速度（毫秒）
@@ -480,63 +480,57 @@ export const musicPlayerConfig: MusicPlayerConfig = {
 	local: {
 		songs: [
 			{
-				title: "01.蝴蝶山",
+				title: "蝴蝶山",
 				artist: "丁世光",
-				url: "/music/丁世光/背面是我 (The Hidden Tracks)/01.蝴蝶山.flac",
+				url: "/music/丁世光/背面是我 (The Hidden Tracks)/01.蝴蝶山.m4a",
 				cover: "/music/丁世光/背面是我 (The Hidden Tracks)/cover.jpg",
 			},
 			{
-				title: "02.Bygone",
+				title: "爱我的人",
 				artist: "丁世光",
-				url: "/music/丁世光/背面是我 (The Hidden Tracks)/02.Bygone.flac",
+				url: "/music/丁世光/背面是我 (T he Hidden Tracks)/03.爱我的人.m4a",
 				cover: "/music/丁世光/背面是我 (The Hidden Tracks)/cover.jpg",
 			},
 			{
-				title: "03.爱我的人",
+				title: "背面是我",
 				artist: "丁世光",
-				url: "/music/丁世光/背面是我 (The Hidden Tracks)/03.爱我的人.flac",
+				url: "/music/丁世光/背面是我 (The Hidden Tracks)/04.背面是我.m4a",
 				cover: "/music/丁世光/背面是我 (The Hidden Tracks)/cover.jpg",
 			},
 			{
-				title: "04.背面是我",
+				title: "Lifetime Friend",
 				artist: "丁世光",
-				url: "/music/丁世光/背面是我 (The Hidden Tracks)/04.背面是我.flac",
+				url: "/music/丁世光/背面是我 (The Hidden Tracks)/05.Lifetime Friend.m4a",
 				cover: "/music/丁世光/背面是我 (The Hidden Tracks)/cover.jpg",
 			},
 			{
-				title: "05.Lifetime Friend",
+				title: "Puppy Love",
 				artist: "丁世光",
-				url: "/music/丁世光/背面是我 (The Hidden Tracks)/05.Lifetime Friend.flac",
+				url: "/music/丁世光/背面是我 (The Hidden Tracks)/06.Puppy Love.m4a",
 				cover: "/music/丁世光/背面是我 (The Hidden Tracks)/cover.jpg",
 			},
 			{
-				title: "06.Puppy Love",
+				title: "Presentness",
 				artist: "丁世光",
-				url: "/music/丁世光/背面是我 (The Hidden Tracks)/06.Puppy Love.flac",
+				url: "/music/丁世光/背面是我 (The Hidden Tracks)/07.Presentness.m4a",
 				cover: "/music/丁世光/背面是我 (The Hidden Tracks)/cover.jpg",
 			},
 			{
-				title: "07.Presentness",
+				title: "无名花香",
 				artist: "丁世光",
-				url: "/music/丁世光/背面是我 (The Hidden Tracks)/07.Presentness.flac",
+				url: "/music/丁世光/背面是我 (The Hidden Tracks)/08.无名花香.m4a",
 				cover: "/music/丁世光/背面是我 (The Hidden Tracks)/cover.jpg",
 			},
 			{
-				title: "08.无名花香",
+				title: "行李",
 				artist: "丁世光",
-				url: "/music/丁世光/背面是我 (The Hidden Tracks)/08.无名花香.flac",
+				url: "/music/丁世光/背面是我 (The Hidden Tracks)/09.行李.m4a",
 				cover: "/music/丁世光/背面是我 (The Hidden Tracks)/cover.jpg",
 			},
 			{
-				title: "09.行李",
+				title: "瘦子",
 				artist: "丁世光",
-				url: "/music/丁世光/背面是我 (The Hidden Tracks)/09.行李.flac",
-				cover: "/music/丁世光/背面是我 (The Hidden Tracks)/cover.jpg",
-			},
-			{
-				title: "10.瘦子",
-				artist: "丁世光",
-				url: "/music/丁世光/背面是我 (The Hidden Tracks)/10.瘦子.flac",
+				url: "/music/丁世光/背面是我 (The Hidden Tracks)/10.瘦子.m4a",
 				cover: "/music/丁世光/背面是我 (The Hidden Tracks)/cover.jpg",
 			},
 			{
