@@ -38,6 +38,9 @@ let links: NavBarLink[] = navBarConfig.links.map(
 const rawLogo = siteConfig.navbarTitle?.logo || "/assets/home/default-logo.png";
 const logoSrc = rawLogo.match(/^(http|https|\/\/)/) ? rawLogo : url(rawLogo);
 
+const rawLogoDark = siteConfig.navbarTitle?.logoDark || rawLogo;
+const logoSrcDark = rawLogoDark.match(/^(http|https|\/\/)/) ? rawLogoDark : url(rawLogoDark);
+
 const rawIcon = siteConfig.navbarTitle?.icon || "/assets/home/home.png";
 const iconSrc = rawIcon.match(/^(http|https|\/\/)/) ? rawIcon : url(rawIcon);
 ---
@@ -49,7 +52,10 @@ const iconSrc = rawIcon.match(/^(http|https|\/\/)/) ? rawIcon : url(rawIcon);
 				{/* 使用navbarTitle配置或默认配置 */}
                 {siteConfig.navbarTitle ? (
                     siteConfig.navbarTitle.mode === "logo" ? (
-                        <img src={logoSrc} alt={siteConfig.navbarTitle.text} class="h-16 md:h-18 md:in-[.enable-banner]:h-14 md:in-[.enable-banner]:group-[.scrolled]:h-16 max-w-full object-contain transition-all duration-300" loading="lazy" />
+                        <>
+                            <img src={logoSrc} alt={siteConfig.navbarTitle.text} class="dark:hidden h-16 md:h-18 md:in-[.enable-banner]:h-14 md:in-[.enable-banner]:group-[.scrolled]:h-16 max-w-full object-contain transition-all duration-300" loading="lazy" />
+                            <img src={logoSrcDark} alt={siteConfig.navbarTitle.text} class="hidden dark:block h-16 md:h-18 md:in-[.enable-banner]:h-14 md:in-[.enable-banner]:group-[.scrolled]:h-16 max-w-full object-contain transition-all duration-300" loading="lazy" />
+                        </>
                     ) : (
                         <>
                             <img src={iconSrc} alt={siteConfig.navbarTitle.text} class="h-10 w-10 mr-2 object-contain" loading="lazy" />

@@ -1,10 +1,11 @@
 ---
 title: 宇宙 Planet Between · 电助力自行车竞品分析报告
-published: 2025-03-25
+published: 2026-03-25
 description: 聚焦高端运动电助力自行车赛道，从产品参数、价格带、用户定位三个维度深度拆解六大国际竞品，探索宇宙的差异化突破路径。
 tags: [产品分析, 电动自行车, 竞品研究]
 category: 项目
 draft: false
+pinned: true
 ---
 
 ## 竞品分析报告

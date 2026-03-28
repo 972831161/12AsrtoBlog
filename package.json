@@ -40,6 +40,7 @@
 		"@iconify-json/fa7-regular": "^1.2.3",
 		"@iconify-json/fa7-solid": "^1.2.4",
 		"@iconify-json/material-symbols": "^1.2.59",
+		"@iconify-json/ri": "^1.2.10",
 		"@iconify-json/simple-icons": "^1.2.71",
 		"@iconify/svelte": "^4.2.0",
 		"@swup/astro": "^1.8.0",

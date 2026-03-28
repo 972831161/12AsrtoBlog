@@ -58,6 +58,7 @@ export const siteConfig: SiteConfig = {
 		icon: "assets/home/liverbird_sq.png",
 		// 网站Logo图片路径
 		logo: "assets/home/Darwin.png",
+		logoDark: "assets/home/Darwin-white.png",
 	},
 
 	// 页面自动缩放配置
@@ -134,9 +135,9 @@ export const siteConfig: SiteConfig = {
 				"/assets/desktop-banner/desk6.webp",
 				"/assets/desktop-banner/desk7.webp",
 				"/assets/desktop-banner/desk8.webp",
-				"/assets/desktop-banner/desk9.jpg",
-				"/assets/desktop-banner/desk10.jpg",
-				"/assets/desktop-banner/desk11.jpg",
+				"/assets/desktop-banner/desk9.webp",
+				"/assets/desktop-banner/desk10.webp",
+				"/assets/desktop-banner/desk11.webp",
 			], // 桌面横幅图片
 			mobile: [
 				"/assets/mobile-banner/mob1.webp",
@@ -243,9 +244,9 @@ export const fullscreenWallpaperConfig: FullscreenWallpaperConfig = {
 			"/assets/desktop-banner/desk6.webp",
 			"/assets/desktop-banner/desk7.webp",
 			"/assets/desktop-banner/desk8.webp",
-			"/assets/desktop-banner/desk9.jpg",
-			"/assets/desktop-banner/desk10.jpg",
-			"/assets/desktop-banner/desk11.jpg",
+			"/assets/desktop-banner/desk9.webp",
+			"/assets/desktop-banner/desk10.webp",
+			"/assets/desktop-banner/desk11.webp",
 		], // 桌面横幅图片
 		mobile: [
 			"/assets/mobile-banner/mob1.webp",
@@ -294,7 +295,7 @@ export const navBarConfig: NavBarConfig = {
 					name: "Douban",
 					url: "https://www.douban.com/people/Bettercall12",
 					external: true,
-					icon: "simple-icons:douban",
+					icon: "ri:douban-fill",
 				},
 			],
 		},
@@ -399,7 +400,7 @@ export const profileConfig: ProfileConfig = {
 		// },
 		{
 			name: "豆瓣",
-			icon: "simple-icons:douban",
+			icon: "ri:douban-fill",
 			url: "https://www.douban.com/people/Bettercall12/?_i=4165516dWPckvp",
 		},
 	],

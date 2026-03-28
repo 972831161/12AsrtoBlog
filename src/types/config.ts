@@ -81,6 +81,7 @@ export type SiteConfig = {
 		text: string; // 顶栏标题文本
 		icon?: string; // 顶栏标题图标路径
 		logo?: string; // 网站Logo图片路径
+		logoDark?: string; // 网站Logo图片路径 (黑夜模式)
 	};
 
 	// 页面自动缩放配置
