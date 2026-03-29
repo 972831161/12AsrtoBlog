@@ -53,6 +53,9 @@ importers:
       '@iconify-json/material-symbols':
         specifier: ^1.2.59
         version: 1.2.59
+      '@iconify-json/ri':
+        specifier: ^1.2.10
+        version: 1.2.10
       '@iconify-json/simple-icons':
         specifier: ^1.2.71
         version: 1.2.71
@@ -174,11 +177,32 @@ importers:
       '@astrojs/ts-plugin':
         specifier: ^1.10.6
         version: 1.10.6
+      '@iconify-json/arcticons':
+        specifier: ^1.2.51
+        version: 1.2.51
+      '@iconify-json/bxl':
+        specifier: ^1.2.4
+        version: 1.2.4
+      '@iconify-json/dinkie-icons':
+        specifier: ^1.2.0
+        version: 1.2.0
+      '@iconify-json/hugeicons':
+        specifier: ^1.2.24
+        version: 1.2.24
+      '@iconify-json/logos':
+        specifier: ^1.2.11
+        version: 1.2.11
       '@iconify-json/mdi':
-        specifier: ^1.2.3
+        specifier: latest
         version: 1.2.3
+      '@iconify-json/mingcute':
+        specifier: ^1.2.7
+        version: 1.2.7
+      '@iconify-json/skill-icons':
+        specifier: ^1.2.4
+        version: 1.2.4
       '@rollup/plugin-yaml':
-        specifier: ^4.1.2
+        specifier: latest
         version: 4.1.2(rollup@2.79.2)
       '@types/hast':
         specifier: ^3.0.4
@@ -1221,6 +1245,15 @@ packages:
   '@gar/promisify@1.1.3':
     resolution: {integrity: sha512-k2Ty1JcVojjJFwrg/ThKi2ujJ7XNLYaFGNB/bWT9wGR+oSMJHMa5w+CUq6p/pVrKeNNgA7pCqEcjSnHVoqJQFw==}
 
+  '@iconify-json/arcticons@1.2.51':
+    resolution: {integrity: sha512-GtBqw25EoZmlW75gV7cdHid1QlL/SX4y5OCLgjuVxaXjcsxyG+a4vR0J8ok6Cxr4UJZOG+R6OOGejcTemRlq3g==}
+
+  '@iconify-json/bxl@1.2.4':
+    resolution: {integrity: sha512-R6gVQSxB1+XeVClK7KdACnk1SfP8xiAu6LHuKZmp6Ro5zwMQbpe9vFBv30F6eHMDL8lZ7eXuac5SRJ9C8DKehQ==}
+
+  '@iconify-json/dinkie-icons@1.2.0':
+    resolution: {integrity: sha512-/RSAjK6twyEOKfW9FddZDP+EPMeSIocb4Y4Zq2Y2IbqUxYmNHqXtxidVioBzpv+a3JeiQ61ARlRKtCQ0BqSGpA==}
+
   '@iconify-json/fa7-brands@1.2.2':
     resolution: {integrity: sha512-y6ZBdlLS4v1suB6fuMI5kqSO0B91Y19nlqTz7VfBYu9lI948tbRh+6lU2kNMOlo8I4qgSWX0SEdN7jkhOzI5gA==}
 
@@ -1230,14 +1263,29 @@ packages:
   '@iconify-json/fa7-solid@1.2.4':
     resolution: {integrity: sha512-Ns+ABU21PQpTjMZZ8idaQ9CDNYxjCJ/HY4+gkDsnAiJLkISMB2WIjoR2sjEj+Yok72sFwhXdYKBxwfRaGlwVpA==}
 
+  '@iconify-json/hugeicons@1.2.24':
+    resolution: {integrity: sha512-GE87tbpE1XfgTHCZcBsQlHAFfOrWjIRzV9TJbyLHO86Svow4lPdGYWByThqUwnYcTNx9xghLBZbKwW9fYkJXZg==}
+
+  '@iconify-json/logos@1.2.11':
+    resolution: {integrity: sha512-fOo4pGEatuyuCFNL+cwquYMa2Im0oJHRHV7lt/Qqs5Ode/lPImHCQcfTtPzZj7qYMPb/h8YHN3TG54uEowrjNQ==}
+
   '@iconify-json/material-symbols@1.2.59':
     resolution: {integrity: sha512-difuedW4jZyiDDu2SySjPCr+UsM65PRkEg3zUuKz0YRGMkNyBsk3R6j9s/ofP1NaKr2y32XxrzTawmnJZbzOAw==}
 
   '@iconify-json/mdi@1.2.3':
     resolution: {integrity: sha512-O3cLwbDOK7NNDf2ihaQOH5F9JglnulNDFV7WprU2dSoZu3h3cWH//h74uQAB87brHmvFVxIOkuBX2sZSzYhScg==}
 
+  '@iconify-json/mingcute@1.2.7':
+    resolution: {integrity: sha512-bp4z6F53KAQp99aSL7qPCHL7HWUNGMNKIhfo/dx9pwVHiad/WusUbTOFXEZfpA44syJPzSOxa3O6Pwiq7qZz1g==}
+
+  '@iconify-json/ri@1.2.10':
+    resolution: {integrity: sha512-WWMhoncVVM+Xmu9T5fgu2lhYRrKTEWhKk3Com0KiM111EeEsRLiASjpsFKnC/SrB6covhUp95r2mH8tGxhgd5Q==}
+
   '@iconify-json/simple-icons@1.2.71':
     resolution: {integrity: sha512-rNoDFbq1fAYiEexBvrw613/xiUOPEu5MKVV/X8lI64AgdTzLQUUemr9f9fplxUMPoxCBP2rWzlhOEeTHk/Sf0Q==}
+
+  '@iconify-json/skill-icons@1.2.4':
+    resolution: {integrity: sha512-S6iRKHGlGCb/zfx3Isv1TBe5PunbDE5FEwJcaXji60+yRZMrcFFtYEI1xivKqaGKXyVZ508yjGDItsehQdJmSg==}
 
   '@iconify/svelte@4.2.0':
     resolution: {integrity: sha512-fEl0T7SAPonK7xk6xUlRPDmFDZVDe2Z7ZstlqeDS/sS8ve2uyU+Qa8rTWbIqzZJlRvONkK5kVXiUf9nIc+6OOQ==}
@@ -7222,6 +7270,18 @@ snapshots:
 
   '@gar/promisify@1.1.3': {}
 
+  '@iconify-json/arcticons@1.2.51':
+    dependencies:
+      '@iconify/types': 2.0.0
+
+  '@iconify-json/bxl@1.2.4':
+    dependencies:
+      '@iconify/types': 2.0.0
+
+  '@iconify-json/dinkie-icons@1.2.0':
+    dependencies:
+      '@iconify/types': 2.0.0
+
   '@iconify-json/fa7-brands@1.2.2':
     dependencies:
       '@iconify/types': 2.0.0
@@ -7234,6 +7294,14 @@ snapshots:
     dependencies:
       '@iconify/types': 2.0.0
 
+  '@iconify-json/hugeicons@1.2.24':
+    dependencies:
+      '@iconify/types': 2.0.0
+
+  '@iconify-json/logos@1.2.11':
+    dependencies:
+      '@iconify/types': 2.0.0
+
   '@iconify-json/material-symbols@1.2.59':
     dependencies:
       '@iconify/types': 2.0.0
@@ -7242,7 +7310,19 @@ snapshots:
     dependencies:
       '@iconify/types': 2.0.0
 
+  '@iconify-json/mingcute@1.2.7':
+    dependencies:
+      '@iconify/types': 2.0.0
+
+  '@iconify-json/ri@1.2.10':
+    dependencies:
+      '@iconify/types': 2.0.0
+
   '@iconify-json/simple-icons@1.2.71':
+    dependencies:
+      '@iconify/types': 2.0.0
+
+  '@iconify-json/skill-icons@1.2.4':
     dependencies:
       '@iconify/types': 2.0.0
 
