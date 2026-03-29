@@ -370,12 +370,17 @@ export const navBarConfig: NavBarConfig = {
 };
 
 export const profileConfig: ProfileConfig = {
-	avatar: "assets/images/蓝专.webp", // 相对于 /src 目录。如果以 '/' 开头，则相对于 /public 目录
+	
+	avatar: "assets/images/avatar3.webp", // 相对于 /src 目录。如果以 '/' 开头，则相对于 /public 目录
 	name: "十二",
 	bio: "主动学习｜足球｜影音｜阅读",
 	typewriter: {
 		enable: true, // 启用个人简介打字机效果
 		speed: 80, // 打字速度（毫秒）
+	},
+	hoverMessage: {
+		enable: true,
+		content: "上班我就这样",
 	},
 	links: [
 		{

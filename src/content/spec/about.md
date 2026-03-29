@@ -1,5 +1,4 @@
-### 很开心能被你看见:-)
-
+### 很开心能被你看见 :-)
 
 ## 🌟 为瞬间而活着
 - **2024.2.26** - 利物浦联赛杯夺冠，我成为一名kop
@@ -8,7 +7,7 @@
 - **Beautiful Typography** - Enhanced readability with JetBrains Mono font
 - **Smooth Animations** - Fluid page transitions and interactive elements
 
-## 💡 始终的自信
+## 💡 坚信细水长流
 - **不被打垮** - 很难知道动力源自何处，但我回想起来，自己从没有放弃过想实现的目标。
 - **INFP** - 作为典型的INFP，我是个很好的聆听者、旁观者。认为自己有掌握全局的能力。
 - **心流驱动** - 当我进入心流，那我明白这件任务已经在它的正轨上，只待到达终点。

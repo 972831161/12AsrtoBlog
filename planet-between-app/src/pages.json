@@ -1,0 +1,56 @@
+{
+	"pages": [
+		{
+			"path": "pages/index/index",
+			"style": {
+				"navigationBarTitleText": "PLANET BETWEEN",
+				"navigationBarBackgroundColor": "#0d0d0d",
+				"navigationBarTextStyle": "white",
+				"backgroundColor": "#0d0d0d"
+			}
+		},
+		{
+			"path": "pages/record/record",
+			"style": {
+				"navigationBarTitleText": "我的骑行",
+				"navigationBarBackgroundColor": "#0d0d0d",
+				"navigationBarTextStyle": "white",
+				"backgroundColor": "#0d0d0d"
+			}
+		},
+		{
+			"path": "pages/community/community",
+			"style": {
+				"navigationBarTitleText": "路书与探索",
+				"navigationBarBackgroundColor": "#0d0d0d",
+				"navigationBarTextStyle": "white",
+				"backgroundColor": "#0d0d0d"
+			}
+		},
+		{
+			"path": "pages/ar/ar",
+			"style": {
+				"navigationBarTitleText": "宇宙探索",
+				"navigationBarBackgroundColor": "#0d0d0d",
+				"navigationBarTextStyle": "white",
+				"backgroundColor": "#0d0d0d",
+				"navigationStyle": "custom"
+			}
+		},
+		{
+			"path": "pages/mine/mine",
+			"style": {
+				"navigationBarTitleText": "骑士中心",
+				"navigationBarBackgroundColor": "#0d0d0d",
+				"navigationBarTextStyle": "white",
+				"backgroundColor": "#0d0d0d"
+			}
+		}
+	],
+	"globalStyle": {
+		"navigationBarTextStyle": "white",
+		"navigationBarTitleText": "PLANET BETWEEN",
+		"navigationBarBackgroundColor": "#0d0d0d",
+		"backgroundColor": "#0d0d0d"
+	}
+}

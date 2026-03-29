@@ -92,7 +92,7 @@ export const skillsData: Skill[] = [
 		id: "mysql",
 		name: "MySQL",
 		description:
-			"The world's most popular open-source relational database management system, widely used in web applications.",
+			"数据库管理.",
 		icon: "logos:mysql-icon",
 		category: "database",
 		level: "advanced",

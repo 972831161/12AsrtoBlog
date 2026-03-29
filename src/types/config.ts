@@ -243,6 +243,10 @@ export type ProfileConfig = {
 		enable: boolean; // 是否启用打字机效果
 		speed?: number; // 打字速度（毫秒）
 	};
+	hoverMessage?: {
+		enable: boolean;
+		content: string;
+	};
 };
 
 export type LicenseConfig = {
