@@ -88,6 +88,7 @@ h1, h2, h3, h4, h5 {
 
 .gradient-text {
     background: var(--primary-gradient);
+    background-clip: text;
     -webkit-background-clip: text;
     -webkit-text-fill-color: transparent;
     display: inline-block;
@@ -220,6 +221,37 @@ h1, h2, h3, h4, h5 {
     font-size: 1.1rem;
     max-width: 600px;
     margin: 0 auto;
+}
+
+/* Pain Points Section */
+.pain-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+    gap: 30px;
+    margin-top: 50px;
+}
+
+.pain-card {
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    min-height: 200px;
+}
+
+.pain-card .quote {
+    font-size: 1.1rem;
+    font-style: italic;
+    color: var(--text-primary);
+    margin-bottom: 20px;
+    line-height: 1.8;
+}
+
+.pain-card .label {
+    font-size: 0.8rem;
+    font-weight: 700;
+    color: var(--accent);
+    text-transform: uppercase;
+    letter-spacing: 2px;
 }
 
 /* Models Grid */
@@ -556,6 +588,85 @@ footer {
 .delay-1 { transition-delay: 0.1s; }
 .delay-2 { transition-delay: 0.2s; }
 .delay-3 { transition-delay: 0.3s; }
+
+/* App Ecosystem Section */
+.grid-2 {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+    gap: 60px;
+}
+
+.align-center {
+    align-items: center;
+}
+
+.app-info .feature-list {
+    list-style: none;
+    margin-top: 30px;
+}
+
+.app-info .feature-list li {
+    margin-bottom: 20px;
+    padding-left: 30px;
+    position: relative;
+    color: var(--text-secondary);
+}
+
+.app-info .feature-list li::before {
+    content: "✦";
+    position: absolute;
+    left: 0;
+    color: var(--accent);
+}
+
+.app-visual {
+    display: flex;
+    justify-content: center;
+}
+
+.app-mockup-placeholder {
+    width: 280px;
+    height: 580px;
+    background: #000;
+    border: 15px solid #1a1a1f;
+    border-radius: 45px;
+    position: relative;
+    overflow: hidden;
+    box-shadow: 0 50px 100px rgba(0, 0, 0, 0.5);
+}
+
+.mock-screen {
+    width: 100%;
+    height: 100%;
+    background: radial-gradient(circle at center, #1a1a2e 0%, #050505 100%);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.radar-scan {
+    width: 200px;
+    height: 200px;
+    border: 1px solid rgba(255, 51, 102, 0.3);
+    border-radius: 50%;
+    position: relative;
+}
+
+.radar-scan::after {
+    content: "";
+    position: absolute;
+    top: 50%; left: 50%;
+    width: 100%; height: 100%;
+    background: conic-gradient(from 0deg, transparent 0%, rgba(255, 51, 102, 0.4) 360deg);
+    border-radius: 50%;
+    transform: translate(-50%, -50%);
+    animation: rotate 4s linear infinite;
+}
+
+@keyframes rotate {
+    from { transform: translate(-50%, -50%) rotate(0deg); }
+    to { transform: translate(-50%, -50%) rotate(360deg); }
+}
 
 /* Responsive adjustments */
 @media(max-width: 768px) {
