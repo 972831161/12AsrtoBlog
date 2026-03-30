@@ -9,30 +9,41 @@
       
       <view class="radar-container">
         <view class="radar-circle">
-          <view class="pulse p1"></view>
-          <view class="pulse p2"></view>
-          <view class="pulse p3"></view>
-          <view class="scanner"></view>
-          
-          <!-- Route Path SVG Layer -->
-          <svg class="radar-path-svg" viewBox="0 0 600 600" v-if="!isScanning && activeRoutePath.length > 0">
+          <!-- Tactical Map Grid Background -->
+          <view class="tactical-grid">
+            <view class="compass-ring"></view>
+            <view class="grid-lines"></view>
+            <!-- Map Landmarks / Obstacles -->
+            <view class="landmark pond" style="top: 100rpx; left: 150rpx; width: 200rpx; height: 120rpx;"></view>
+            <view class="landmark sector" style="top: 350rpx; left: 300rpx; width: 140rpx; height: 180rpx; transform: rotate(15deg);"></view>
+          </view>
+
+          <!-- Highlighted Route Paths (Always visible, but glowing) -->
+          <svg class="radar-map-svg" viewBox="0 0 600 600">
+            <!-- Path to Egg 1 -->
+            <polyline points="300,300 200,250 150,180 100,120" class="path egg-path p1" />
+            <!-- Path to Egg 2 -->
+            <polyline points="300,300 320,250 350,180" class="path egg-path p2" />
+            <!-- Path to Egg 3 -->
+            <polyline points="300,300 250,350 150,400 80,380" class="path egg-path p3" />
+            
+            <!-- Target Selection Glow (Active Path) -->
             <polyline 
+              v-if="selectedPoint"
               :points="activeRoutePathPoints" 
-              fill="none" 
-              stroke="rgba(0, 240, 255, 0.6)" 
-              stroke-width="4" 
-              stroke-dasharray="8,8"
+              class="active-path"
+              stroke-width="6"
             />
-            <circle :cx="targetPos.x" :cy="targetPos.y" r="8" fill="#00f0ff">
-              <animate attributeName="r" values="6;10;6" dur="1s" repeatCount="indefinite" />
-            </circle>
           </svg>
+
+          <view class="pulse p1"></view>
+          <view class="scanner"></view>
 
           <view 
             v-for="(point, index) in nearbyPoints" 
             :key="index"
             class="target-dot"
-            :class="{ active: selectedPoint?.id === point.id }"
+            :class="{ active: selectedPoint?.id === point.id, ['type-'+point.type]: true }"
             :style="{
               left: point.x + 'rpx',
               top: point.y + 'rpx',
@@ -40,7 +51,9 @@
             }"
             @click="showDetail(point)"
           >
-            <view class="dot-inner"></view>
+            <view class="dot-inner">
+               <text class="egg-icon">{{ point.icon }}</text>
+            </view>
             <view class="dot-glow"></view>
             <text class="point-label" v-if="!isScanning">{{ point.name }}</text>
           </view>
@@ -49,7 +62,10 @@
             <view class="guide-arrow" :style="{ transform: `rotate(${guideAngle}deg)` }" v-if="selectedPoint">
               <view class="arrow-body"></view>
             </view>
-            <text class="user-icon">🛸</text>
+            <view class="user-beacon">
+               <view class="beacon-wave"></view>
+               <text class="u">🛸</text>
+            </view>
           </view>
         </view>
         
@@ -852,7 +868,180 @@ const collectCapsule = () => {
 
 // 基础样式复用
 .header { padding: 60rpx 40rpx 20rpx; .title { font-size: 48rpx; font-weight: 900; letter-spacing: 4rpx; } .subtitle { font-size: 20rpx; color: $uni-text-color-grey; letter-spacing: 4rpx; margin-top: 8rpx; } }
-.radar-container { flex: 1.2; display: flex; flex-direction: column; align-items: center; justify-content: center; position: relative; }
+.radar-container { 
+  flex: 1.2; display: flex; flex-direction: column; align-items: center; justify-content: center; position: relative; 
+  
+  .radar-circle {
+    width: 600rpx;
+    height: 600rpx;
+    border-radius: 50%;
+    border: 1px solid rgba(0, 240, 255, 0.2);
+    position: relative;
+    background: radial-gradient(circle, rgba(0, 240, 255, 0.05) 0%, transparent 80%);
+    overflow: hidden;
+
+    .tactical-grid {
+      position: absolute;
+      inset: 0;
+      z-index: 1;
+      .compass-ring {
+        position: absolute;
+        inset: 40rpx;
+        border-radius: 50%;
+        border: 1px dashed rgba(255, 255, 255, 0.1);
+        &::after {
+           content: 'N'; position: absolute; top: -20rpx; left: 50%; transform: translateX(-50%); color: rgba(255,255,255,0.3); font-size: 16rpx;
+        }
+      }
+      .grid-lines {
+         position: absolute; inset: 0;
+         background-image: 
+           linear-gradient(rgba(0, 240, 255, 0.05) 1px, transparent 1px),
+           linear-gradient(90deg, rgba(0, 240, 255, 0.05) 1px, transparent 1px);
+         background-size: 60rpx 60rpx;
+      }
+      .landmark {
+         position: absolute;
+         background: rgba(0, 240, 255, 0.03);
+         border: 1px solid rgba(0, 240, 255, 0.1);
+         border-radius: 8rpx;
+         &.pond { border-radius: 100rpx 40rpx 80rpx 20rpx; background: rgba(0, 153, 255, 0.05); }
+      }
+    }
+
+    .radar-map-svg {
+      position: absolute;
+      inset: 0;
+      width: 100%;
+      height: 100%;
+      z-index: 2;
+      pointer-events: none;
+      
+      .egg-path {
+        fill: none;
+        stroke: rgba(255, 255, 255, 0.1);
+        stroke-width: 2;
+        stroke-dasharray: 4,4;
+      }
+      
+      .active-path {
+         fill: none;
+         stroke: $uni-color-primary;
+         stroke-linecap: round;
+         filter: drop-shadow(0 0 8rpx $uni-color-primary);
+         stroke-dashoffset: 400;
+         stroke-dasharray: 400;
+         animation: drawPath 2s forwards;
+      }
+    }
+
+    .pulse {
+      position: absolute;
+      inset: 0;
+      border: 1px solid rgba(0, 240, 255, 0.2);
+      border-radius: 50%;
+      opacity: 0;
+      animation: pulse 4s infinite;
+      z-index: 3;
+    }
+
+    .scanner {
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      width: 300rpx;
+      height: 300rpx;
+      background: conic-gradient(from 0deg, rgba(0, 240, 255, 0.2) 0deg, transparent 90deg);
+      transform-origin: 0 0;
+      animation: scan 3s linear infinite;
+      border-radius: 0 100% 0 0;
+      z-index: 4;
+    }
+
+    .target-dot {
+      position: absolute;
+      width: 48rpx;
+      height: 48rpx;
+      transform: translate(-50%, -50%);
+      z-index: 6;
+      transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+      
+      .dot-inner {
+        width: 100%;
+        height: 100%;
+        background: rgba(0, 240, 255, 0.2);
+        border-radius: 50%;
+        border: 2rpx solid rgba(0, 240, 255, 0.5);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        .egg-icon { font-size: 24rpx; }
+      }
+      
+      &.active .dot-inner {
+         background: $uni-color-primary;
+         border-color: #fff;
+         box-shadow: 0 0 20rpx $uni-color-primary;
+         transform: scale(1.2);
+      }
+
+      &.type-panorama .dot-inner { border-color: #818cf8; background: rgba(129, 140, 248, 0.2); }
+      &.type-bubble .dot-inner { border-color: #fff; background: rgba(255, 255, 255, 0.1); }
+      
+      .point-label {
+        position: absolute;
+        top: 52rpx;
+        left: 50%;
+        transform: translateX(-50%);
+        white-space: nowrap;
+        font-size: 18rpx;
+        color: #fff;
+        background: rgba(0,0,0,0.5);
+        padding: 2rpx 10rpx;
+        border-radius: 4rpx;
+      }
+    }
+
+    .center-dot {
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      z-index: 10;
+      
+      .user-beacon {
+         position: relative;
+         display: flex;
+         align-items: center;
+         justify-content: center;
+         .u { font-size: 40rpx; z-index: 2; filter: drop-shadow(0 0 10rpx $uni-color-primary); }
+         .beacon-wave {
+            position: absolute; inset: -20rpx;
+            border: 2rpx solid $uni-color-primary;
+            border-radius: 50%;
+            animation: beaconPulse 2s infinite;
+         }
+      }
+      
+      .guide-arrow {
+        position: absolute;
+        width: 0;
+        height: 0;
+        .arrow-body {
+          width: 0;
+          height: 0;
+          border-left: 15rpx solid transparent;
+          border-right: 15rpx solid transparent;
+          border-bottom: 40rpx solid $uni-color-primary;
+          position: absolute;
+          bottom: 60rpx;
+          left: -15rpx;
+          filter: drop-shadow(0 0 10rpx $uni-color-primary);
+        }
+      }
+    }
+  }
+}
 .status-box { 
   margin-top: 60rpx; 
   padding: 24rpx 60rpx; 
@@ -884,8 +1073,10 @@ const collectCapsule = () => {
 }
 
 @keyframes scan { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }
+@keyframes pulse { 0% { transform: scale(0.6); opacity: 0.6; } 100% { transform: scale(1.1); opacity: 0; } }
+@keyframes beaconPulse { 0% { transform: scale(0.8); opacity: 0.6; } 100% { transform: scale(1.5); opacity: 0; } }
+@keyframes drawPath { to { stroke-dashoffset: 0; } }
 @keyframes portalSpin { from { transform: rotate(0deg) scale(1); } 50% { transform: rotate(180deg) scale(1.1); } to { transform: rotate(360deg) scale(1); } }
-@keyframes pulse { 0% { transform: scale(0.5); opacity: 0; } 100% { transform: scale(1.1); opacity: 0; } }
 // 全景查看器样式
 .panorama-viewer-overlay {
   position: fixed; inset: 0; z-index: 5000; background: #000;
