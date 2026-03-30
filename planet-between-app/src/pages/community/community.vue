@@ -46,6 +46,7 @@
           </view>
           <view class="route-details">
             <text class="route-name pb-text-glow">{{ route.name }}</text>
+            <text class="route-desc">{{ route.desc }}</text>
             <view class="route-stats">
               <text class="stat">📍 {{ route.distance }}km</text>
               <text class="stat">⛰️ {{ route.climb }}m</text>
@@ -79,9 +80,9 @@ const explorePosts = ref([
 ])
 
 const curatedRoutes = ref([
-  { name: '玄武湖 30KM 巡航路线', distance: 30.2, climb: 120, time: '1h 15m', tag: 'OFFICIAL', cover: '../../static/images/road_book_1.png' },
-  { name: '秦淮河夜骑·穿越古都', distance: 15.5, climb: 45, time: '45m', tag: 'NIGHT', cover: '../../static/images/community_1.png' },
-  { name: '紫金山森林越野挑战', distance: 42.0, climb: 850, time: '3h 20m', tag: 'PRO', cover: '../../static/images/bike_hero.png' }
+  { name: '玄武湖 30KM 巡航路线', desc: '感受金陵古城的湖光山色，全平路缓行，适合周末放松。', distance: 30.2, climb: 120, time: '1h 15m', tag: 'OFFICIAL', cover: '../../static/images/road_book_1.png' },
+  { name: '秦淮河夜骑·穿越古都', desc: '灯火阑珊处的十里秦淮，感受穿越千年的桨声灯影。', distance: 15.5, climb: 45, time: '45m', tag: 'NIGHT', cover: '../../static/images/community_1.png' },
+  { name: '紫金山森林越野挑战', desc: '在这里挑战你的极限，密林与陡坡的博弈，专业骑手首选。', distance: 42.0, climb: 850, time: '3h 20m', tag: 'PRO', cover: '../../static/images/bike_hero.png' }
 ])
 
 const downloadRoute = (name) => {
@@ -239,6 +240,17 @@ const downloadRoute = (name) => {
       .route-name {
         font-size: 32rpx;
         font-weight: bold;
+      }
+      
+      .route-desc {
+        font-size: 20rpx;
+        color: $uni-text-color-grey;
+        margin-top: 10rpx;
+        display: -webkit-box;
+        -webkit-box-orient: vertical;
+        -webkit-line-clamp: 2;
+        line-clamp: 2;
+        overflow: hidden;
       }
       
       .route-stats {
