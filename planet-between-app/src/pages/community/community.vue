@@ -40,20 +40,31 @@
     <scroll-view scroll-y class="route-scroll" v-if="currentTab === 1">
       <view class="route-list">
         <view class="route-card pb-glass-card" v-for="(route, i) in curatedRoutes" :key="'r'+i">
-          <view class="route-cover">
-            <image :src="route.cover" mode="aspectFill" class="cover-img"></image>
-            <text class="cover-tag">{{ route.tag }}</text>
+          <view class="route-header">
+            <image :src="route.cover" mode="aspectFill" class="route-image"></image>
+            <view class="route-overlay">
+              <text class="tag">{{ route.tag }}</text>
+            </view>
           </view>
-          <view class="route-details">
-            <text class="route-name pb-text-glow">{{ route.name }}</text>
-            <text class="route-desc">{{ route.desc }}</text>
-            <view class="route-stats">
-              <text class="stat">📍 {{ route.distance }}km</text>
-              <text class="stat">⛰️ {{ route.climb }}m</text>
-              <text class="stat">⏱️ {{ route.time }}</text>
+          <view class="route-info">
+            <text class="route-title pb-text-glow">{{ route.name }}</text>
+            <text class="route-summary">{{ route.desc }}</text>
+            <view class="route-metrics">
+              <view class="m-item">
+                <text class="m-label">距离</text>
+                <text class="m-val">{{ route.distance }}km</text>
+              </view>
+              <view class="m-item">
+                <text class="m-label">爬升</text>
+                <text class="m-val">{{ route.climb }}m</text>
+              </view>
+              <view class="m-item">
+                <text class="m-label">耗时</text>
+                <text class="m-val">{{ route.time }}</text>
+              </view>
             </view>
             <view class="action-btn" @click="downloadRoute(route.name)">
-              <text>下载离线路书</text>
+              下载离线路书
             </view>
           </view>
         </view>
@@ -204,80 +215,94 @@ const downloadRoute = (name) => {
   }
 }
 
-/* 路书列表样式 */
 .route-list {
-  padding: 20rpx 40rpx;
+  padding: 30rpx;
   display: flex;
   flex-direction: column;
-  gap: 30rpx;
+  gap: 40rpx;
   
   .route-card {
-    padding: 0;
-    overflow: hidden;
-    position: relative;
+    padding: 0 !important;
+    overflow: hidden !important;
+    display: flex !important;
+    flex-direction: column !important;
+    border-radius: 24rpx;
     
-    .route-cover {
-      height: 240rpx;
-      background: linear-gradient(135deg, rgba(0,240,255,0.1), rgba(13,13,13,1));
+    .route-header {
+      width: 100%;
+      height: 320rpx;
       position: relative;
       
-      .cover-tag {
+      .route-image {
+        width: 100%;
+        height: 100%;
+      }
+      
+      .route-overlay {
         position: absolute;
-        top: 20rpx;
-        left: 20rpx;
-        background: $uni-color-primary;
-        color: #000;
-        font-size: 18rpx;
-        font-weight: 800;
-        padding: 4rpx 12rpx;
-        border-radius: 4rpx;
+        inset: 0;
+        background: linear-gradient(to bottom, rgba(0,0,0,0.4), transparent);
+        padding: 20rpx;
+        
+        .tag {
+          background: $uni-color-primary;
+          color: #000;
+          font-size: 20rpx;
+          font-weight: 900;
+          padding: 6rpx 16rpx;
+          border-radius: 8rpx;
+        }
       }
     }
     
-    .route-details {
+    .route-info {
       padding: 30rpx;
+      display: flex;
+      flex-direction: column;
+      gap: 16rpx;
       
-      .route-name {
-        font-size: 32rpx;
+      .route-title {
+        font-size: 36rpx;
         font-weight: bold;
       }
       
-      .route-desc {
-        font-size: 20rpx;
-        color: $uni-text-color-grey;
-        margin-top: 10rpx;
-        display: -webkit-box;
-        -webkit-box-orient: vertical;
-        -webkit-line-clamp: 2;
-        line-clamp: 2;
-        overflow: hidden;
+      .route-summary {
+        font-size: 24rpx;
+        color: #aaa;
+        line-height: 1.6;
       }
       
-      .route-stats {
+      .route-metrics {
         display: flex;
-        gap: 30rpx;
-        margin-top: 20rpx;
+        justify-content: space-between;
+        margin: 10rpx 0;
         
-        .stat {
-          font-size: 22rpx;
-          color: $uni-text-color-grey;
+        .m-item {
+          display: flex;
+          flex-direction: column;
+          gap: 4rpx;
+          
+          .m-label { font-size: 18rpx; color: #666; letter-spacing: 2rpx; }
+          .m-val { font-size: 28rpx; font-weight: bold; color: #fff; }
         }
       }
       
       .action-btn {
-        margin-top: 30rpx;
-        background: rgba(0, 240, 255, 0.1);
+        margin-top: 10rpx;
+        width: 100%;
+        height: 80rpx;
         border: 1px solid $uni-color-primary;
         color: $uni-color-primary;
-        text-align: center;
-        padding: 16rpx 0;
-        border-radius: 8rpx;
+        display: flex;
+        align-items: center;
+        justify-content: center;
         font-size: 24rpx;
         font-weight: bold;
-        letter-spacing: 2rpx;
+        border-radius: 12rpx;
+        background: rgba(0, 240, 255, 0.05);
         
         &:active {
-          background: rgba(0, 240, 255, 0.3);
+          background: rgba(0, 240, 255, 0.2);
         }
       }
     }
