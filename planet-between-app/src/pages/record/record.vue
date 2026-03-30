@@ -26,7 +26,7 @@
               <text class="lab">AVG</text>
             </view>
           </view>
-          <image src="@/static/images/road_book_1.png" mode="aspectFill" class="record-map"></image>
+          <image src="../../static/images/road_book_1.png" mode="aspectFill" class="record-map"></image>
         </view>
       </view>
     </view>

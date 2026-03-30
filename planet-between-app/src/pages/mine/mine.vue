@@ -41,7 +41,7 @@
         <text class="sub-title">我的车库</text>
       </view>
       <view class="garage-card pb-glass-card">
-        <image src="@/static/images/vapor_bike.png" mode="aspectFit" class="bike-img"></image>
+        <image src="../../static/images/vapor_bike.png" mode="aspectFit" class="bike-img"></image>
         <view class="bike-info">
           <text class="brand">PLANET</text>
           <text class="name pb-text-glow">VAPOR</text>

@@ -72,16 +72,16 @@ import PbTabbar from '@/components/pb-tabbar.vue'
 const currentTab = ref(0)
 
 const explorePosts = ref([
-  { title: '周末山路折叠打卡！', author: '宇宙浪人', avatar: '👨‍🚀', image: '@/static/images/community_1.png', likes: 128 },
-  { title: 'Planet Vapor 骑行体验：这就是未来', author: '骑士十二', avatar: '🚴', image: '@/static/images/community_2.png', likes: 256 },
-  { title: '大理洱海环湖 120km 全记录', author: '环球探险家', avatar: '🌍', image: '@/static/images/road_book_1.png', likes: 512 },
-  { title: '碳纤维车架的极致轻量感', author: '极客单车', avatar: '🔧', image: '@/static/images/bike_hero.png', likes: 64 }
+  { title: '周末山路折叠打卡！', author: '宇宙浪人', avatar: '👨‍🚀', image: '../../static/images/community_1.png', likes: 128 },
+  { title: 'Planet Vapor 骑行体验：这就是未来', author: '骑士十二', avatar: '🚴', image: '../../static/images/community_2.png', likes: 256 },
+  { title: '大理洱海环湖 120km 全记录', author: '环球探险家', avatar: '🌍', image: '../../static/images/road_book_1.png', likes: 512 },
+  { title: '碳纤维车架的极致轻量感', author: '极客单车', avatar: '🔧', image: '../../static/images/bike_hero.png', likes: 64 }
 ])
 
 const curatedRoutes = ref([
-  { name: '玄武湖 30KM 巡航路线', distance: 30.2, climb: 120, time: '1h 15m', tag: 'OFFICIAL', cover: '@/static/images/road_book_1.png' },
-  { name: '秦淮河夜骑·穿越古都', distance: 15.5, climb: 45, time: '45m', tag: 'NIGHT', cover: '@/static/images/community_1.png' },
-  { name: '紫金山森林越野挑战', distance: 42.0, climb: 850, time: '3h 20m', tag: 'PRO', cover: '@/static/images/bike_hero.png' }
+  { name: '玄武湖 30KM 巡航路线', distance: 30.2, climb: 120, time: '1h 15m', tag: 'OFFICIAL', cover: '../../static/images/road_book_1.png' },
+  { name: '秦淮河夜骑·穿越古都', distance: 15.5, climb: 45, time: '45m', tag: 'NIGHT', cover: '../../static/images/community_1.png' },
+  { name: '紫金山森林越野挑战', distance: 42.0, climb: 850, time: '3h 20m', tag: 'PRO', cover: '../../static/images/bike_hero.png' }
 ])
 
 const downloadRoute = (name) => {

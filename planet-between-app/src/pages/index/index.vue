@@ -11,7 +11,7 @@
         <text class="model-name">VAPOR</text>
         <!-- Bike Hero Image (Positioned Under Vapor) -->
         <view class="hero-section">
-          <image src="/static/images/vapor_bike.png" mode="aspectFit" class="hero-image"></image>
+          <image src="../../static/images/vapor_bike.png" mode="aspectFit" class="hero-image"></image>
         </view>
       </view>
     </view>
@@ -71,8 +71,8 @@
     
     <!-- Action Button -->
     <view class="action-section">
-      <view class="start-btn" @click="startRiding">
-        <text class="btn-text">START RIDING</text>
+      <view class="start-btn" :class="{ 'stop-mode': isRiding }" @click="toggleRiding">
+        <text class="btn-text">{{ isRiding ? 'STOP RIDING' : 'START RIDING' }}</text>
         <view class="btn-glow"></view>
       </view>
     </view>
@@ -106,13 +106,33 @@ const soundHorn = () => {
   uni.showToast({ title: 'Beep!', icon: 'none' })
 }
 
+const isRiding = ref(false)
+
 const startRiding = () => {
   uni.vibrateLong()
   uni.showLoading({ title: 'Initializing...' })
   setTimeout(() => {
     uni.hideLoading()
+    isRiding.value = true
     uni.showToast({ title: 'Ride Started!', icon: 'success' })
   }, 1000)
+}
+
+const toggleRiding = () => {
+  if (isRiding.value) {
+    uni.showModal({
+      title: '结束骑行',
+      content: '确定要结束本次骑行并保存数据吗？',
+      success: (res) => {
+        if (res.confirm) {
+          isRiding.value = false
+          uni.showToast({ title: 'Ride Saved!', icon: 'success' })
+        }
+      }
+    })
+  } else {
+    startRiding()
+  }
 }
 </script>
 
@@ -393,6 +413,14 @@ const startRiding = () => {
       box-shadow: 0 0 40rpx $uni-color-primary;
       opacity: 0.5;
       animation: pulseGlow 2s infinite;
+    }
+    
+    &.stop-mode {
+      background: #ff4d4f;
+      box-shadow: 0 0 30rpx rgba(255, 77, 79, 0.4);
+      .btn-glow {
+        box-shadow: 0 0 40rpx #ff4d4f;
+      }
     }
     
     &:active {
