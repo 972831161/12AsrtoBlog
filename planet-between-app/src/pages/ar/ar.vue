@@ -220,8 +220,11 @@ const handleDeviceOrientation = (event) => {
     initialPitch = b
     initialYaw = g
   }
-  pitch.value = b - initialPitch
-  yaw.value = g - initialYaw
+  
+  // 一阶低通滤波，平滑旋转抖动
+  const alpha = 0.15
+  pitch.value = pitch.value * (1 - alpha) + (b - initialPitch) * alpha
+  yaw.value = yaw.value * (1 - alpha) + (g - initialYaw) * alpha
 }
 
 // 核心逻辑：双重积分估算位移
@@ -251,9 +254,8 @@ const handleDeviceMotion = (event) => {
   velY = (velY + ay * dt) * 0.96
   velZ = (velZ + az * dt) * 0.96
 
-  // 二阶积分求位移 (放大系数，因为 CSS 像素与物理米的映射)
-  // 1米 约等于 1000px 深度感
-  const scale = 500 
+  // 二阶积分求位移 (放大系数，以匹配 CSS 3D 透视感)
+  const scale = 1200 
   posX.value += velX * dt * scale
   posY.value += velY * dt * scale
   posZ.value += velZ * dt * scale
@@ -272,17 +274,17 @@ const resetAnchor = () => {
   posY.value = 0
   posZ.value = 0
   velX = 0; velY = 0; velZ = 0
+  lastMotionTime = 0
   uni.showToast({ title: '锚点已重置', icon: 'none' })
 }
 
-// 核心转换：整合旋转与平移补偿
+// 核心转换：整合旋转与平移补偿 (校准后的极性)
 const worldTransform = computed(() => {
   return {
     transform: `
-      perspective(1200px)
-      rotateX(${pitch.value}deg) 
-      rotateY(${yaw.value}deg)
-      translate3d(${-posX.value}px, ${posY.value}px, ${posZ.value}px)
+      rotateY(${-yaw.value}deg)
+      rotateX(${-pitch.value}deg)
+      translate3d(${-posX.value}px, ${posY.value}px, ${-posZ.value}px)
     `
   }
 })
