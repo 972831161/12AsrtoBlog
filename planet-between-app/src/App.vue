@@ -16,6 +16,43 @@ export default {
 /* 此处全局引入 uni.scss 变量，确保全局组件生效 */
 @import '@/uni.scss';
 
+/* H5 Desktop 适配：限定最大宽度并居中 */
+@media screen and (min-width: 600px) {
+  html, body {
+    background-color: #050505 !important;
+  }
+  
+  uni-app {
+    overflow: hidden;
+  }
+
+  uni-page-body {
+    max-width: 450px !important;
+    margin: 0 auto !important;
+    min-height: 100vh !important;
+    border-left: 1px solid rgba(255, 255, 255, 0.1);
+    border-right: 1px solid rgba(255, 255, 255, 0.1);
+    box-shadow: 0 0 100px rgba(0, 240, 255, 0.1);
+    background: #000;
+    position: relative;
+  }
+
+  /* 适配固定定位的 TabBar */
+  .pb-tabbar {
+    left: 50% !important;
+    right: auto !important;
+    transform: translateX(-50%) !important;
+    width: 450px !important;
+  }
+
+  /* 适配固定投影/弹窗 */
+  uni-toast, uni-modal, uni-actionsheet {
+    max-width: 450px !important;
+    left: 50% !important;
+    transform: translateX(-50%) !important;
+  }
+}
+
 page {
   /* 基础黑底白字 */
   background-color: $uni-bg-color;
