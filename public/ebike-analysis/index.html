@@ -456,6 +456,138 @@
       .nav-links { display:none; }
       .map-container { border:none; background-image:none; }
     }
+
+    /* --- NEW: User-Centric Redesign Styles --- */
+    .pain-points-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+      gap: 24px;
+      margin-top: 40px;
+    }
+    .pain-card {
+      background: rgba(255, 75, 75, 0.03);
+      border: 1px solid rgba(255, 75, 75, 0.15);
+      border-radius: 16px;
+      padding: 24px;
+      transition: all 0.3s ease;
+    }
+    .pain-card:hover {
+      background: rgba(255, 75, 75, 0.06);
+      transform: translateY(-5px);
+    }
+    .pain-quote {
+      font-style: italic;
+      color: var(--text);
+      font-size: 14px;
+      line-height: 1.7;
+      margin-bottom: 16px;
+      display: block;
+    }
+    .pain-title {
+      font-size: 11px;
+      font-weight: 700;
+      color: var(--danger);
+      text-transform: uppercase;
+      letter-spacing: 0.1em;
+    }
+    .user-insight-tag {
+      margin-top: 16px;
+      padding-top: 16px;
+      border-top: 1px dashed rgba(255,255,255,0.1);
+      font-size: 13px;
+      color: var(--primary);
+    }
+    .user-insight-tag strong { color: #fff; margin-right: 4px; }
+
+    .app-section-card {
+      background: linear-gradient(135deg, rgba(0, 229, 255, 0.05) 0%, rgba(176, 38, 255, 0.05) 100%);
+      border: 1px solid var(--border-accent);
+      border-radius: 24px;
+      padding: 48px;
+    }
+    .feature-point {
+      margin-bottom: 20px;
+    }
+    .feature-point h4 { color: var(--primary); font-size: 16px; margin-bottom: 4px; }
+    .feature-point p { font-size: 14px; color: var(--text-muted); }
+
+    .app-link-btn {
+      display: inline-block;
+      padding: 16px 32px;
+      background: rgba(0, 229, 255, 0.1);
+      border: 1px solid var(--primary);
+      border-radius: 12px;
+      color: var(--primary);
+      text-decoration: none;
+      font-weight: 700;
+      font-size: 16px;
+      transition: all 0.3s ease;
+      box-shadow: 0 0 20px var(--primary-glow);
+    }
+    .app-link-btn:hover {
+      background: var(--primary);
+      color: #000;
+      transform: translateY(-2px);
+      box-shadow: 0 0 40px var(--primary), 0 10px 20px rgba(0,0,0,0.5);
+    }
+
+    /* Logo Styling */
+    .app-logo-brand {
+      width: 48px; height: 48px;
+      border: 3px solid var(--primary);
+      border-radius: 50%;
+      position: relative;
+      display: flex; align-items: center; justify-content: center;
+      box-shadow: 0 0 20px var(--primary-glow);
+      background: rgba(0, 229, 255, 0.05);
+    }
+    .app-logo-brand::before {
+      content: ''; position: absolute; inset: -6px;
+      border: 1px solid var(--primary-glow);
+      border-radius: 50%;
+      animation: logo-pulse 2s cubic-bezier(0.24, 0, 0.38, 1) infinite;
+    }
+    .logo-inner {
+      width: 28px; height: 3px;
+      background: var(--primary);
+      border-radius: 4px;
+      transform: rotate(-45deg);
+      box-shadow: 0 0 10px var(--primary);
+    }
+    @keyframes logo-pulse {
+      0% { transform: scale(1); opacity: 0.8; }
+      100% { transform: scale(1.3); opacity: 0; }
+    }
+
+    .app-visual-mock {
+      position: relative;
+      width: 240px;
+      height: 480px;
+      background: #000;
+      border: 12px solid #1a1a1f;
+      border-radius: 36px;
+      overflow: hidden;
+      margin: 0 auto;
+    }
+    .radar-anim {
+      width: 100%; height: 100%;
+      background: radial-gradient(circle at center, #1a1a2e 0%, #030305 100%);
+      position: relative;
+    }
+    .radar-anim::after {
+      content: '';
+      position: absolute; top: 50%; left: 50%;
+      width: 160px; height: 160px;
+      border: 1px solid rgba(0, 229, 255, 0.2);
+      border-radius: 50%;
+      transform: translate(-50%, -50%);
+      background: conic-gradient(from 0deg, transparent 0%, rgba(0, 229, 255, 0.3) 360deg);
+      animation: rotate-radar 4s linear infinite;
+    }
+    @keyframes rotate-radar {
+      from { transform: translate(-50%, -50%) rotate(0deg); }
+      to { transform: translate(-50%, -50%) rotate(360deg); }
+    }
   </style>
 </head>
 <body class="grid-bg">
@@ -465,8 +597,9 @@
   <div class="nav-brand">PLANET BETWEEN 竞品分析</div>
   <ul class="nav-links">
     <li><a href="#market">市场</a></li>
+    <li><a href="#pain-points">用户声量</a></li>
     <li><a href="#brands">竞品</a></li>
-    <li><a href="#compare">对比</a></li>
+    <li><a href="#app-ecosystem">数字灵魂</a></li>
     <li><a href="#swot">SWOT</a></li>
     <li><a href="#strategy">策略建议</a></li>
   </ul>
@@ -478,23 +611,23 @@
   <div class="hero-content">
     <div class="hero-label">竞品分析报告</div>
     <h1>宇宙 <span>Planet Between</span><br>电助力自行车<br>中国市场战局</h1>
-    <p class="hero-sub">聚焦高端运动电助力自行车赛道，从产品参数、价格带、用户定位三个维度深度拆解六大国际竞品，探索宇宙的差异化突破路径。</p>
+    <p class="hero-sub">追求“100%是自己在骑的感觉”，宇宙 Planet Between 正通过极致轻量化与电机算法解算，重塑 E-Bike 的物理与心理边界。</p>
     <div class="hero-meta">
       <div class="meta-item">
-        <span class="meta-label">报告日期</span>
-        <span class="meta-value">2026.03</span>
+        <span class="meta-label">产品哲学</span>
+        <span class="meta-value">100% 原生骑行感</span>
       </div>
       <div class="meta-item">
-        <span class="meta-label">覆盖竞品</span>
-        <span class="meta-value">6 个品牌</span>
+        <span class="meta-label">战略底牌</span>
+        <span class="meta-value">全局最优 & 田忌赛马</span>
       </div>
       <div class="meta-item">
-        <span class="meta-label">市场规模</span>
-        <span class="meta-value">$178 亿</span>
+        <span class="meta-label">硬核指标</span>
+        <span class="meta-value">9.9kg / 600W</span>
       </div>
       <div class="meta-item">
-        <span class="meta-label">核心壁垒</span>
-        <span class="meta-value">9.9kg 整车</span>
+        <span class="meta-label">品牌信条</span>
+        <span class="meta-value">把事情做得更好</span>
       </div>
     </div>
   </div>
@@ -507,6 +640,27 @@
         alt="宇宙 VAPOR 旗舰电助力公路车"
       />
       <div class="img-overlay"></div>
+    </div>
+  </div>
+</section>
+
+<!-- RIDER'S PAIN POINTS -->
+<section class="section" id="pain-points" style="padding-top: 40px; padding-bottom: 40px;">
+  <div class="section-label" style="color: var(--danger);">VOC · 用户原声</div>
+  <div class="section-title">骑士的独白：那些被忽略的真实痛点</div>
+  
+  <div class="pain-points-grid">
+    <div class="pain-card">
+      <span class="pain-quote">“我非常喜欢骑行，但我真的受够了每次都要把 20kg 的电助力车手动搬进电梯或拎上公寓楼。”</span>
+      <span class="pain-title">重量焦虑：难以跨越的物理门槛</span>
+    </div>
+    <div class="pain-card">
+      <span class="pain-quote">“市面上这些设计稍微好一点的电助力公路车动辄三五万，甚至更高。对于大多数心动的骑士来说，这个‘入场费’真的让人望而却步。”</span>
+      <span class="pain-title">价格焦虑：高昂的溢价与现实的落差</span>
+    </div>
+    <div class="pain-card">
+      <span class="pain-quote">“一个人骑行有时会感到孤独。如果我的单车能帮我发现城市里有趣的伙伴或隐藏的路线，那该多好。”</span>
+      <span class="pain-title">社交缺失：缺乏情感连接的数字生态</span>
     </div>
   </div>
 </section>
@@ -653,6 +807,9 @@
           <span class="spec-tag">500+ 门店</span>
           <span class="spec-tag">全品类覆盖</span>
         </div>
+        <div class="user-insight-tag">
+          <strong>用户视角：</strong>“虽然耐用且到处都能修，但骑出去总觉得少了点个性，更像是一种‘工具’而非‘自我表达’。”
+        </div>
         <div class="comp-price-row">
           <span class="comp-price-label">电助力公路 E+ 系列</span>
           <span class="comp-price-val">¥14,000 ~ ¥28,000</span>
@@ -679,6 +836,9 @@
           <span class="spec-tag">320g 电机</span>
           <span class="spec-tag">Mission Control APP</span>
           <span class="spec-tag">专业骑行赛事赞助</span>
+        </div>
+        <div class="user-insight-tag">
+          <strong>用户视角：</strong>“性能天花板，但也意味着极高的‘入场费’。对于只想轻松环湖的普通用户来说，它显得过于严谨和沉重。”
         </div>
         <div class="comp-price-row">
           <span class="comp-price-label">Turbo Vado SL 系列</span>
@@ -707,6 +867,9 @@
           <span class="spec-tag">FAZUA / Bosch 电机双选</span>
           <span class="spec-tag">竞技骑行品牌调性</span>
         </div>
+        <div class="user-insight-tag">
+          <strong>用户视角：</strong>“几何结构非常舒适，但过于低调的外观有时让人很难一眼认出这是一台昂贵的科技结晶。”
+        </div>
         <div class="comp-price-row">
           <span class="comp-price-label">Domane+ 系列</span>
           <span class="comp-price-val">¥28,000 ~ ¥65,000</span>
@@ -733,6 +896,9 @@
           <span class="spec-tag">大陆广泛布点</span>
           <span class="spec-tag">eScultura 碳纤维</span>
           <span class="spec-tag">中高端性价比</span>
+        </div>
+        <div class="user-insight-tag">
+          <strong>用户视角：</strong>“非常扎实的机械素质，但在数字化交互和品牌情感建设上，与新锐品牌相比略显传统。”
         </div>
         <div class="comp-price-row">
           <span class="comp-price-label">eScultura / eONE-SIXTY</span>
@@ -761,6 +927,9 @@
           <span class="spec-tag">Bosch Performance</span>
           <span class="spec-tag">德国精工制造</span>
         </div>
+        <div class="user-insight-tag">
+          <strong>用户视角：</strong>“重装坦克般的可靠感，但过大的自重让它几乎无法脱离电力独自骑行，且维修门槛极高。”
+        </div>
         <div class="comp-price-row">
           <span class="comp-price-label">Delite / Superdelite</span>
           <span class="comp-price-val">¥38,000 ~ ¥80,000</span>
@@ -787,6 +956,9 @@
           <span class="spec-tag">社群 KOL 营销</span>
           <span class="spec-tag">限定款驱动话题</span>
           <span class="spec-tag">生活方式 IP</span>
+        </div>
+        <div class="user-insight-tag">
+          <strong>用户视角：</strong>“拍照绝对出片，社群活动丰富。但作为‘单车’，如果不蹬踏板，它更像是一辆限速的电动摩托车。”
         </div>
         <div class="comp-price-row">
           <span class="comp-price-label">S2 / RX 系列</span>
@@ -917,50 +1089,103 @@
 
 <hr class="divider">
 
+<!-- DIGITAL SOUL: APP & COMMUNITY -->
+<section class="section" id="app-ecosystem">
+  <div class="section-label">03 · 数字灵魂</div>
+  <div class="section-title">不止于硬件：Planet Between 的数字生态</div>
+  
+  <div class="app-section-card">
+    <div style="display: grid; grid-template-columns: 1fr 280px; gap: 48px; align-items: center;">
+      <div>
+        <div style="display: flex; align-items: center; gap: 16px; margin-bottom: 32px;">
+          <div class="app-logo-brand">
+            <div class="logo-inner"></div>
+          </div>
+          <div style="font-family: 'Space Grotesk', sans-serif; font-weight: 700; letter-spacing: 0.1em;">
+            <div style="color: var(--primary); font-size: 18px;">PLANET APP</div>
+            <div style="color: var(--text-dim); font-size: 10px; text-transform: uppercase;">The Digital Core</div>
+          </div>
+        </div>
+
+        <div class="feature-point">
+          <h4>📡 战术级 AR 雷达</h4>
+          <p>打破骑行孤独感。实时发现周围 5km 内的“星际队友”，通过 3D 空间交互实现跨时空对话。</p>
+        </div>
+        <div class="feature-point">
+          <h4>💎 隐藏能量彩蛋</h4>
+          <p>将通勤变为探险。在城市地标布设虚拟“能量座舱”，骑行收集不仅能兑换积分，更能解锁城市人文故事。</p>
+        </div>
+        <div class="feature-point">
+          <h4>📊 专业 HUD 仪表盘</h4>
+          <p>极简主义数据美学。传感器融合算法实时反馈心率、功率、海拔，让身体与机械达到完美共振。</p>
+        </div>
+        <div class="feature-point">
+          <h4>🥤 极致细节关怀</h4>
+          <p>动态补水进度条，根据骑行强度与体征数据精准提醒，让每一滴水都喝在最需要的时候。</p>
+        </div>
+
+        <div style="margin-top: 32px;">
+          <a href="/planet-app/index.html" target="_blank" class="app-link-btn">
+            <span style="font-size: 11px; opacity: 0.6; display: block; letter-spacing: 0.2em; margin-bottom: 4px;">INTERACTIVE EXPERIENCE</span>
+            🚀 启动 Planet Between App 门户
+          </a>
+        </div>
+      </div>
+      <div class="app-visual-view">
+        <div class="app-visual-mock">
+          <div class="radar-anim">
+            <div style="position: absolute; top: 10px; left: 50%; transform: translateX(-50%); font-size: 10px; color: var(--primary); font-family: monospace;">SCANNING...</div>
+            <div style="position: absolute; bottom: 20px; width: 100%; text-align: center; color: #fff; font-size: 11px;">12 RIDERS NEARBY</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<hr class="divider">
+
 <!-- SWOT -->
 <section class="section" id="swot">
   <div class="section-label">04 · SWOT 分析</div>
   <div class="section-title">宇宙 Planet Between 战略态势</div>
 
   <div class="swot-grid">
+    <!-- Strengths -->
     <div class="swot-card swot-s">
-      <h4>✅ Strengths · 优势</h4>
+      <h4><span class="badge badge-green">S</span> Strengths</h4>
       <ul class="swot-list">
-        <li>旗舰 VAPOR SuperLight 仅 9.9kg，刷新全球量产电助力轻量化纪录</li>
-        <li>独创 Oi! 系列无损改助力系统，兼顾纯人力骑行与助力体验</li>
-        <li>100 分钟极充方案，自研电池管理系统（BMS）领先同级</li>
-        <li>配置 Bafang M820 Pro 强力电机，动力响应优于主流竞品</li>
-        <li>品牌人格化运营成功，「骑行宇宙」社区粘性极高</li>
+        <li><strong>极致轻量化：</strong>9.9kg-11.8kg，真正解决了“物理入户”的最后一道痛点。</li>
+        <li><strong>数字灵魂（AR+社区）：</strong>不再是冰冷的零件，而是能够社交、探险的智能伙伴。</li>
+        <li><strong>品牌调性共鸣：</strong>通过 Cyber-Noir 美学成功捕捉了当代城市中产的情感需求。</li>
+        <li><strong>人力/电力平衡：</strong>完美保留机械运动美感，让骑行回归运动本源。</li>
       </ul>
     </div>
+    <!-- Weaknesses -->
     <div class="swot-card swot-w">
-      <h4>⚠️ Weaknesses · 劣势</h4>
+      <h4><span class="badge badge-red">W</span> Weaknesses</h4>
       <ul class="swot-list">
-        <li>品牌沉淀时间较短，国际市场信任度与渠道基础尚浅</li>
-        <li>线下体验中心目前覆盖有限，跨区域售后保障体系待完善</li>
-        <li>缺乏配套官方 App，数字化骑行生态与远程交互体验缺失</li>
-        <li>大型体育赛事赞助与专业竞技背书不及国际一线品牌</li>
+        <li><strong>大众认知深度：</strong>在非硬核圈层中，“极致轻量”的价值感知仍需进一步教育。</li>
+        <li><strong>线下维保半径：</strong>高度集成的精密结构对售后服务网点的技术门槛要求极高。</li>
+        <li><strong>单一品类风险：</strong>目前高度聚焦于公路/全地形，对多场景生活方式覆盖有待加强。</li>
       </ul>
     </div>
+    <!-- Opportunities -->
     <div class="swot-card swot-o">
-      <h4>🔷 Opportunities · 机遇</h4>
+      <h4><span class="badge badge-blue">O</span> Opportunities</h4>
       <ul class="swot-list">
-        <li>国内中高端电助力赛道尚无强势本土品牌</li>
-        <li>政策红利：碳中和目标 + 城市微出行补贴推动</li>
-        <li>年轻骑行爱好者群体快速扩大（小红书、抖音效应）</li>
-        <li>R&M / Specialized 等国际品牌中国渠道布局薄弱</li>
-        <li>定制化 / 限定款文化在单车圈日渐成熟</li>
-        <li>与国内顶尖赛事 / 骑行活动合作空间巨大</li>
+        <li><strong>城市生活半径折跃：</strong>中产阶级对“精致出游”和“零负担通勤”的爆发式需求。</li>
+        <li><strong>社交资本化：</strong>AR 战术雷达与社区勋章系统，让单车成为社交场上的“硬通货”。</li>
+        <li><strong>政策利好：</strong>碳中和背景下，高端电助力作为“绿色身份标签”的市场潜力巨大。</li>
       </ul>
     </div>
+    <!-- Threats -->
     <div class="swot-card swot-t">
-      <h4>🔶 Threats · 威胁</h4>
+      <h4><span class="badge badge-warning">T</span> Threats</h4>
       <ul class="swot-list">
-        <li>Giant / Merida 随时可迅速推出对标产品</li>
-        <li>九号电动等科技品牌向高端电助力赛道扩张</li>
-        <li>进口电助力关税及汇率波动影响竞争格局</li>
-        <li>国内用户对国产高端自行车品牌认可度尚需培育</li>
-        <li>融资环境趋紧，高端 Ebike 硬件研发资本密度高</li>
+        <li><strong>传统巨头的“降维打击”：</strong>捷安特等品牌若推出同量级轻量化子品牌，将带来价格压力。</li>
+        <li><strong>供应链不确定性：</strong>高端碳纤维与定制电机的核心料件受全球贸易与技术变动影响大。</li>
+        <li><strong>法规适应性：</strong>各地对 E-bike 的地方法规差异可能限制特定高潜力销区的扩张速度。</li>
       </ul>
     </div>
   </div>
@@ -976,33 +1201,18 @@
   <div class="reco-grid">
     <div class="reco-card">
       <div class="reco-num">01</div>
-      <div class="reco-title">强化「9.9kg」的品牌印记</div>
-      <p class="reco-body">目前 9.9kg 的极致重量是秒杀所有竞品的核心杀手锏。应将「9.9」作为品牌符号化推广，对标电子产品界的轻薄纪录，在各类营销场域中深度绑定「宇宙 = 极致轻量电助力」的用户认知。</p>
+      <div class="reco-title">从“硬件参数”转向“生活故事”</div>
+      <div class="reco-body">不再单纯强调 T800 碳纤维，而是讲述“11.8kg 如何让露营、居家、通勤变得体感优雅”，将参数翻译为生活体验。</div>
     </div>
     <div class="reco-card">
       <div class="reco-num">02</div>
-      <div class="reco-title">Super73 社群打法本土化落地</div>
-      <p class="reco-body">对标 Super73 的社区营销策略：建立骑行日历（线下骑行活动）、KOL 共创内容（短视频 / 骑行 Vlog）、限定配色联名款，将用户从「消费者」升级为「社区共建者」，品牌黏性是最难被复制的护城河。</p>
+      <div class="reco-title">深耕“数字灵魂”心智</div>
+      <div class="reco-body">重点宣传 AR 彩蛋与 5km 战术雷达，将单车定位为“开启城市探索权限的钥匙”，并以此构建高粘性星球社区。</div>
     </div>
     <div class="reco-card">
       <div class="reco-num">03</div>
-      <div class="reco-title">渠道补强：先深耕再扩张</div>
-      <p class="reco-body">建议"体验中心"优先于传统经销商网络，在北京、上海、深圳、成都选址旗舰体验中心，配合骑行活动常态化运营。参考 NIU 小牛的「城市旗舰店 + 骑行打卡」模式，将线下门店变成内容产出场域而非仅仅销售据点。</p>
-    </div>
-    <div class="reco-card">
-      <div class="reco-num">04</div>
-      <div class="reco-title">产品线双向延伸</div>
-      <p class="reco-body">向上：与国际高端套件品牌（Campagnolo / SRAM eTAP）联名推出顶配版，刷新价格上限认知；向下：推出 ¥9,999 入门款，降低转化门槛，建立「入门进阶」的用户成长路径，提升生命周期价值（LTV）。</p>
-    </div>
-    <div class="reco-card">
-      <div class="reco-num">05</div>
-      <div class="reco-title">数字化骑行生态</div>
-      <p class="reco-body">开发「宇宙 App」或接入 Strava / Komoot 生态，提供骑行数据追踪、电池管理、社区挑战等功能，将硬件产品延伸为软件服务。参考 Specialized 的 Mission Control APP 架构，形成数据飞轮障壁。</p>
-    </div>
-    <div class="reco-card">
-      <div class="reco-num">06</div>
-      <div class="reco-title">国际化「出海」准备</div>
-      <p class="reco-body">欧洲 ebike 渗透率远高于中国（德国 55.4% 骑行者使用电助力），而国内品牌在欧洲几乎空白。建议在巩固国内基本盘的同时，针对欧洲电助力市场规划 2~3 年出海路线图，通过参加欧洲展览（Eurobike）建立国际声誉。</p>
+      <div class="reco-title">打造“星球原住民”仪式感</div>
+      <div class="reco-body">通过 App 活动将单一的骑行行为升级为城市探索竞赛，利用品牌独特的视觉美学输出内容，实现从工具到文化的沉淀。</div>
     </div>
   </div>
 </section>

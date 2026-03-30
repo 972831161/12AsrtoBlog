@@ -12,7 +12,7 @@ pinned: true
 
 调研目前的移动应用市场发现，大部分“骑行 App”如“黑鸟单车”或“际刻骑行”，虽有不错的 UI 设计，但定位更接近于记录工具（类似于“骑行版的 Keep”），缺乏与单车品牌硬件的深度耦合与品牌情感连结。即便是一些传统头部的专属 App（如捷安特），虽然功能扎实，但设计语言往往偏向传统工业感，未能充分释放电助力自行车（**E**-bike）应有的未来科技属性。
 
-鉴于 Planet Between 品牌目前尚未建立官方移动生态，我意识到一套极具辨识度的数字化交互方案将是品牌差异化竞争的关键。于是，我基于自己的产品理念并借助 Gemini 开发了这套**Planet Between（宇宙骑行）** 数字化解决方案。
+鉴于 Planet Between 品牌目前尚未建立官方移动生态（应该？，我意识到一套极具辨识度的数字化交互方案将是品牌差异化竞争的关键，并且有利于建立自己的社群。于是，我基于自己的一点产品理念并借助 Gemini 开发了这套**Planet Between（宇宙骑行）** 数字化解决方案。
 
 > **核心设计理念**：Cyber-Noir 硬核、骑行乐趣
 
@@ -46,8 +46,23 @@ pinned: true
 - **点位预检**：地图上清晰标注了三类能量舱的具体坐标及预设路径。
 - **高亮引导**：锁定目标后，系统会生成一条**霓虹蓝发光路径**，引导用户跟随雷达波段寻找最佳路线。
 
+#### 多彩能量舱（彩蛋）类型
+每一种彩蛋都是对物理空间的数字升华：
+
+1. **虚拟物品舱 (Virtual Objects)**
+   在真实的街道尽头，发现一个只为你留下的礼物。
+   ![物品彩蛋](/images/planet-app/ar_egg_object.webp)
+
+2. **时空留言气泡 (Message Bubbles)**
+   聆听曾经经过此地的骑士留下的只言片语，跨越时空的数字化社区由此构建。
+   ![文字彩蛋](/images/planet-app/ar_egg_text.webp)
+
+3. **360° 全景传送 (Panorama Portals)**
+   触碰彩蛋，瞬间传送至洱海或紫金山的巅峰，开启全景沉浸式视界。
+   ![全景彩蛋](/images/planet-app/ar_egg_panorama.webp)
+
 ### 4. 📊 硬核行程数据与个人中心
-行程记录卡告别千篇一律的风景图，取而代之的是硬核高科技感的 **GPS 轨迹回放图**（Hologram 科技感风格）。在全新模块化的个人中心，你可以浏览“我的车库”爱车状态，或细致观赏拟态玻璃风格的“成就勋章”。
+行程记录卡告别千篇一律的风景图，取而代之的是硬核高科技感的 **GPS 轨迹回放图**。在全新模块化的个人中心，你可以浏览“我的车库”爱车状态，或细致观赏拟态玻璃风格的“成就勋章”。
 
 ![硬核行程记录](/images/planet-app/ride_record.webp)
 
@@ -55,7 +70,7 @@ pinned: true
 
 ## 🕹️ 立即体验互动原型
 
-我已将该应用编译为 **H5 网页版**（推荐使用手机浏览器或开启浏览器手机模式观看）。
+推荐使用手机浏览器或开启浏览器手机模式观看。
 
 <a href="/planet-app/index.html" target="_blank" style="display:inline-block;padding:14px 28px;background:linear-gradient(135deg,#00f0ff,#7300ff);color:white;border-radius:12px;text-decoration:none;font-weight:900;font-size:16px;box-shadow: 0 4px 15px rgba(0, 240, 255, 0.4);">
   🌌 进入宇宙探索 (AR 原型)
@@ -68,5 +83,5 @@ pinned: true
 - **视觉层**：Custom Glassmorphism Design System
 - **核心组件**：LBS Radar Engine, WebCamera AR Simulation, Custom TabBar Logic
 
-> **求职自白**：
-> 这个项目不仅是我对硬件联动的技术尝试，更是对“探索型生活方式”的产品理解。我致力于打造能让用户在每一次蹬踏中都能感受到数字温度的产品。
+> **To 宇宙**：
+> 有这个小项目很大的一点原因就是想把其中的彩蛋功能给它实现，它能成为专业骑手在休息途中的意外之喜，也或许能吸引更多踌躇的人加入骑行这项运动，营造一个和谐互助的骑行氛围。
