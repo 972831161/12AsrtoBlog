@@ -214,10 +214,10 @@ let stream = null
 
 // 根据航向角计算全景图偏移
 const panoramaOffset = computed(() => {
-  // 基础偏移：将图片中心对齐
-  const base = -1200 
-  // 灵敏度下调，增加稳定性
-  return base + (-yaw.value * 12)
+  // 基础中心偏移
+  const base = -1000 
+  // 切换为同向逻辑 (yaw.value 前面不再加负号)
+  return base + (yaw.value * 10)
 })
 
 // 1. 姿态解算 (3DoF Rotation)
@@ -293,27 +293,46 @@ onUnmounted(() => {
 const handleDeviceOrientation = (event) => {
   if (!isARMode.value) return
   
-  // iOS/Android 姿态标准补全
-  let b = event.beta  // Pitch (-180 to 180) - 绕 X 轴
-  let g = event.gamma // Roll (-90 to 90) - 绕 Y 轴
-  let a = event.alpha // Yaw (0 to 360) - 绕 Z 轴 (指南针)
+  // 基础陀螺仪数据 (Device-relative)
+  const a = event.alpha // Compass Yaw (0-360)
+  const b = event.beta  // Pitch (-180-180)
+  const g = event.gamma // Roll (-90-90)
   
-  if (initialPitch === null) {
-    initialPitch = b
-    initialYaw = a
+  // 获取屏幕旋转角度 (0: 竖屏, 90: 横屏)
+  const orientation = (window.screen && window.screen.orientation && window.screen.orientation.angle) || window.orientation || 0
+  
+  let p, r, y = a
+  
+  // 根据屏幕状态归一化坐标轴
+  if (orientation === 90) { // 横屏 (Home 键在右)
+    p = -g 
+    r = b
+  } else if (orientation === -90) { // 横屏 (Home 键在左)
+    p = g
+    r = -b
+  } else if (orientation === 180) { // 倒竖屏
+    p = -b
+    r = -g
+  } else { // 竖屏 (默认)
+    p = b
+    r = g
   }
   
-  // 一阶低通滤波
-  const alpha = 0.2
-  pitch.value = pitch.value * (1 - alpha) + (b - initialPitch) * alpha
+  if (initialPitch === null) {
+    initialPitch = p
+    initialYaw = y
+  }
   
-  // 处理 Alpha 环形跳变 (0-360)
-  let yawDiff = a - initialYaw
+  // 低通滤波处理
+  const alpha = 0.2
+  pitch.value = pitch.value * (1 - alpha) + (p - initialPitch) * alpha
+  roll.value = roll.value * (1 - alpha) + r * alpha
+  
+  // 航向角连续性处理
+  let yawDiff = y - initialYaw
   if (yawDiff > 180) yawDiff -= 360
   if (yawDiff < -180) yawDiff += 360
   yaw.value = yaw.value * (1 - alpha) + yawDiff * alpha
-  
-  roll.value = g // 侧倾感
 }
 
 // 核心逻辑：双重积分估算位移
