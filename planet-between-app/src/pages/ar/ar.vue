@@ -91,7 +91,8 @@
         <!-- 诊断 HUD (Diagnostic HUD) -->
         <view class="debug-hud" style="position:absolute; top:200rpx; left:40rpx; color:#0f0; font-size:20rpx; z-index:1000; pointer-events:none; background:rgba(0,0,0,0.6); padding:16rpx; border-radius:12rpx; font-family:monospace;">
           <view>姿态: P{{ pitch.toFixed(1) }} Y{{ yaw.toFixed(1) }} R{{ roll.toFixed(1) }}</view>
-          <view>位移: X{{ posX.toFixed(0) }} Y{{ posY.toFixed(0) }} Z{{ posZ.toFixed(0) }}</view>
+          <view>方向: {{ orientationDebug }} | 位移: Z{{ posZ.toFixed(0) }}</view>
+          <view>逻辑: AR({{ yaw < 0 ? '反' : '正' }}) Pano({{ panoramaOffset > -1000 ? '正' : '反' }})</view>
           <view>类型: {{ activePoint?.type }} | 传感器: {{ lastMotionTime > 0 ? '在线' : '等待' }}</view>
         </view>
 
@@ -290,30 +291,37 @@ onUnmounted(() => {
   closeAR()
 })
 
+const orientationDebug = ref('P-0')
+
 const handleDeviceOrientation = (event) => {
   if (!isARMode.value) return
   
-  // 基础陀螺仪数据 (Device-relative)
-  const a = event.alpha // Compass Yaw (0-360)
-  const b = event.beta  // Pitch (-180-180)
-  const g = event.gamma // Roll (-90-90)
+  const a = event.alpha
+  const b = event.beta
+  const g = event.gamma
   
-  // 获取屏幕旋转角度 (0: 竖屏, 90: 横屏)
-  const orientation = (window.screen && window.screen.orientation && window.screen.orientation.angle) || window.orientation || 0
+  // 综合判定屏幕方向 (fallback to window.innerHeight)
+  let angle = (window.screen && window.screen.orientation && window.screen.orientation.angle) || window.orientation || 0
+  const isPortraitFallback = window.innerHeight > window.innerWidth
+  
+  // 某些 Android 浏览器在竖屏时 angle 可能为 0 或 undefined
+  if (angle === 0 && !isPortraitFallback) angle = 90 // 可能是横屏但没读到角
+  
+  orientationDebug.value = `${isPortraitFallback ? 'P' : 'L'}-${angle}`
   
   let p, r, y = a
   
-  // 根据屏幕状态归一化坐标轴
-  if (orientation === 90) { // 横屏 (Home 键在右)
+  // 校准不同握持姿势下的轴向
+  if (angle === 90) { // Landscape Left
     p = -g 
     r = b
-  } else if (orientation === -90) { // 横屏 (Home 键在左)
+  } else if (angle === -90 || angle === 270) { // Landscape Right
     p = g
     r = -b
-  } else if (orientation === 180) { // 倒竖屏
+  } else if (angle === 180) { // Upside Down
     p = -b
     r = -g
-  } else { // 竖屏 (默认)
+  } else { // Portrait
     p = b
     r = g
   }
@@ -323,12 +331,10 @@ const handleDeviceOrientation = (event) => {
     initialYaw = y
   }
   
-  // 低通滤波处理
   const alpha = 0.2
   pitch.value = pitch.value * (1 - alpha) + (p - initialPitch) * alpha
   roll.value = roll.value * (1 - alpha) + r * alpha
   
-  // 航向角连续性处理
   let yawDiff = y - initialYaw
   if (yawDiff > 180) yawDiff -= 360
   if (yawDiff < -180) yawDiff += 360
