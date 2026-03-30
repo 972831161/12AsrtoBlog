@@ -9,6 +9,10 @@
       <view class="model-info">
         <text class="model-brand pb-text-glow">PLANET 宇宙</text>
         <text class="model-name">VAPOR</text>
+        <!-- Bike Hero Image (Positioned Under Vapor) -->
+        <view class="hero-section">
+          <image src="/static/images/vapor_bike.png" mode="aspectFit" class="hero-image"></image>
+        </view>
       </view>
     </view>
 
@@ -64,6 +68,14 @@
         <text class="stat-value pb-text-glow">TURBO</text>
       </view>
     </view>
+    
+    <!-- Action Button -->
+    <view class="action-section">
+      <view class="start-btn" @click="startRiding">
+        <text class="btn-text">START RIDING</text>
+        <view class="btn-glow"></view>
+      </view>
+    </view>
 
     <view class="safe-bottom"></view>
     <pb-tabbar currentPath="/pages/index/index" />
@@ -93,6 +105,15 @@ const soundHorn = () => {
   uni.vibrateShort()
   uni.showToast({ title: 'Beep!', icon: 'none' })
 }
+
+const startRiding = () => {
+  uni.vibrateLong()
+  uni.showLoading({ title: 'Initializing...' })
+  setTimeout(() => {
+    uni.hideLoading()
+    uni.showToast({ title: 'Ride Started!', icon: 'success' })
+  }, 1000)
+}
 </script>
 
 <style lang="scss">
@@ -102,6 +123,27 @@ const soundHorn = () => {
   flex-direction: column;
   gap: 60rpx;
   padding-bottom: 120rpx;
+}
+
+.hero-section {
+  width: 100%;
+  height: 240rpx;
+  display: flex;
+  justify-content: center;
+  margin-top: 10rpx;
+  
+  .hero-image {
+    width: 500rpx;
+    height: 100%;
+    filter: drop-shadow(0 0 30rpx rgba(0, 240, 255, 0.4)) invert(1) hue-rotate(180deg) brightness(1.5);
+    mix-blend-mode: screen; 
+    animation: floatBike 6s infinite ease-in-out;
+  }
+}
+
+@keyframes floatBike {
+  0%, 100% { transform: translateY(0) rotate(0deg); }
+  50% { transform: translateY(-20rpx) rotate(2deg); }
 }
 
 .header {
@@ -317,6 +359,53 @@ const soundHorn = () => {
     height: 60rpx;
     background-color: $pb-glass-border;
   }
+}
+
+.action-section {
+  display: flex;
+  justify-content: center;
+  margin-top: 20rpx;
+  
+  .start-btn {
+    width: 80%;
+    height: 100rpx;
+    background: $uni-color-primary;
+    border-radius: 50rpx;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    position: relative;
+    box-shadow: 0 0 30rpx rgba(0, 240, 255, 0.4);
+    transition: all 0.3s;
+    
+    .btn-text {
+      color: #000;
+      font-size: 32rpx;
+      font-weight: 900;
+      letter-spacing: 4rpx;
+      z-index: 2;
+    }
+    
+    .btn-glow {
+      position: absolute;
+      inset: 0;
+      border-radius: 50rpx;
+      box-shadow: 0 0 40rpx $uni-color-primary;
+      opacity: 0.5;
+      animation: pulseGlow 2s infinite;
+    }
+    
+    &:active {
+      transform: scale(0.95);
+      filter: brightness(1.2);
+    }
+  }
+}
+
+@keyframes pulseGlow {
+  0% { transform: scale(0.95); opacity: 0.3; }
+  50% { transform: scale(1.05); opacity: 0.6; }
+  100% { transform: scale(0.95); opacity: 0.3; }
 }
 
 .safe-bottom {

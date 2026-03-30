@@ -19,18 +19,16 @@
     <!-- 探索 Feed (Explore) -->
     <scroll-view scroll-y class="feed-scroll" v-if="currentTab === 0">
       <view class="feed-grid">
-        <view class="feed-card pb-glass-card" v-for="i in 4" :key="i">
-          <view class="image-placeholder">
-            <text class="icon">📸</text>
-          </view>
+        <view class="feed-card pb-glass-card" v-for="(item, i) in explorePosts" :key="i">
+          <image :src="item.image" mode="aspectFill" class="feed-image"></image>
           <view class="feed-info">
-            <text class="feed-title">周末山路折叠打卡！</text>
+            <text class="feed-title">{{ item.title }}</text>
             <view class="feed-meta">
               <view class="author">
-                <text class="avatar">👨‍🚀</text>
-                <text class="name">宇宙探索者</text>
+                <text class="avatar">{{ item.avatar }}</text>
+                <text class="name">{{ item.author }}</text>
               </view>
-              <text class="likes">❤️ 128</text>
+              <text class="likes">❤️ {{ item.likes }}</text>
             </view>
           </view>
         </view>
@@ -41,18 +39,19 @@
     <!-- 路书 (Routes) -->
     <scroll-view scroll-y class="route-scroll" v-if="currentTab === 1">
       <view class="route-list">
-        <view class="route-card pb-glass-card" v-for="i in 3" :key="'r'+i">
+        <view class="route-card pb-glass-card" v-for="(route, i) in curatedRoutes" :key="'r'+i">
           <view class="route-cover">
-            <text class="cover-tag">OFFICIAL</text>
+            <image :src="route.cover" mode="aspectFill" class="cover-img"></image>
+            <text class="cover-tag">{{ route.tag }}</text>
           </view>
           <view class="route-details">
-            <text class="route-name pb-text-glow">玄武湖 30KM 巡航路线</text>
+            <text class="route-name pb-text-glow">{{ route.name }}</text>
             <view class="route-stats">
-              <text class="stat">📍 30.2 km</text>
-              <text class="stat">⛰️ 120 m</text>
-              <text class="stat">⏱️ 1h 15m</text>
+              <text class="stat">📍 {{ route.distance }}km</text>
+              <text class="stat">⛰️ {{ route.climb }}m</text>
+              <text class="stat">⏱️ {{ route.time }}</text>
             </view>
-            <view class="action-btn">
+            <view class="action-btn" @click="downloadRoute(route.name)">
               <text>下载离线路书</text>
             </view>
           </view>
@@ -70,7 +69,28 @@ import { ref } from 'vue'
 import PbTabbar from '@/components/pb-tabbar.vue'
 
 // 0 = 探索(Explore), 1 = 路书(Routes)
-const currentTab = ref(1)
+const currentTab = ref(0)
+
+const explorePosts = ref([
+  { title: '周末山路折叠打卡！', author: '宇宙浪人', avatar: '👨‍🚀', image: '@/static/images/community_1.png', likes: 128 },
+  { title: 'Planet Vapor 骑行体验：这就是未来', author: '骑士十二', avatar: '🚴', image: '@/static/images/community_2.png', likes: 256 },
+  { title: '大理洱海环湖 120km 全记录', author: '环球探险家', avatar: '🌍', image: '@/static/images/road_book_1.png', likes: 512 },
+  { title: '碳纤维车架的极致轻量感', author: '极客单车', avatar: '🔧', image: '@/static/images/bike_hero.png', likes: 64 }
+])
+
+const curatedRoutes = ref([
+  { name: '玄武湖 30KM 巡航路线', distance: 30.2, climb: 120, time: '1h 15m', tag: 'OFFICIAL', cover: '@/static/images/road_book_1.png' },
+  { name: '秦淮河夜骑·穿越古都', distance: 15.5, climb: 45, time: '45m', tag: 'NIGHT', cover: '@/static/images/community_1.png' },
+  { name: '紫金山森林越野挑战', distance: 42.0, climb: 850, time: '3h 20m', tag: 'PRO', cover: '@/static/images/bike_hero.png' }
+])
+
+const downloadRoute = (name) => {
+  uni.showLoading({ title: '正在同步...' })
+  setTimeout(() => {
+    uni.hideLoading()
+    uni.showToast({ title: `${name} 已就绪`, icon: 'success' })
+  }, 1500)
+}
 </script>
 
 <style lang="scss">
@@ -136,17 +156,10 @@ const currentTab = ref(1)
     display: flex;
     flex-direction: column;
     
-    .image-placeholder {
-      height: 300rpx;
-      background: rgba(255, 255, 255, 0.05);
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      
-      .icon {
-        font-size: 60rpx;
-        opacity: 0.3;
-      }
+    .feed-image {
+      width: 100%;
+      height: 340rpx;
+      background: #1a1a1a;
     }
     
     .feed-info {
