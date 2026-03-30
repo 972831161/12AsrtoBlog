@@ -14,6 +14,7 @@
 		"update-bangumi": "node scripts/update-bangumi.mjs",
 		"update-bilibili": "node scripts/update-bilibili.mjs",
 		"update-lfc": "node scripts/update-lfc.mjs",
+		"build:ar": "cd planet-between-app && npm run build:h5 && cp -r dist/build/h5/* ../public/planet-app/",
 		"build": "node scripts/update-anime.mjs && astro build && pagefind --site dist && node scripts/compress-fonts.js",
 		"submit": "node scripts/indexnow-submit.js",
 		"preview": "astro preview",
