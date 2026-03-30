@@ -11,7 +11,7 @@
         <text class="model-name">VAPOR</text>
         <!-- Bike Hero Image (Positioned Under Vapor) -->
         <view class="hero-section">
-          <image src="../../static/images/vapor_bike.png" mode="aspectFit" class="hero-image"></image>
+          <image src="../../static/images/vapor_bike.webp" mode="aspectFit" class="hero-image"></image>
         </view>
       </view>
     </view>

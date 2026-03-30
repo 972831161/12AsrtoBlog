@@ -84,16 +84,16 @@ import PbTabbar from '@/components/pb-tabbar.vue'
 const currentTab = ref(0)
 
 const explorePosts = ref([
-  { title: '周末山路折叠打卡！', author: '宇宙浪人', avatar: '👨‍🚀', image: '../../static/images/community_1.png', likes: 128 },
-  { title: 'Planet Vapor 骑行体验：这就是未来', author: '骑士十二', avatar: '🚴', image: '../../static/images/community_2.png', likes: 256 },
-  { title: '大理洱海环湖 120km 全记录', author: '环球探险家', avatar: '🌍', image: '../../static/images/road_book_1.png', likes: 512 },
-  { title: '碳纤维车架的极致轻量感', author: '极客单车', avatar: '🔧', image: '../../static/images/bike_hero.png', likes: 64 }
+  { title: '周末山路折叠打卡！', author: '宇宙浪人', avatar: '👨‍🚀', image: '../../static/images/explore_1.webp', likes: 128 },
+  { title: 'Planet Vapor 骑行体验：这就是未来', author: '骑士十二', avatar: '🚴', image: '../../static/images/explore_2.webp', likes: 256 },
+  { title: '大理洱海环湖 120km 全记录', author: '环球探险家', avatar: '🌍', image: '../../static/images/route_xuanwu.webp', likes: 512 },
+  { title: '碳纤维车架的极致轻量感', author: '极客单车', avatar: '🔧', image: '../../static/images/bike_hero.webp', likes: 64 }
 ])
 
 const curatedRoutes = ref([
-  { name: '玄武湖 30KM 巡航路线', desc: '感受金陵古城的湖光山色，全平路缓行，适合周末放松。', distance: 30.2, climb: 120, time: '1h 15m', tag: 'OFFICIAL', cover: '../../static/images/road_book_1.png' },
-  { name: '秦淮河夜骑·穿越古都', desc: '灯火阑珊处的十里秦淮，感受穿越千年的桨声灯影。', distance: 15.5, climb: 45, time: '45m', tag: 'NIGHT', cover: '../../static/images/community_1.png' },
-  { name: '紫金山森林越野挑战', desc: '在这里挑战你的极限，密林与陡坡的博弈，专业骑手首选。', distance: 42.0, climb: 850, time: '3h 20m', tag: 'PRO', cover: '../../static/images/bike_hero.png' }
+  { name: '玄武湖 30KM 巡航路线', desc: '在这里体验南京冬日的温婉与柔情。', distance: 30.2, climb: 120, time: '1h 15m', tag: 'OFFICIAL', cover: '../../static/images/route_xuanwu.webp' },
+  { name: '秦淮河夜骑·穿越古都', desc: '十里秦淮，灯影阑珊。骑行在古老的南京。', distance: 15.5, climb: 45, time: '45m', tag: 'NIGHT', cover: '../../static/images/route_qinhuai.webp' },
+  { name: '紫金山森林越野挑战', desc: '感受密林中的晨曦，挑战极限山地路线。', distance: 42.0, climb: 850, time: '3h 20m', tag: 'PRO', cover: '../../static/images/route_zijin.webp' }
 ])
 
 const downloadRoute = (name) => {
