@@ -69,13 +69,22 @@
       <!-- AR HUD 叠加层 (2D UI) -->
       <view class="ar-ui-overlay">
         <view class="hud-top">
-          <view class="compass">
-            <text class="deg">{{ compassDeg }}° NW</text>
-            <view class="compass-line"></view>
+          <view class="left-group">
+            <view class="compass">
+              <text class="deg">{{ compassDeg }}° NW</text>
+              <view class="compass-line"></view>
+            </view>
           </view>
-          <view class="exit-btn" @click="closeAR">
-            <text class="icon">✕</text>
-            <text>退出 AR</text>
+          
+          <view class="right-group">
+            <view class="reset-btn" @click="resetAnchor">
+              <text class="icon">🔄</text>
+              <text>重置锚点</text>
+            </view>
+            <view class="exit-btn" @click="closeAR">
+              <text class="icon">✕</text>
+              <text>退出 AR</text>
+            </view>
           </view>
         </view>
 
@@ -141,10 +150,17 @@ const isARMode = ref(false)
 const activePoint = ref(null)
 let stream = null
 
-// 姿态解算变量 (物理空间基准)
-const pitch = ref(0) //上下
-const yaw = ref(0)   //左右
-const roll = ref(0)  //倾斜
+// 1. 姿态解算 (3DoF Rotation)
+const pitch = ref(0)
+const yaw = ref(0)
+const roll = ref(0)
+
+// 2. 位移估算 (Pseudo 6DoF Translation)
+const posX = ref(0)
+const posY = ref(0)
+const posZ = ref(0)
+let velX = 0, velY = 0, velZ = 0
+let lastMotionTime = 0
 
 let initialPitch = null
 let initialYaw = null
@@ -181,53 +197,98 @@ const nearbyPoints = ref([
 onMounted(() => {
   setTimeout(() => isScanning.value = false, 2500)
   
-  // 模拟 Desktop 视差 (鼠标模拟 Yaw 和 Pitch)
+  // 模拟 Desktop 视差
   window.addEventListener('mousemove', handleMouseMove)
-  // 物理设备陀螺仪
+  // 3DoF 陀螺仪
   window.addEventListener('deviceorientation', handleDeviceOrientation, true)
+  // 6DoF 位移感知 (加速度)
+  window.addEventListener('devicemotion', handleDeviceMotion, true)
 })
 
 onUnmounted(() => {
   window.removeEventListener('mousemove', handleMouseMove)
   window.removeEventListener('deviceorientation', handleDeviceOrientation)
+  window.removeEventListener('devicemotion', handleDeviceMotion)
   closeAR()
 })
 
 const handleDeviceOrientation = (event) => {
   if (!isARMode.value) return
-  
-  // beta -> pitch (上下), gamma -> yaw (左右)
   let b = event.beta
   let g = event.gamma
-  
   if (initialPitch === null) {
     initialPitch = b
     initialYaw = g
   }
-  
   pitch.value = b - initialPitch
   yaw.value = g - initialYaw
 }
 
+// 核心逻辑：双重积分估算位移
+const handleDeviceMotion = (event) => {
+  if (!isARMode.value) return
+  
+  const acc = event.acceleration // 排除重力的线性加速度
+  if (!acc || acc.x === null) return
+
+  const now = Date.now()
+  if (lastMotionTime === 0) {
+    lastMotionTime = now
+    return
+  }
+
+  const dt = (now - lastMotionTime) / 1000 // 单位：秒
+  lastMotionTime = now
+
+  // 低通滤波 + 阈值过滤 (消除传感器底噪)
+  const threshold = 0.15
+  const ax = Math.abs(acc.x) < threshold ? 0 : acc.x
+  const ay = Math.abs(acc.y) < threshold ? 0 : acc.y
+  const az = Math.abs(acc.z) < threshold ? 0 : acc.z
+
+  // 一阶积分求速度 (单位 m/s)
+  velX = (velX + ax * dt) * 0.96 // 阻尼系数，防止漂移失控
+  velY = (velY + ay * dt) * 0.96
+  velZ = (velZ + az * dt) * 0.96
+
+  // 二阶积分求位移 (放大系数，因为 CSS 像素与物理米的映射)
+  // 1米 约等于 1000px 深度感
+  const scale = 500 
+  posX.value += velX * dt * scale
+  posY.value += velY * dt * scale
+  posZ.value += velZ * dt * scale
+}
+
 const handleMouseMove = (e) => {
   if (!isARMode.value || initialYaw !== null) return
-  // 鼠标位置映射到 -30 ~ 30 度的旋转模拟
   yaw.value = -(e.clientX - window.innerWidth / 2) / 15
   pitch.value = (e.clientY - window.innerHeight / 2) / 10
 }
 
-// 核心转换：利用 CSS 3D 矩阵模拟空间锚定 (逆向补偿)
+const resetAnchor = () => {
+  initialPitch = null
+  initialYaw = null
+  posX.value = 0
+  posY.value = 0
+  posZ.value = 0
+  velX = 0; velY = 0; velZ = 0
+  uni.showToast({ title: '锚点已重置', icon: 'none' })
+}
+
+// 核心转换：整合旋转与平移补偿
 const worldTransform = computed(() => {
-  // 当视角转动时，虚拟世界进行反向旋转，使物体“固定”在视野中某个角度
   return {
-    transform: `rotateX(${pitch.value}deg) rotateY(${yaw.value}deg)`
+    transform: `
+      perspective(1200px)
+      rotateX(${pitch.value}deg) 
+      rotateY(${yaw.value}deg)
+      translate3d(${-posX.value}px, ${posY.value}px, ${posZ.value}px)
+    `
   }
 })
 
-// 物体在 3D 空间内的绝对坐标 (相对于 initialPitch/initialYaw)
 const target3DPos = computed(() => {
   return {
-    // 将物体推向前方 600px 的深度
     transform: `translate3d(0, 0, -600px)`
   }
 })
@@ -241,15 +302,18 @@ const startAR = async (point) => {
   selectedPoint.value = null
   isARMode.value = true
   
-  // 针对 iOS 的运动感知权限申请 (必须用户点击触发)
+  // 针对 iOS 的运动感知权限申请 (Orientation & Motion)
   if (typeof DeviceOrientationEvent !== 'undefined' && typeof DeviceOrientationEvent.requestPermission === 'function') {
     try {
       await DeviceOrientationEvent.requestPermission()
+      if (typeof DeviceMotionEvent !== 'undefined' && typeof DeviceMotionEvent.requestPermission === 'function') {
+        await DeviceMotionEvent.requestPermission()
+      }
     } catch (e) { console.error('iOS Permission Denied', e) }
   }
 
   try {
-    uni.showLoading({ title: '校准空间锚点...' })
+    uni.showLoading({ title: '初始化空间感应...' })
     stream = await navigator.mediaDevices.getUserMedia({ 
       video: { facingMode: 'environment' }, 
       audio: false 
@@ -269,8 +333,11 @@ const startAR = async (point) => {
         container.appendChild(video)
         video.onloadedmetadata = () => {
           video.play().then(() => {
-            initialPitch = null // 开启瞬间重新校准基准位
+            initialPitch = null
             initialYaw = null
+            posX.value = 0
+            posY.value = 0
+            posZ.value = 0
             uni.hideLoading()
           })
         }
@@ -291,7 +358,7 @@ const closeAR = () => {
 
 const collectCapsule = () => {
   uni.showToast({
-    title: '🎉 空间坐标匹配成功',
+    title: '🎉 能量舱收集成功',
     icon: 'success'
   })
   setTimeout(() => closeAR(), 1500)
@@ -415,19 +482,30 @@ const collectCapsule = () => {
     .hud-top {
       display: flex;
       justify-content: space-between;
+      align-items: center;
       pointer-events: auto;
+      
+      .left-group { display: flex; align-items: center; }
+      .right-group { display: flex; align-items: center; gap: 20rpx; }
+      
       .compass {
         .deg { font-size: 28rpx; color: $uni-color-primary; font-weight: bold; }
         .compass-line { width: 150rpx; height: 1px; background: $uni-color-primary; opacity: 0.5; margin-top: 10rpx; }
       }
-      .exit-btn {
+      
+      .reset-btn, .exit-btn {
         background: rgba(255, 255, 255, 0.1);
-        padding: 15rpx 30rpx;
+        padding: 15rpx 25rpx;
         border-radius: 50rpx;
         color: #fff;
         font-size: 24rpx;
-        backdrop-filter: blur(5px);
+        backdrop-filter: blur(8px);
         border: 1px solid rgba(255,255,255,0.2);
+        display: flex;
+        align-items: center;
+        gap: 10rpx;
+        transition: all 0.2s;
+        &:active { transform: scale(0.9); background: rgba(0, 240, 255, 0.2); }
       }
     }
     

@@ -1,5 +1,6 @@
 import { getSortedPosts } from "../../utils/content-utils";
 import diaryData from "../../data/diary";
+import lfcMatches from "../../data/lfc-match";
 
 export async function GET() {
 	const posts = await getSortedPosts();
@@ -32,7 +33,30 @@ export async function GET() {
 		};
 	});
 
-	const combinedData = [...allPostsData, ...allDiaryData];
+	const allLfcMatches = lfcMatches.map((match) => {
+		const venueTag = match.isHome ? "[主]" : "[客]";
+		const competitionMap: Record<string, string> = {
+			"Premier League": "英超",
+			"Champions League": "欧冠",
+			"FA Cup": "足总杯",
+			"League Cup": "联赛杯",
+		};
+		const competitionCN = competitionMap[match.competition] || match.competition;
+
+		return {
+			id: match.id,
+			title: `${venueTag} ${match.opponent}`,
+			date: match.date,
+			type: "lfc-match",
+			opponent: match.opponent,
+			competition: competitionCN,
+			venue: match.venue,
+			result: match.result || "",
+			time: match.time,
+		};
+	});
+
+	const combinedData = [...allPostsData, ...allDiaryData, ...allLfcMatches];
 
 	return new Response(JSON.stringify(combinedData), {
 		headers: {

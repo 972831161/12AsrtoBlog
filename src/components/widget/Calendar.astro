@@ -351,6 +351,8 @@ const currentMonthDiariesLabel = i18n(I18nKey.diary);
 				currentMonth === todayMonth &&
 				day === todayDate;
 			const isSelected = selectedDateKey === dateKey;
+			const lfcMatch = posts.find((p) => p.type === "lfc-match");
+			const hasLfcMatch = !!lfcMatch;
 
 			let bgClass =
 				"hover:bg-(--btn-plain-bg-hover) text-75 border border-transparent";
@@ -370,8 +372,9 @@ const currentMonthDiariesLabel = i18n(I18nKey.diary);
                 <div class="calendar-day aspect-square flex items-center justify-center rounded-md cursor-pointer relative transition-all duration-200 ${bgClass}"
                     data-date="${dateKey}">
                     ${day}
-                    ${hasPost && !isSelected ? `<span class="absolute bottom-1 w-1 h-1 rounded-full bg-(--primary)"></span>` : ""}
-                    ${hasPost && count > 1 ? `<span class="absolute top-0.5 right-0.5 text-[9px] opacity-70 scale-75">${count}</span>` : ""}
+                    ${hasLfcMatch ? `<img src="/assets/home/liverbird_sq.png" class="absolute -top-1 -right-1 w-4 h-4 object-contain brightness-110 drop-shadow-sm z-10" alt="LFC" />` : ""}
+                    ${hasPost && !hasLfcMatch && !isSelected ? `<span class="absolute bottom-1 w-1 h-1 rounded-full bg-(--primary)"></span>` : ""}
+                    ${hasPost && count > (hasLfcMatch ? 1 : 0) ? `<span class="absolute top-0.5 right-0.5 text-[9px] opacity-70 scale-75">${count}</span>` : ""}
                 </div>
             `;
 		}
@@ -409,11 +412,14 @@ const currentMonthDiariesLabel = i18n(I18nKey.diary);
 			const dateStr = `${parseInt(m)}-${parseInt(d)}`;
 			const isCurrentPost =
 				post.type === "post" && post.id === currentPostId;
+			const isLfcMatch = post.type === "lfc-match";
 			const link =
 				post.type === "post"
 					? `/posts/${post.id}/`
-					: `/diary/#diary-${post.id}`;
-			const icon = post.type === "post" ? "📄" : "📝";
+					: post.type === "diary" 
+						? `/diary/#diary-${post.id}`
+						: "https://www.liverpoolfc.com/fixtures"; // LFC matches link to official fixtures
+			const icon = post.type === "post" ? "📄" : post.type === "diary" ? "📝" : "⚽";
 
 			let containerClass =
 				"flex items-center justify-between text-sm transition-colors px-2 py-2 rounded-lg group border border-transparent";
@@ -431,18 +437,24 @@ const currentMonthDiariesLabel = i18n(I18nKey.diary);
 					" text-neutral-400 group-hover:text-(--primary)/70";
 			}
 
+			const subTitle = isLfcMatch ? `${post.time} ${post.competition}` : dateStr;
+			const displayResult = isLfcMatch && post.result ? `<span class="ml-1.5 font-bold text-(--primary)">${post.result}</span>` : "";
+
 			return `
-            <a href="${link}" class="${containerClass}">
+            <a href="${link}" class="${containerClass}" target="${isLfcMatch ? '_blank' : '_self'}">
                 <span class="${titleClass} flex items-center gap-1.5">
                     <span class="text-[10px] opacity-70 group-hover:opacity-100">${icon}</span>
-                    <span class="truncate">${post.title}</span>
+                    <span class="truncate">${post.title}${displayResult}</span>
                 </span>
-                <span class="${dateClass}">${dateStr}</span>
+                <span class="${dateClass}">${subTitle}</span>
             </a>
         `;
 		};
 
-		let finalHtml = articles.map(renderItem).join("");
+		let finalHtml = posts
+			.filter((p) => p.type === "post" || p.type === "lfc-match")
+			.map(renderItem)
+			.join("");
 
 		if (diaries.length > 0) {
 			finalHtml += `
