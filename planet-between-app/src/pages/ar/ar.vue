@@ -14,10 +14,25 @@
           <view class="pulse p3"></view>
           <view class="scanner"></view>
           
+          <!-- Route Path SVG Layer -->
+          <svg class="radar-path-svg" viewBox="0 0 600 600" v-if="!isScanning && activeRoutePath.length > 0">
+            <polyline 
+              :points="activeRoutePathPoints" 
+              fill="none" 
+              stroke="rgba(0, 240, 255, 0.6)" 
+              stroke-width="4" 
+              stroke-dasharray="8,8"
+            />
+            <circle :cx="targetPos.x" :cy="targetPos.y" r="8" fill="#00f0ff">
+              <animate attributeName="r" values="6;10;6" dur="1s" repeatCount="indefinite" />
+            </circle>
+          </svg>
+
           <view 
             v-for="(point, index) in nearbyPoints" 
             :key="index"
             class="target-dot"
+            :class="{ active: selectedPoint?.id === point.id }"
             :style="{
               left: point.x + 'rpx',
               top: point.y + 'rpx',
@@ -27,15 +42,24 @@
           >
             <view class="dot-inner"></view>
             <view class="dot-glow"></view>
+            <text class="point-label" v-if="!isScanning">{{ point.name }}</text>
           </view>
 
           <view class="center-dot">
-            <text class="icon">🛸</text>
+            <view class="guide-arrow" :style="{ transform: `rotate(${guideAngle}deg)` }" v-if="selectedPoint">
+              <view class="arrow-body"></view>
+            </view>
+            <text class="user-icon">🛸</text>
           </view>
         </view>
         
         <view class="status-box pb-glass-card">
           <text class="status-msg" v-if="isScanning">正在同步星际坐标...</text>
+          <view class="nav-msg" v-else-if="selectedPoint">
+            <text class="label">目标锁定: {{ selectedPoint.name }}</text>
+            <text class="dist">距离 {{ selectedPoint.distance }} 米</text>
+            <text class="hint">请跟随雷达频段引导</text>
+          </view>
           <text class="status-msg" v-else>扫描完成，发现 {{ nearbyPoints.length }} 个能量舱</text>
         </view>
       </view>
@@ -246,15 +270,17 @@ const nearbyPoints = ref([
     icon: '💎', 
     type: 'object',
     x: 100, y: 120,
+    route: [[300, 300], [220, 250], [150, 180], [100, 120]],
     author: '宇宙浪人',
     description: '在这里拍到了最美的晚霞，单车和落日太配了。'
   },
   { 
     id: 'p2',
     name: '时空留言板', 
-    distance: 350, 
+    distance: 250, 
     icon: '💬', 
     type: 'bubble',
+    route: [[300, 300], [320, 250], [350, 180]],
     message: '你好，来自 2026 年的朋友！在这个角落骑行真的很舒服。',
     x: 350, y: 180,
     author: '骑行者 A',
@@ -266,12 +292,34 @@ const nearbyPoints = ref([
     distance: 480, 
     icon: '🖼️', 
     type: 'panorama',
+    route: [[300, 300], [250, 350], [150, 400], [80, 380]],
     panoramicUrl: '/assets/ar/erhai_360.jpg',
     x: 80, y: 380,
     author: '骑士十二',
     description: '带你瞬间回到洱海边的那个清晨。'
   }
 ])
+
+const activeRoutePath = computed(() => {
+  if (!selectedPoint.value) return []
+  return selectedPoint.value.route || []
+})
+
+const activeRoutePathPoints = computed(() => {
+  return activeRoutePath.value.map(p => p.join(',')).join(' ')
+})
+
+const targetPos = computed(() => {
+  if (!selectedPoint.value) return { x: 0, y: 0 }
+  return { x: selectedPoint.value.x, y: selectedPoint.value.y }
+})
+
+const guideAngle = computed(() => {
+  if (!selectedPoint.value) return 0
+  const dx = selectedPoint.value.x - 300
+  const dy = selectedPoint.value.y - 300
+  return Math.atan2(dy, dx) * (180 / Math.PI) + 90
+})
 
 onMounted(() => {
   setTimeout(() => isScanning.value = false, 2500)
@@ -655,6 +703,133 @@ const collectCapsule = () => {
       flex-direction: column;
       align-items: center;
       gap: 30rpx;
+      .radar-circle {
+        width: 600rpx;
+        height: 600rpx;
+        border-radius: 50%;
+        border: 1px solid rgba(0, 240, 255, 0.2);
+        position: relative;
+        background: radial-gradient(circle, rgba(0, 240, 255, 0.1) 0%, transparent 70%);
+
+        .radar-path-svg {
+          position: absolute;
+          inset: 0;
+          width: 100%;
+          height: 100%;
+          z-index: 5;
+          pointer-events: none;
+        }
+
+        .pulse {
+          position: absolute;
+          top: 0;
+          left: 0;
+          right: 0;
+          bottom: 0;
+          border: 1px solid $uni-color-primary;
+          border-radius: 50%;
+          opacity: 0;
+          animation: pulse 4s infinite;
+          &.p2 { animation-delay: 1.3s; }
+        }
+
+        .scanner {
+          position: absolute;
+          top: 50%;
+          left: 50%;
+          width: 300rpx;
+          height: 300rpx;
+          background: conic-gradient(from 0deg, rgba(0, 240, 255, 0.4) 0deg, transparent 90deg);
+          transform-origin: 0 0;
+          animation: scan 3s linear infinite;
+          border-radius: 0 100% 0 0;
+        }
+
+        .center-dot {
+          position: absolute;
+          top: 50%;
+          left: 50%;
+          transform: translate(-50%, -50%);
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          z-index: 10;
+          
+          .user-icon { font-size: 40rpx; }
+          
+          .guide-arrow {
+            position: absolute;
+            width: 0;
+            height: 0;
+            // transform is handled by JS computed property
+            
+            .arrow-body {
+              width: 0;
+              height: 0;
+              border-left: 15rpx solid transparent;
+              border-right: 15rpx solid transparent;
+              border-bottom: 40rpx solid $uni-color-primary;
+              position: absolute;
+              bottom: 60rpx; // Offset from center
+              left: -15rpx;
+              filter: drop-shadow(0 0 10rpx $uni-color-primary);
+            }
+          }
+        }
+
+        .target-dot {
+          position: absolute;
+          width: 24rpx;
+          height: 24rpx;
+          transform: translate(-50%, -50%);
+          z-index: 6;
+          transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+          
+          .dot-inner {
+            width: 100%;
+            height: 100%;
+            background: #fff;
+            border-radius: 50%;
+            box-shadow: 0 0 10rpx #fff;
+          }
+          
+          .dot-glow {
+            position: absolute;
+            inset: -10rpx;
+            background: rgba(255, 255, 255, 0.2);
+            border-radius: 50%;
+            animation: pulse 2s infinite;
+          }
+
+          .point-label {
+            position: absolute;
+            top: 30rpx;
+            left: 50%;
+            transform: translateX(-50%);
+            white-space: nowrap;
+            font-size: 18rpx;
+            color: #fff;
+            background: rgba(0,0,0,0.5);
+            padding: 2rpx 10rpx;
+            border-radius: 4rpx;
+            opacity: 0.7;
+          }
+
+          &.active {
+            .dot-inner {
+              background: $uni-color-primary;
+              box-shadow: 0 0 20rpx $uni-color-primary;
+              transform: scale(1.5);
+            }
+            .point-label {
+              color: $uni-color-primary;
+              font-weight: bold;
+              opacity: 1;
+              transform: translateX(-50%) scale(1.2);
+            }
+          }
+        }
+      }
       .scan-frame {
         width: 300rpx; height: 300rpx;
         border: 2rpx dashed rgba(255, 255, 255, 0.3);
@@ -677,8 +852,22 @@ const collectCapsule = () => {
 
 // 基础样式复用
 .header { padding: 60rpx 40rpx 20rpx; .title { font-size: 48rpx; font-weight: 900; letter-spacing: 4rpx; } .subtitle { font-size: 20rpx; color: $uni-text-color-grey; letter-spacing: 4rpx; margin-top: 8rpx; } }
-.radar-container { flex: 1.2; display: flex; flex-direction: column; align-items: center; justify-content: center; position: relative; .radar-circle { width: 600rpx; height: 600rpx; border-radius: 50%; border: 1px solid rgba(0, 240, 255, 0.2); position: relative; .pulse { position: absolute; top: 0; left: 0; right: 0; bottom: 0; border: 1px solid $uni-color-primary; border-radius: 50%; opacity: 0; animation: pulse 4s infinite; &.p2 { animation-delay: 1.3s; } } .scanner { position: absolute; top: 50%; left: 50%; width: 300rpx; height: 300rpx; background: conic-gradient(from 0deg, rgba(0, 240, 255, 0.4) 0deg, transparent 90deg); transform-origin: 0 0; animation: scan 3s linear infinite; border-radius: 0 100% 0 0; } .center-dot { position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); font-size: 40rpx; } .target-dot { position: absolute; width: 24rpx; height: 24rpx; .dot-inner { width: 100%; height: 100%; background: $uni-color-primary; border-radius: 50%; } } } }
-.status-box { margin-top: 60rpx; padding: 20rpx 60rpx; border-radius: 40rpx; .status-msg { font-size: 24rpx; color: $uni-color-primary; font-weight: 600; } }
+.radar-container { flex: 1.2; display: flex; flex-direction: column; align-items: center; justify-content: center; position: relative; }
+.status-box { 
+  margin-top: 60rpx; 
+  padding: 24rpx 60rpx; 
+  border-radius: 40rpx; 
+  .status-msg { font-size: 24rpx; color: $uni-color-primary; font-weight: 600; }
+  .nav-msg {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 8rpx;
+    .label { font-size: 20rpx; color: #fff; opacity: 0.8; }
+    .dist { font-size: 32rpx; font-weight: bold; color: $uni-color-primary; text-shadow: 0 0 10rpx $uni-color-primary; }
+    .hint { font-size: 16rpx; color: $uni-color-primary; opacity: 0.6; letter-spacing: 4rpx; }
+  }
+}
 .points-list { flex: 1; padding: 0 40rpx; .point-card { display: flex; align-items: center; gap: 30rpx; padding: 30rpx 40rpx; margin-bottom: 20rpx; .point-info { flex: 1; .point-name { font-size: 28rpx; font-weight: bold; } } .arrow { font-size: 22rpx; color: $uni-color-primary; } } }
 .modal-mask { position: fixed; inset: 0; background: rgba(0,0,0,0.8); display: flex; align-items: center; justify-content: center; z-index: 2000; padding: 40rpx; 
   .modal-content { width: 600rpx; padding: 60rpx; border-radius: 40rpx; 

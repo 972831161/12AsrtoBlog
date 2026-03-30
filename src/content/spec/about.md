@@ -1,11 +1,10 @@
 ### 很开心能被你看见 :-)
 
-## 🌟 为瞬间而活着
-- **2024.2.26** - 利物浦联赛杯夺冠，我成为一名kop
-- **Fully Responsive** - Optimized for all devices from mobile to desktop
-- **Dark/Light Mode** - Automatic theme switching with smooth transitions
-- **Beautiful Typography** - Enhanced readability with JetBrains Mono font
-- **Smooth Animations** - Fluid page transitions and interactive elements
+## 🌟 不完美的完美主义
+- **完美主义** - 典型的处女座INFP，考试复习到发卷前一秒，追女生要等到100%把握才表白，想让自己的印象在别人心里是满分，这就是我的前半生，焦虑充满我的几乎每一天。
+- **不完美主义** - 大概是高考后，我开始慢慢接受自己可以不事事完美，不用一下子就产出100分的答案，可以先给出70分的结果，再与同事师长沟通交流后慢慢打磨。直至目前，焦虑感很少闯入我的大脑。
+- **灵感涌现** - 我会觉得我具有能在心流过程中接连产生灵感的天赋，这些不完美的ideas能让我无限接近完美。
+
 
 ## 💡 坚信细水长流
 - **不被打垮** - 很难知道动力源自何处，但我回想起来，自己从没有放弃过想实现的目标。

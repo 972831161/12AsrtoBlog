@@ -16,8 +16,74 @@
       </view>
     </view>
 
-    <!-- Main Speed & Battery Display -->
-    <view class="main-display">
+    <!-- Riding HUD Panel (Only when Riding) -->
+    <view class="riding-hud pb-glass-card" v-if="isRiding">
+      <view class="main-group">
+        <view class="hud-item large">
+          <text class="label">当前速度</text>
+          <text class="val pb-text-glow">{{ currentSpeed }}</text>
+          <text class="unit">km/h</text>
+        </view>
+        <view class="hud-item heart">
+          <text class="label">心率</text>
+          <text class="val pulse-text">{{ heartRate }}</text>
+          <text class="unit">BPM</text>
+        </view>
+        <view class="hud-item">
+          <text class="label">功率</text>
+          <text class="val">{{ power }}</text>
+          <text class="unit">WATTS</text>
+        </view>
+      </view>
+
+      <view class="divider"></view>
+
+      <view class="grid-group">
+        <view class="sub-item">
+          <text class="l">里程</text>
+          <text class="v">{{ distanceCount.toFixed(2) }} km</text>
+        </view>
+        <view class="sub-item">
+          <text class="l">时间</text>
+          <text class="v">{{ rideTimeStr }}</text>
+        </view>
+        <view class="sub-item">
+          <text class="l">平均速度</text>
+          <text class="v">{{ avgSpeed }} km/h</text>
+        </view>
+        <view class="sub-item">
+          <text class="l">海拔</text>
+          <text class="v">{{ altitude }} m</text>
+        </view>
+        <view class="sub-item">
+          <text class="l">坡度</text>
+          <text class="v">{{ slope }} %</text>
+        </view>
+        <view class="sub-item">
+          <text class="l">爬升</text>
+          <text class="v">{{ climb }} m</text>
+        </view>
+        <view class="sub-item full-width">
+          <text class="l">踏频 (RPM)</text>
+          <text class="v highlight">{{ cadence }}</text>
+        </view>
+      </view>
+
+      <!-- Hydration Bar -->
+      <view class="water-section" @click="refillWater">
+        <view class="water-header">
+          <text class="label">💧 补水状态</text>
+          <text class="percent" :class="{ low: waterLevel < 20 }">{{ waterLevel.toFixed(0) }}%</text>
+        </view>
+        <view class="water-track">
+          <view class="water-bar" :style="{ width: waterLevel + '%' }"></view>
+        </view>
+        <text class="hint">点击即刻补满</text>
+      </view>
+    </view>
+
+    <!-- Original Display (Only when NOT Riding) -->
+    <view class="main-display" v-if="!isRiding">
       <view class="battery-ring">
         <!-- Dashboard Speedometer Text -->
         <view class="speed-container">
@@ -35,39 +101,40 @@
       </view>
     </view>
 
-    <!-- Quick Controls -->
-    <view class="controls-grid">
-      <view class="control-btn pb-glass-card" :class="{ active: isLocked }" @click="toggleLock">
-        <view class="icon">{{ isLocked ? '🔒' : '🔓' }}</view>
-        <text class="label">{{ isLocked ? 'LOCKED' : 'UNLOCKED' }}</text>
+    <!-- Quick Controls & Stats (Only when NOT Riding) -->
+    <template v-if="!isRiding">
+      <view class="controls-grid">
+        <view class="control-btn pb-glass-card" :class="{ active: isLocked }" @click="toggleLock">
+          <view class="icon">{{ isLocked ? '🔒' : '🔓' }}</view>
+          <text class="label">{{ isLocked ? 'LOCKED' : 'UNLOCKED' }}</text>
+        </view>
+        <view class="control-btn pb-glass-card" :class="{ active: lightOn }" @click="toggleLight">
+          <view class="icon">💡</view>
+          <text class="label">LIGHTS</text>
+        </view>
+        <view class="control-btn pb-glass-card" @click="soundHorn">
+          <view class="icon">🔔</view>
+          <text class="label">HORN</text>
+        </view>
       </view>
-      <view class="control-btn pb-glass-card" :class="{ active: lightOn }" @click="toggleLight">
-        <view class="icon">💡</view>
-        <text class="label">LIGHTS</text>
-      </view>
-      <view class="control-btn pb-glass-card" @click="soundHorn">
-        <view class="icon">🔔</view>
-        <text class="label">HORN</text>
-      </view>
-    </view>
 
-    <!-- Riding Stats panel -->
-    <view class="stats-panel pb-glass-card">
-      <view class="stat-item">
-        <text class="stat-title">TRIP DIST</text>
-        <text class="stat-value">12.4 km</text>
+      <view class="stats-panel pb-glass-card">
+        <view class="stat-item">
+          <text class="stat-title">TRIP DIST</text>
+          <text class="stat-value">12.4 km</text>
+        </view>
+        <view class="stat-divider"></view>
+        <view class="stat-item">
+          <text class="stat-title">RIDE TIME</text>
+          <text class="stat-value">42 min</text>
+        </view>
+        <view class="stat-divider"></view>
+        <view class="stat-item">
+          <text class="stat-title">ASSIST MODE</text>
+          <text class="stat-value pb-text-glow">TURBO</text>
+        </view>
       </view>
-      <view class="stat-divider"></view>
-      <view class="stat-item">
-        <text class="stat-title">RIDE TIME</text>
-        <text class="stat-value">42 min</text>
-      </view>
-      <view class="stat-divider"></view>
-      <view class="stat-item">
-        <text class="stat-title">ASSIST MODE</text>
-        <text class="stat-value pb-text-glow">TURBO</text>
-      </view>
-    </view>
+    </template>
     
     <!-- Action Button -->
     <view class="action-section">
@@ -83,7 +150,7 @@
 </template>
 
 <script setup>
-import { ref } from 'vue'
+import { ref, computed } from 'vue'
 import PbTabbar from '@/components/pb-tabbar.vue'
 
 const isLocked = ref(false)
@@ -107,14 +174,53 @@ const soundHorn = () => {
 }
 
 const isRiding = ref(false)
+const rideTimer = ref(null)
+
+// Ride Pro Data
+const currentSpeed = ref(28)
+const heartRate = ref(135)
+const power = ref(220)
+const distanceCount = ref(12.42)
+const rideSeconds = ref(2520) // 42 min
+const avgSpeed = ref(18.5)
+const altitude = ref(350)
+const slope = ref(3)
+const climb = ref(210)
+const cadence = ref(85)
+const waterLevel = ref(80) // 补水进度 0-100
+
+const formatTime = (s) => {
+  const h = Math.floor(s / 3600).toString().padStart(2, '0')
+  const m = Math.floor((s % 3600) / 60).toString().padStart(2, '0')
+  const sec = (s % 60).toString().padStart(2, '0')
+  return `${h}:${m}:${sec}`
+}
+
+const rideTimeStr = computed(() => formatTime(rideSeconds.value))
 
 const startRiding = () => {
   uni.vibrateLong()
-  uni.showLoading({ title: 'Initializing...' })
+  uni.showLoading({ title: '初始化智能座舱...' })
   setTimeout(() => {
     uni.hideLoading()
     isRiding.value = true
-    uni.showToast({ title: 'Ride Started!', icon: 'success' })
+    uni.showToast({ title: '系统就绪，开始骑行', icon: 'success' })
+    
+    // Start Data Sync
+    rideTimer.value = setInterval(() => {
+      // 模拟动态变化
+      currentSpeed.value = Math.floor(25 + Math.random() * 8)
+      heartRate.value = Math.floor(130 + Math.random() * 15)
+      power.value = Math.floor(180 + Math.random() * 60)
+      rideSeconds.value++
+      distanceCount.value += 0.01 / 60 // 约每秒增加一点里程
+      waterLevel.value = Math.max(0, waterLevel.value - 0.05) // 持续衰减
+      
+      if (Math.random() > 0.95) {
+        altitude.value += Math.floor(Math.random() * 2)
+        climb.value += Math.floor(Math.random() * 1)
+      }
+    }, 1000)
   }, 1000)
 }
 
@@ -122,17 +228,23 @@ const toggleRiding = () => {
   if (isRiding.value) {
     uni.showModal({
       title: '结束骑行',
-      content: '确定要结束本次骑行并保存数据吗？',
+      content: '确定要保存本次宇宙骑行数据吗？',
       success: (res) => {
         if (res.confirm) {
           isRiding.value = false
-          uni.showToast({ title: 'Ride Saved!', icon: 'success' })
+          if (rideTimer.value) clearInterval(rideTimer.value)
+          uni.showToast({ title: '数据已同步至星云', icon: 'success' })
         }
       }
     })
   } else {
     startRiding()
   }
+}
+
+const refillWater = () => {
+  waterLevel.value = 100
+  uni.showToast({ title: '水源已补满', icon: 'none' })
 }
 </script>
 
@@ -435,6 +547,113 @@ const toggleRiding = () => {
   50% { transform: scale(1.05); opacity: 0.6; }
   100% { transform: scale(0.95); opacity: 0.3; }
 }
+
+/* Riding HUD Styles */
+.riding-hud {
+  margin-top: 20rpx;
+  padding: 40rpx;
+  display: flex;
+  flex-direction: column;
+  gap: 30rpx;
+
+  .main-group {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-end;
+    
+    .hud-item {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      flex: 1;
+      
+      .label { font-size: 18rpx; color: #666; letter-spacing: 2rpx; text-transform: uppercase; }
+      .val { font-size: 50rpx; font-weight: 800; color: #fff; line-height: 1.2; }
+      .unit { font-size: 18rpx; color: #444; }
+      
+      &.large {
+        flex: 1.5;
+        .val { font-size: 100rpx; }
+      }
+      &.heart {
+        .pulse-text { 
+          color: #ff4d4f; 
+          animation: heartPulse 1s infinite alternate; 
+          text-shadow: 0 0 10rpx rgba(255, 77, 79, 0.4);
+        }
+      }
+    }
+  }
+
+  .divider {
+    height: 1px;
+    background: linear-gradient(to right, transparent, $pb-glass-border, transparent);
+    margin: 10rpx 0;
+  }
+
+  .grid-group {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 24rpx;
+    
+    .sub-item {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 10rpx 0;
+      
+      .l { font-size: 20rpx; color: $uni-text-color-grey; }
+      .v { font-size: 26rpx; font-weight: 600; color: #fff; }
+      
+      &.full-width {
+        grid-column: span 2;
+        padding-top: 20rpx;
+        border-top: 1px dashed rgba(255,255,255,0.1);
+        .highlight { color: $uni-color-primary; text-shadow: 0 0 10rpx $uni-color-primary; font-size: 32rpx; }
+      }
+    }
+  }
+
+  .water-section {
+    margin-top: 20rpx;
+    background: rgba(0, 240, 255, 0.05);
+    padding: 24rpx;
+    border-radius: 16rpx;
+    border: 1px solid rgba(0, 240, 255, 0.1);
+    display: flex;
+    flex-direction: column;
+    gap: 16rpx;
+    
+    &:active { background: rgba(0, 240, 255, 0.15); }
+
+    .water-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      .label { font-size: 20rpx; color: #00f0ff; font-weight: bold; }
+      .percent { font-size: 24rpx; font-weight: 900; color: #00f0ff; &.low { color: #ffbc00; animation: flash 1s infinite; } }
+    }
+    
+    .water-track {
+      height: 16rpx;
+      background: rgba(0,0,0,0.3);
+      border-radius: 50rpx;
+      overflow: hidden;
+      .water-bar {
+        height: 100%;
+        background: linear-gradient(to right, #0099ff, #00f0ff);
+        box-shadow: 0 0 15rpx #00f0ff;
+        border-radius: 50rpx;
+        transition: width 0.3s ease;
+      }
+    }
+    
+    .hint { font-size: 14rpx; color: #444; text-align: center; letter-spacing: 2rpx; }
+  }
+}
+
+@keyframes heartPulse { from { transform: scale(0.95); } to { transform: scale(1.05); } }
+@keyframes flash { 0%, 100% { opacity: 1; } 50% { opacity: 0.5; } }
 
 .safe-bottom {
   height: 140rpx;
