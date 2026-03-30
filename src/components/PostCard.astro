@@ -54,12 +54,14 @@ const { remarkPluginFrontmatter } = await render(entry);
 	>
 		<a
 			href={url}
-			class="transition group w-full block font-bold mb-3 text-3xl text-90
-        hover:text-(--primary) dark:hover:text-(--primary)
-        active:text-(--title-active) dark:active:text-(--title-active)
-        before:w-1 before:h-5 before:rounded-md before:bg-(--primary)
-        before:absolute
-        before:top-8.75 before:left-4.5 before:hidden md:before:block"
+			class:list={[
+				"transition group w-full block font-bold mb-3 text-3xl text-90",
+				"hover:text-(--primary) dark:hover:text-(--primary)",
+				"active:text-(--title-active) dark:active:text-(--title-active)",
+				"before:w-1 before:h-5 before:rounded-md before:bg-(--primary)",
+				"before:absolute before:top-8.75 before:left-4.5 before:hidden md:before:block",
+				{ "cosmos-title-effect": tags?.includes("宇宙ebike") },
+			]}
 		>
 			{
 				pinned && (
@@ -174,4 +176,37 @@ const { remarkPluginFrontmatter } = await render(entry);
 	}
 </div>
 
-<style define:vars={{ coverWidth }}></style>
+<style define:vars={{ coverWidth }}>
+	.cosmos-title-effect {
+		background: linear-gradient(
+			135deg,
+			#00e5ff 0%,
+			#b026ff 50%,
+			#00e5ff 100%
+		);
+		background-size: 200% auto;
+		-webkit-background-clip: text;
+		-webkit-text-fill-color: transparent !important;
+		text-shadow: 0 0 15px rgba(0, 229, 255, 0.3);
+		animation: cosmos-pulse 6s linear infinite;
+	}
+
+	.cosmos-title-effect::before {
+		display: none !important;
+	}
+
+	@keyframes cosmos-pulse {
+		0% {
+			background-position: 0% center;
+			filter: drop-shadow(0 0 2px rgba(0, 229, 255, 0.3));
+		}
+		50% {
+			background-position: 100% center;
+			filter: drop-shadow(0 0 8px rgba(176, 38, 255, 0.5));
+		}
+		100% {
+			background-position: 0% center;
+			filter: drop-shadow(0 0 2px rgba(0, 229, 255, 0.3));
+		}
+	}
+</style>

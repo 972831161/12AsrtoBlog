@@ -1,13 +1,38 @@
 ---
 title: 致宇宙 Planet Between
 published: 2026-03-30
-description: 记录我从老王到关注宇宙 e-bike 到准备简历材料，动手复刻 App、撰写竞品调研的心路历程，希望能得到一个宝贵的实习机会。
+description: 对宇宙说你好。
 tags: [宇宙ebike]
 category: 思考
 draft: false
 pinned: true
 priority: 1
 ---
+
+<div id="to-planet-between-marker" style="display:none"></div>
+
+<style is:global>
+  /* 仅针对此页面应用宇宙特效标题 */
+  #post-container:has(#to-planet-between-marker) [data-pagefind-meta="title"] {
+    background: linear-gradient(135deg, #00E5FF 0%, #B026FF 50%, #00E5FF 100%);
+    background-size: 200% auto;
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent !important;
+    text-shadow: 0 0 15px rgba(0, 229, 255, 0.4);
+    animation: cosmos-pulse 6s linear infinite;
+  }
+  
+  /* 移除标题左侧竖线 */
+  #post-container:has(#to-planet-between-marker) [data-pagefind-meta="title"]::before {
+    display: none !important;
+  }
+
+  @keyframes cosmos-pulse {
+    0% { background-position: 0% center; filter: drop-shadow(0 0 2px rgba(0, 229, 255, 0.3)); }
+    50% { background-position: 100% center; filter: drop-shadow(0 0 8px rgba(176, 38, 255, 0.5)); }
+    100% { background-position: 0% center; filter: drop-shadow(0 0 2px rgba(0, 229, 255, 0.3)); }
+  }
+</style>
 
 ## 敬宇宙 e-bike 团队：
 
@@ -26,9 +51,10 @@ priority: 1
 
 在寻找实习机会的过程中，我没有选择海投，而是停下来，试图用我自己的方式与“宇宙”进行一次对话：
 
-1.  **非专业的竞品调研**：我用论文文献综述的方法论，撰写了一份 **[竞品分析报告](/ebike-analysis/index.html)**。虽然我的视角可能不如分析师成熟，但这个过程让我对电助力自行车运行逻辑、行业内卷方向，用户需求有了基本认识。
-2.  **复刻与重构 App**：我参考“宇宙”这一深邃主题设计了UI 样式，利用 Uni-app 复刻了一个包含 **[AR 云端雷达](/planet-app/index.html#/pages/ar/ar)** 和 **专业仪表盘** 的互动原型。这是我一点点思考的实化。
-3.  **初识小龙虾**：我是个很愿意接触新鲜事物的人，只要能对学习工作切实有用，我愿意花时间去学习。
+1.  **[非专业的竞品调研](/posts/ebike-analysis-link/)**：我用论文文献综述的方法论，撰写了一份 **[竞品分析报告](/ebike-analysis/index.html)**。虽然我的视角可能不如分析师成熟，但这个过程让我对电助力自行车运行逻辑、行业内卷方向，用户需求有了基本认识。
+2.  **[复刻与重构 App](/posts/planet-between-app/)**：我参考“宇宙”这一深邃主题设计了 UI 样式，利用 Uni-app 复刻了一个包含 **[AR 云端雷达](/planet-app/index.html#/pages/ar/ar)** 和 **专业仪表盘** 的互动原型。这是我一点点思考的实化。
+3.  **[初识小龙虾](/posts/openclaw初体验/openclaw初体验/)**：我是个很愿意接触新鲜事物的人，只要能对学习工作切实有用，我愿意花时间去学习。
+
 
 ### 我的渴求
 
