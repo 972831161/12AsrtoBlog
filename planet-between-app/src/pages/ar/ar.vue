@@ -216,8 +216,8 @@ let stream = null
 const panoramaOffset = computed(() => {
   // 基础偏移：将图片中心对齐
   const base = -1200 
-  // 根据 yaw (绕 Y 轴) 偏移，灵敏度 20
-  return base + (-yaw.value * 25)
+  // 灵敏度下调，增加稳定性
+  return base + (-yaw.value * 12)
 })
 
 // 1. 姿态解算 (3DoF Rotation)
@@ -678,7 +678,7 @@ const collectCapsule = () => {
   .pano-container {
     width: 100%; height: 100%; overflow: hidden; display: flex; align-items: center;
     .pano-image {
-      height: 100vh; width: auto; min-width: 300vw; transition: transform 0.1s ease-out; will-change: transform;
+      height: 100vh; width: auto; min-width: 300vw; will-change: transform;
     }
   }
   .pano-hud {
