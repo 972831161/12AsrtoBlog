@@ -40,12 +40,27 @@
         <text class="back-btn" @click="currentView = 'main'">⬅ 返回</text>
         <text class="sub-title">我的车库</text>
       </view>
-      <view class="garage-card pb-glass-card">
+      <view class="garage-card pb-glass-card" v-for="(bike, index) in myBikes" :key="index">
         <image src="../../static/images/vapor_bike.webp" mode="aspectFit" class="bike-img"></image>
         <view class="bike-info">
-          <text class="brand">PLANET</text>
-          <text class="name pb-text-glow">VAPOR</text>
-          <view class="status-badge">在线</view>
+          <view class="top-row">
+            <view class="title-group">
+              <text class="brand">{{ bike.brand }}</text>
+              <text class="name pb-text-glow">{{ bike.model }}</text>
+            </view>
+            <view class="status-badge" :class="bike.status.toLowerCase()">{{ bike.status === 'ONLINE' ? '在线' : '离线' }}</view>
+          </view>
+          
+          <view class="bike-meta">
+            <view class="meta-item">
+              <text class="l">昵称</text>
+              <text class="v">{{ bike.nickname }}</text>
+            </view>
+            <view class="meta-item">
+              <text class="l">陪伴时长</text>
+              <text class="v highlight">{{ calculateAge(bike.purchaseDate) }} 天</text>
+            </view>
+          </view>
         </view>
       </view>
     </view>
@@ -81,6 +96,23 @@ const badges = ref([
   { name: '万米达人', icon: '📏' },
   { name: '社区之星', icon: '⭐' }
 ])
+
+const myBikes = ref([
+  {
+    brand: 'PLANET',
+    model: 'VAPOR',
+    nickname: '银影侠 Silver Surfer',
+    purchaseDate: '2025-11-20',
+    status: 'ONLINE'
+  }
+])
+
+const calculateAge = (dateStr) => {
+  const purchase = new Date(dateStr)
+  const today = new Date()
+  const diffTime = Math.abs(today - purchase)
+  return Math.ceil(diffTime / (1000 * 60 * 60 * 24))
+}
 
 const handleMenuClick = (item) => {
   uni.showToast({
@@ -201,13 +233,43 @@ const handleMenuClick = (item) => {
       flex: 1;
       display: flex;
       flex-direction: column;
-      .brand { font-size: 20rpx; color: $uni-text-color-grey; letter-spacing: 4rpx; }
-      .name { font-size: 40rpx; font-weight: 900; }
-      .status-badge {
-        margin-top: 10rpx;
-        font-size: 18rpx; width: fit-content;
-        padding: 4rpx 16rpx; background: rgba(0, 255, 127, 0.2); 
-        color: #00ff7f; border-radius: 20rpx;
+      gap: 20rpx;
+      
+      .top-row {
+        display: flex;
+        justify-content: space-between;
+        align-items: flex-start;
+        
+        .title-group {
+          display: flex;
+          flex-direction: column;
+          .brand { font-size: 18rpx; color: $uni-text-color-grey; letter-spacing: 4rpx; }
+          .name { font-size: 36rpx; font-weight: 900; line-height: 1; }
+        }
+        
+        .status-badge {
+          font-size: 16rpx;
+          padding: 4rpx 12rpx;
+          border-radius: 20rpx;
+          &.online { background: rgba(0, 255, 127, 0.15); color: #00ff7f; border: 1px solid rgba(0, 255, 127, 0.2); }
+          &.offline { background: rgba(255, 255, 255, 0.05); color: #999; }
+        }
+      }
+      
+      .bike-meta {
+        display: flex;
+        gap: 30rpx;
+        padding-top: 10rpx;
+        border-top: 1px solid rgba(255,255,255,0.05);
+        
+        .meta-item {
+          display: flex;
+          flex-direction: column;
+          gap: 4rpx;
+          .l { font-size: 18rpx; color: #444; text-transform: uppercase; letter-spacing: 1rpx; }
+          .v { font-size: 24rpx; color: #fff; font-weight: 500; }
+          .highlight { color: $uni-color-primary; font-weight: 700; }
+        }
       }
     }
   }
