@@ -199,7 +199,7 @@ var Paul_Pio = function (prop) {
 				);
 			};
 			elements.info.onmouseover = () => {
-				modules.message("想了解更多关于我的信息吗？");
+				modules.message("歪比巴卜？");
 			};
 			current.menu.appendChild(elements.info);
 

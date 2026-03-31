@@ -1387,7 +1387,7 @@ export const pioConfig: import("./types/config").PioConfig = {
 	dialog: {
 		welcome: "Welcome to Darwin's world!", // 欢迎词
 		touch: ["What's the dog doing?", "我的刀盾！"], // 触摸提示
-		home: "返回主页", // 首页提示
+		home: "比比拉布", // 首页提示
 		skin: ["Want to see my new outfit?", "The new outfit looks great~"], // 换装提示
 		close: "下次再见~", // 关闭提示
 		link: "https://space.bilibili.com/13477682", // 关于链接
