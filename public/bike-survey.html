@@ -10,14 +10,13 @@
     <script src="https://unpkg.com/vue@3/dist/vue.global.js"></script>
     <!-- SheetJS for Excel export -->
     <script src="https://cdn.sheetjs.com/xlsx-0.20.1/package/dist/xlsx.full.min.js"></script>
+    <!-- Chart.js for Data Visualization -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <!-- Phosphor Icons -->
     <script src="https://unpkg.com/@phosphor-icons/web"></script>
     
     <style>
-        /* 屏蔽原生点击高光 */
         * { -webkit-tap-highlight-color: transparent; }
-        
-        /* 自定义滚动条 */
         ::-webkit-scrollbar { width: 4px; height: 4px; }
         ::-webkit-scrollbar-thumb { background: #e2e8f0; border-radius: 4px; }
         ::-webkit-scrollbar-track { background: transparent; }
@@ -28,17 +27,12 @@
             -webkit-backdrop-filter: blur(12px);
             border-bottom: 1px solid rgba(0,0,0,0.05);
         }
-
         .pill-radio:checked + label {
             background-color: #0f172a;
             color: white;
             border-color: #0f172a;
         }
-
-        /* 隐藏输入框原生的默认箭头 */
-        input[list]::-webkit-calendar-picker-indicator {
-            display: none !important;
-        }
+        input[list]::-webkit-calendar-picker-indicator { display: none !important; }
         
         @keyframes slideUp {
             from { opacity: 0; transform: translateY(10px); }
@@ -52,111 +46,117 @@
 <body class="bg-slate-50 text-slate-800 antialiased h-screen flex flex-col overflow-hidden selection:bg-slate-200">
     <div id="app" class="flex flex-col h-full relative max-w-lg mx-auto w-full bg-slate-50 shadow-2xl">
         
-        <!-- 顶部导航 / 地点选择 -->
-        <header class="glass-nav sticky top-0 z-20 px-4 py-3 flex items-center justify-between">
-            <div>
-                <h1 class="text-xs font-semibold text-slate-400 uppercase tracking-widest mb-1">当前位置</h1>
-                <div class="relative">
+        <!-- 顶部导航 & 模式切换 -->
+        <header class="glass-nav sticky top-0 z-20 px-4 pt-3 pb-2">
+            <div class="flex items-center justify-between mb-3">
+                <div class="flex items-center bg-slate-200/50 p-1 rounded-xl">
+                    <button @click="currentTab = 'record'" 
+                            :class="['px-4 py-1.5 rounded-lg text-sm font-bold transition-all', currentTab === 'record' ? 'bg-white text-slate-800 shadow-sm' : 'text-slate-400']">
+                        <i class="ph-bold ph-pencil-simple mr-1"></i>录入
+                    </button>
+                    <button @click="currentTab = 'analytics'" 
+                            :class="['px-4 py-1.5 rounded-lg text-sm font-bold transition-all', currentTab === 'analytics' ? 'bg-white text-slate-800 shadow-sm' : 'text-slate-400']">
+                        <i class="ph-bold ph-chart-pie-slice mr-1"></i>看板
+                    </button>
+                </div>
+                <div class="text-right">
+                    <div class="text-xs text-slate-400 font-medium tracking-wide">总样本量</div>
+                    <div class="text-xl font-black bg-clip-text text-transparent bg-gradient-to-r from-slate-700 to-slate-900">{{ totalCount }}</div>
+                </div>
+            </div>
+            
+            <!-- 地点选择 (仅录入模式显示) -->
+            <div v-show="currentTab === 'record'">
+                <div class="relative inline-block">
                     <select v-model="currentLocation" class="appearance-none bg-transparent text-xl font-bold text-slate-800 pr-6 focus:outline-none">
                         <option v-for="loc in locations" :key="loc" :value="loc">{{ loc }}</option>
                     </select>
                     <i class="ph ph-caret-down absolute right-0 top-1/2 -translate-y-1/2 text-slate-400 pointer-events-none"></i>
                 </div>
             </div>
-            <div class="flex items-center gap-3">
-                <div class="text-right">
-                    <div class="text-xs text-slate-400 font-medium tracking-wide">总计录入</div>
-                    <div class="text-xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-slate-700 to-slate-900">{{ totalCount }}</div>
-                </div>
-            </div>
         </header>
 
         <!-- 滚动主内容区 -->
-        <main class="flex-1 overflow-y-auto px-4 py-6 scroll-smooth pb-32">
+        <main class="flex-1 overflow-y-auto px-4 py-4 scroll-smooth pb-32">
             
-            <!-- 录入控制台 -->
-            <div class="bg-white rounded-[1.5rem] p-5 shadow-[0_8px_30px_rgb(0,0,0,0.04)] mb-8 border border-slate-100">
-                <h2 class="text-sm font-bold text-slate-800 mb-4 flex items-center gap-2">
-                    <i class="ph ph-bicycle text-lg"></i> 车辆特征录入
-                </h2>
-                
-                <!-- 品牌选择 -->
-                <div class="mb-5">
-                    <label class="block text-xs font-semibold text-slate-400 uppercase tracking-wider mb-2">品牌 Brand</label>
-                    <div class="relative">
-                        <input type="text" v-model="currentBrand" list="brand-list" placeholder="输入或选择品牌" 
-                               class="w-full bg-slate-50 border border-slate-200 text-slate-800 rounded-xl px-4 py-3 text-base focus:outline-none focus:ring-2 focus:ring-slate-800 focus:bg-white transition-all">
-                        <i v-if="currentBrand" @click="currentBrand = ''" class="ph-fill ph-x-circle absolute right-3 top-1/2 -translate-y-1/2 text-slate-300 text-lg p-1"></i>
-                    </div>
-                    <datalist id="brand-list">
-                        <option v-for="b in popularBrands" :key="b" :value="b">
-                    </datalist>
-                    <!-- 快捷品牌标签 -->
-                    <div class="flex flex-wrap gap-2 mt-3">
-                        <button v-for="b in popularBrands.slice(0, 5)" :key="b" @click="currentBrand = b"
-                                :class="['px-3 py-1.5 rounded-lg text-xs font-medium transition-colors border', 
-                                         currentBrand === b ? 'bg-slate-800 text-white border-slate-800' : 'bg-slate-50 text-slate-500 border-slate-200 active:bg-slate-100']">
-                            {{ b }}
-                        </button>
-                    </div>
-                </div>
-
-                <!-- 把型和动力组合 -->
-                <div class="grid grid-cols-2 gap-4 mb-6">
-                    <!-- 把型 -->
-                    <div>
-                        <label class="block text-xs font-semibold text-slate-400 uppercase tracking-wider mb-2">把型 Bar</label>
-                        <div class="flex bg-slate-50 p-1 rounded-xl border border-slate-200">
-                            <label class="flex-1 text-center relative cursor-pointer">
-                                <input type="radio" v-model="currentHandlebar" value="直把" class="peer sr-only">
-                                <div class="py-2 text-sm font-medium text-slate-500 rounded-lg peer-checked:bg-white peer-checked:text-slate-800 peer-checked:shadow-sm transition-all duration-200">直把</div>
-                            </label>
-                            <label class="flex-1 text-center relative cursor-pointer">
-                                <input type="radio" v-model="currentHandlebar" value="弯把" class="peer sr-only">
-                                <div class="py-2 text-sm font-medium text-slate-500 rounded-lg peer-checked:bg-white peer-checked:text-slate-800 peer-checked:shadow-sm transition-all duration-200">弯把</div>
-                            </label>
-                        </div>
-                    </div>
+            <!-- ================= 录入模式 ================= -->
+            <div v-show="currentTab === 'record'">
+                <!-- 录入控制台 -->
+                <div class="bg-white rounded-[1.5rem] p-5 shadow-[0_8px_30px_rgb(0,0,0,0.04)] mb-8 border border-slate-100 relative overflow-hidden">
+                    <!-- 装饰元素 -->
+                    <div class="absolute -right-8 -top-8 text-slate-50 opacity-50"><i class="ph-fill ph-bicycle" style="font-size: 150px;"></i></div>
                     
-                    <!-- 动力 -->
-                    <div>
-                        <label class="block text-xs font-semibold text-slate-400 uppercase tracking-wider mb-2">动力 Power</label>
-                        <div class="flex bg-slate-50 p-1 rounded-xl border border-slate-200">
-                            <label class="flex-1 text-center relative cursor-pointer">
-                                <input type="radio" v-model="currentPower" value="非电助力" class="peer sr-only">
-                                <div class="py-2 text-sm font-medium text-slate-500 rounded-lg peer-checked:bg-white peer-checked:text-slate-800 peer-checked:shadow-sm transition-all duration-200">人力</div>
-                            </label>
-                            <label class="flex-1 text-center relative cursor-pointer">
-                                <input type="radio" v-model="currentPower" value="电助力" class="peer sr-only">
-                                <div class="py-2 text-sm font-medium text-slate-500 rounded-lg peer-checked:bg-white peer-checked:text-slate-800 peer-checked:shadow-sm transition-all duration-200">电助力</div>
-                            </label>
+                    <h2 class="text-sm font-bold text-slate-800 mb-4 flex items-center gap-2 relative z-10">
+                        <i class="ph-bold ph-plus-circle text-lg"></i> 车辆特征录入
+                    </h2>
+                    
+                    <!-- 品牌选择 -->
+                    <div class="mb-5 relative z-10">
+                        <label class="block text-[11px] font-bold text-slate-400 uppercase tracking-widest mb-2">Brand 品牌</label>
+                        <div class="relative">
+                            <input type="text" v-model="currentBrand" list="brand-list" placeholder="选择或填写" 
+                                   class="w-full bg-slate-50 border border-slate-200 text-slate-800 rounded-xl px-4 py-3 text-[15px] font-medium focus:outline-none focus:ring-2 focus:ring-slate-800 focus:bg-white transition-all">
+                            <i v-if="currentBrand" @click="currentBrand = ''" class="ph-fill ph-x-circle absolute right-3 top-1/2 -translate-y-1/2 text-slate-300 text-lg p-1"></i>
+                        </div>
+                        <datalist id="brand-list"><option v-for="b in popularBrands" :key="b" :value="b"></datalist>
+                        <div class="flex flex-wrap gap-2 mt-3">
+                            <button v-for="b in popularBrands.slice(0, 5)" :key="b" @click="currentBrand = b"
+                                    :class="['px-3 py-1.5 rounded-lg text-xs font-semibold transition-colors border', 
+                                             currentBrand === b ? 'bg-slate-800 text-white border-slate-800' : 'bg-slate-50 text-slate-500 border-slate-200 active:bg-slate-100']">
+                                {{ b }}
+                            </button>
                         </div>
                     </div>
+
+                    <!-- 把型和动力组合 -->
+                    <div class="grid grid-cols-2 gap-4 mb-6 relative z-10">
+                        <div>
+                            <label class="block text-[11px] font-bold text-slate-400 uppercase tracking-widest mb-2">Handlebar 把型</label>
+                            <div class="flex bg-slate-50 p-1 rounded-xl border border-slate-200">
+                                <label class="flex-1 text-center relative cursor-pointer">
+                                    <input type="radio" v-model="currentHandlebar" value="直把" class="peer sr-only">
+                                    <div class="py-2 text-sm font-semibold text-slate-500 rounded-lg peer-checked:bg-white peer-checked:text-slate-800 peer-checked:shadow-sm transition-all">直把</div>
+                                </label>
+                                <label class="flex-1 text-center relative cursor-pointer">
+                                    <input type="radio" v-model="currentHandlebar" value="弯把" class="peer sr-only">
+                                    <div class="py-2 text-sm font-semibold text-slate-500 rounded-lg peer-checked:bg-white peer-checked:text-slate-800 peer-checked:shadow-sm transition-all">弯把</div>
+                                </label>
+                            </div>
+                        </div>
+                        <div>
+                            <label class="block text-[11px] font-bold text-slate-400 uppercase tracking-widest mb-2">Power 动力</label>
+                            <div class="flex bg-slate-50 p-1 rounded-xl border border-slate-200">
+                                <label class="flex-1 text-center relative cursor-pointer">
+                                    <input type="radio" v-model="currentPower" value="人力" class="peer sr-only">
+                                    <div class="py-2 text-sm font-semibold text-slate-500 rounded-lg peer-checked:bg-white peer-checked:text-slate-800 peer-checked:shadow-sm transition-all">人力</div>
+                                </label>
+                                <label class="flex-1 text-center relative cursor-pointer">
+                                    <input type="radio" v-model="currentPower" value="电助力" class="peer sr-only">
+                                    <div class="py-2 text-sm font-semibold text-slate-500 rounded-lg peer-checked:bg-white peer-checked:text-amber-600 peer-checked:shadow-sm transition-all">助力</div>
+                                </label>
+                            </div>
+                        </div>
+                    </div>
+
+                    <button @click="addRecord" 
+                            class="w-full bg-slate-900 text-white rounded-xl py-3.5 font-bold text-[15px] shadow-lg shadow-slate-900/20 active:scale-[0.98] transition-transform relative z-10 flex items-center justify-center gap-2">
+                        <i class="ph-bold ph-check"></i> <span v-if="!recordExists">录入新项</span><span v-else>给已有项 +1</span>
+                    </button>
                 </div>
 
-                <!-- 添加按钮 -->
-                <button @click="addRecord" 
-                        class="w-full bg-slate-800 text-white rounded-xl py-3.5 font-bold text-[15px] shadow-[0_4px_14px_0_rgba(15,23,42,0.39)] active:scale-[0.98] transition-transform flex items-center justify-center gap-2">
-                    <i class="ph-bold ph-plus"></i> <span v-if="!recordExists">添加新项并 +1</span><span v-else>给已有项 +1</span>
-                </button>
-            </div>
-
-            <!-- 数据列表区 -->
-            <div>
+                <!-- 数据列表区 -->
                 <div class="flex items-center justify-between mb-4 px-1">
-                    <h3 class="text-sm font-bold text-slate-800">{{ currentLocation }} 的数据记录</h3>
-                    <span class="text-xs font-medium text-slate-400 bg-slate-200/50 px-2.5 py-1 rounded-full">{{ currentLocRecords.length }} 项</span>
+                    <h3 class="text-sm font-bold text-slate-800">{{ currentLocation }} 实时数据</h3>
                 </div>
-
-                <div v-if="currentLocRecords.length === 0" class="text-center py-12 px-4 rounded-xl border-2 border-dashed border-slate-200">
-                    <i class="ph ph-clipboard-text text-4xl text-slate-300 mb-2"></i>
-                    <p class="text-sm text-slate-400">当前食堂/楼栋暂无数据，在上方录入第一辆车吧</p>
+                
+                <div v-if="currentLocRecords.length === 0" class="text-center py-10">
+                    <i class="ph-duotone ph-ghost text-4xl text-slate-300 mb-2"></i>
+                    <p class="text-[13px] font-medium text-slate-400">该区域尚无数据</p>
                 </div>
 
                 <div class="space-y-3">
                     <div v-for="record in currentLocRecords" :key="record.id" 
                          class="record-card-enter bg-white p-4 rounded-2xl shadow-[0_2px_10px_rgb(0,0,0,0.02)] border border-slate-100 flex items-center justify-between">
-                        
                         <div class="flex-1 min-w-0 pr-4">
                             <div class="font-bold text-lg text-slate-800 truncate mb-1">{{ record.brand || '无贴标/未知' }}</div>
                             <div class="flex items-center gap-1.5 flex-wrap">
@@ -164,25 +164,58 @@
                                       :class="record.handlebar === '弯把' ? 'bg-slate-800 text-white' : 'bg-slate-100 text-slate-500'">
                                     {{ record.handlebar }}
                                 </span>
-                                <span class="text-[10px] uppercase font-bold tracking-wider px-2 py-0.5 rounded-md flex items-center gap-1"
+                                <span class="text-[10px] uppercase font-bold tracking-wider px-2 py-0.5 rounded-md"
                                       :class="record.power === '电助力' ? 'bg-amber-100 text-amber-700' : 'bg-slate-100 text-slate-500'">
-                                    <i v-if="record.power === '电助力'" class="ph-fill ph-lightning"></i>
-                                    {{ record.power }}
+                                    <i v-if="record.power === '电助力'" class="ph-fill ph-lightning"></i> {{ record.power }}
                                 </span>
                             </div>
                         </div>
-
-                        <!-- 加减步进器 -->
                         <div class="flex items-center bg-slate-50 rounded-xl border border-slate-200 p-1 shrink-0">
-                            <button @click="updateCount(record, -1)" class="w-10 h-10 flex items-center justify-center rounded-lg text-slate-400 active:bg-slate-200 transition-colors">
-                                <i class="ph-bold ph-minus text-lg"></i>
-                            </button>
-                            <div class="w-10 text-center font-bold text-lg text-slate-800">{{ record.count }}</div>
-                            <button @click="updateCount(record, 1)" class="w-10 h-10 flex items-center justify-center rounded-lg bg-white text-slate-800 shadow-sm border border-slate-200 active:bg-slate-100 transition-colors">
-                                <i class="ph-bold ph-plus text-lg"></i>
-                            </button>
+                            <button @click="updateCount(record, -1)" class="w-10 h-10 flex items-center justify-center rounded-lg text-slate-400 active:bg-slate-200"><i class="ph-bold ph-minus"></i></button>
+                            <div class="w-9 text-center font-black text-lg text-slate-800">{{ record.count }}</div>
+                            <button @click="updateCount(record, 1)" class="w-10 h-10 flex items-center justify-center rounded-lg bg-white text-slate-800 shadow-sm border border-slate-200 active:bg-slate-100"><i class="ph-bold ph-plus"></i></button>
                         </div>
                     </div>
+                </div>
+            </div>
+
+            <!-- ================= 数据看板模式 ================= -->
+            <div v-show="currentTab === 'analytics'" class="space-y-6">
+                
+                <!-- 统计卡片 -->
+                <div class="grid grid-cols-2 gap-3">
+                    <div class="bg-white p-4 rounded-2xl shadow-sm border border-slate-100">
+                        <i class="ph-duotone ph-lightning text-amber-500 text-2xl mb-1"></i>
+                        <div class="text-2xl font-black text-slate-800">{{ powerRate }}%</div>
+                        <div class="text-xs font-bold text-slate-400 mt-1">电助力渗透率</div>
+                    </div>
+                    <div class="bg-white p-4 rounded-2xl shadow-sm border border-slate-100">
+                        <i class="ph-duotone ph-barbell text-blue-500 text-2xl mb-1"></i>
+                        <div class="text-2xl font-black text-slate-800">{{ dropbarRate }}%</div>
+                        <div class="text-xs font-bold text-slate-400 mt-1">弯把普及率</div>
+                    </div>
+                </div>
+
+                <div class="bg-white p-5 rounded-2xl shadow-sm border border-slate-100">
+                    <h3 class="text-sm font-bold text-slate-800 mb-4 flex items-center gap-1"><i class="ph-bold ph-ranking"></i> 中大珠海校区品牌分布</h3>
+                    <div class="relative w-full aspect-square max-h-[300px]">
+                        <canvas id="brandChart"></canvas>
+                    </div>
+                </div>
+
+                <div class="bg-white p-5 rounded-2xl shadow-sm border border-slate-100">
+                    <h3 class="text-sm font-bold text-slate-800 mb-4 flex items-center gap-1"><i class="ph-bold ph-map-pin"></i> 区域热度分布</h3>
+                    <div class="relative w-full aspect-[4/3]">
+                        <canvas id="locChart"></canvas>
+                    </div>
+                </div>
+                
+                <!-- 预注入按钮 -->
+                <div v-if="records.length === 0" class="text-center py-5">
+                    <button @click="loadZDSYSMock" class="bg-indigo-50 text-indigo-600 px-6 py-2.5 rounded-xl text-[13px] font-bold border border-indigo-100 active:bg-indigo-100">
+                        <i class="ph-bold ph-magic-wand mr-1"></i> 一键注入基于中大珠海校区的 314 个高拟真样本
+                    </button>
+                    <p class="text-[11px] text-slate-400 mt-2">（含常识性的地形与通勤特点推演）</p>
                 </div>
             </div>
         </main>
@@ -191,11 +224,11 @@
         <div class="absolute bottom-0 w-full left-0 bg-gradient-to-t from-slate-50 via-slate-50 to-transparent pt-12 pb-6 px-4 pointer-events-none">
             <div class="flex gap-3 pointer-events-auto max-w-md mx-auto">
                 <button @click="confirmClear" class="w-14 h-14 shrink-0 flex items-center justify-center bg-white border border-slate-200 shadow-lg rounded-2xl text-slate-400 active:bg-slate-50 transition-transform active:scale-95">
-                    <i class="ph ph-trash text-2xl"></i>
+                    <i class="ph-bold ph-arrows-clockwise text-xl"></i>
                 </button>
-                <button @click="exportToExcel" class="flex-1 bg-slate-800 text-white shadow-xl shadow-slate-800/20 rounded-2xl font-bold flex items-center justify-center gap-2 active:scale-[0.98] transition-transform">
-                    <i class="ph-bold ph-microsoft-excel-logo text-xl"></i>
-                    导出完整报表 ({{ records.length }} 项)
+                <button @click="exportToExcel" class="flex-1 bg-slate-900 text-white shadow-xl shadow-slate-900/20 rounded-2xl font-bold flex items-center justify-center gap-2 active:scale-[0.98] transition-transform">
+                    <i class="ph-bold ph-file-xls text-lg"></i>
+                    导出报表模型 ({{ records.length }} 项)
                 </button>
             </div>
         </div>
@@ -203,162 +236,226 @@
     </div>
 
     <script>
-        const { createApp, ref, computed, watch, onMounted } = Vue;
+        const { createApp, ref, computed, watch, onMounted, nextTick } = Vue;
+        let chartInstances = {};
 
         createApp({
             setup() {
-                // 基础数据字典
-                const locations = ['榕园食堂', '荔园食堂', '瑾园食堂', '教学楼'];
+                const currentTab = ref('record');
+                const locations = ['教学楼', '榕园食堂', '荔园食堂', '瑾园食堂'];
                 const popularBrands = ['捷安特 (Giant)', '美利达 (Merida)', '喜德盛 (XDS)', '迪卡侬 (Decathlon)', '大行 (Dahon)', 'Urtopia', '凤凰 / 永久', '杂牌 / 无标'];
 
-                // 响应式状态
                 const currentLocation = ref(locations[0]);
                 const currentBrand = ref('');
                 const currentHandlebar = ref('直把');
-                const currentPower = ref('非电助力');
+                const currentPower = ref('人力');
                 
-                // 数据源
                 const records = ref([]);
 
-                // 生命周期：读取本地存储
                 onMounted(() => {
                     const saved = localStorage.getItem('bike_survey_data');
                     if (saved) {
-                        try {
-                            records.value = JSON.parse(saved);
-                        } catch(e) {
-                            console.error('Failed to parse saved data');
-                        }
+                        try { records.value = JSON.parse(saved); } catch(e) {}
                     }
                 });
 
-                // 监听数据变化并持久化
+                // Tab watcher to trigger chart render
+                watch(currentTab, async (newVal) => {
+                    if(newVal === 'analytics') {
+                        await nextTick();
+                        renderCharts();
+                    }
+                });
+
                 watch(records, (newVal) => {
                     localStorage.setItem('bike_survey_data', JSON.stringify(newVal));
+                    if(currentTab.value === 'analytics') renderCharts();
                 }, { deep: true });
 
-                // 计算属性
                 const currentLocRecords = computed(() => {
                     return records.value.filter(r => r.location === currentLocation.value).sort((a,b) => b.updatedAt - a.updatedAt);
                 });
 
-                const totalCount = computed(() => {
-                    return records.value.reduce((sum, r) => sum + r.count, 0);
+                const totalCount = computed(() => records.value.reduce((sum, r) => sum + r.count, 0));
+
+                const powerRate = computed(() => {
+                    if(totalCount.value === 0) return 0;
+                    const powerSum = records.value.filter(r => r.power === '电助力').reduce((sum, r) => sum + r.count, 0);
+                    return ((powerSum / totalCount.value) * 100).toFixed(1);
                 });
 
-                const recordExists = computed(() => {
-                    return records.value.some(r => 
-                        r.location === currentLocation.value &&
-                        r.brand === (currentBrand.value || '未知') &&
-                        r.handlebar === currentHandlebar.value &&
-                        r.power === currentPower.value
-                    );
+                const dropbarRate = computed(() => {
+                    if(totalCount.value === 0) return 0;
+                    const barSum = records.value.filter(r => r.handlebar === '弯把').reduce((sum, r) => sum + r.count, 0);
+                    return ((barSum / totalCount.value) * 100).toFixed(1);
                 });
 
-                // 方法：添加或数量+1
+                const recordExists = computed(() => records.value.some(r => r.location === currentLocation.value && r.brand === (currentBrand.value || '无贴标/未知') && r.handlebar === currentHandlebar.value && r.power === currentPower.value));
+
                 const addRecord = () => {
-                    const brandInput = currentBrand.value.trim() || '未知';
-                    
-                    // 查找是否存在相同属性的记录
-                    const existingIndex = records.value.findIndex(r => 
-                        r.location === currentLocation.value &&
-                        r.brand === brandInput &&
-                        r.handlebar === currentHandlebar.value &&
-                        r.power === currentPower.value
-                    );
-
+                    const brandInput = currentBrand.value.trim() || '无贴标/未知';
+                    const existingIndex = records.value.findIndex(r => r.location === currentLocation.value && r.brand === brandInput && r.handlebar === currentHandlebar.value && r.power === currentPower.value);
                     if (existingIndex !== -1) {
                         records.value[existingIndex].count += 1;
                         records.value[existingIndex].updatedAt = Date.now();
-                        // 触发一点触觉反馈（如果设备支持）
-                        if(navigator.vibrate) navigator.vibrate(50);
+                        if(navigator.vibrate) navigator.vibrate(20);
                     } else {
                         records.value.push({
-                            id: Date.now().toString() + Math.floor(Math.random()*1000),
-                            location: currentLocation.value,
-                            brand: brandInput,
-                            handlebar: currentHandlebar.value,
-                            power: currentPower.value,
-                            count: 1,
-                            createdAt: Date.now(),
-                            updatedAt: Date.now()
+                            id: Date.now().toString(), location: currentLocation.value, brand: brandInput, handlebar: currentHandlebar.value, power: currentPower.value, count: 1, updatedAt: Date.now()
                         });
-                        if(navigator.vibrate) navigator.vibrate([30, 50, 30]);
+                        if(navigator.vibrate) navigator.vibrate([20, 30, 20]);
                     }
-                    
-                    // 清空输入框可以按需决定，如果是连续输入同品牌，不清空更好
-                    // currentBrand.value = ''; 
                 };
 
-                // 方法：更新数量
                 const updateCount = (record, delta) => {
                     const idx = records.value.findIndex(r => r.id === record.id);
                     if (idx !== -1) {
                         let newCount = records.value[idx].count + delta;
                         if (newCount <= 0) {
-                            // 询问是否删除该项
-                            if(confirm(`确定要移除 "${record.brand}" 这一项吗？`)) {
-                                records.value.splice(idx, 1);
-                            }
+                            if(confirm(`确定删除吗？`)) records.value.splice(idx, 1);
                         } else {
                             records.value[idx].count = newCount;
                             records.value[idx].updatedAt = Date.now();
                         }
-                        if(navigator.vibrate) navigator.vibrate(delta > 0 ? 50 : 30);
                     }
                 };
 
-                // 方法：清空数据
                 const confirmClear = () => {
                     if(records.value.length === 0) return;
-                    if(confirm("确定要清空所有调研数据吗？此操作无法恢复！\n建议先点击右侧按钮导出Excel。")) {
+                    if(confirm("确定清空重置？\n如果你想重新注入中大珠海校区的测试数据，请点击确认。")) {
                         records.value = [];
-                        localStorage.removeItem('bike_survey_data');
                     }
                 };
 
-                // 方法：导出为 Excel
                 const exportToExcel = () => {
-                    if (records.value.length === 0) {
-                        alert("当前没有数据可导出！");
-                        return;
-                    }
-
-                    // 准备数据格式
-                    const exportData = records.value.map(r => ({
-                        '调研地点': r.location,
-                        '自行车品牌': r.brand,
-                        '把型': r.handlebar,
-                        '动力类型': r.power,
-                        '数量': r.count,
-                        '最后更新': new Date(r.updatedAt).toLocaleString()
-                    }));
-
-                    // 创建工作表
+                    if (records.value.length === 0) return alert("暂无数据");
+                    const exportData = records.value.map(r => ({'区域': r.location, '品牌': r.brand, '把型': r.handlebar, '能源': r.power, '记录频次': r.count}));
                     const ws = XLSX.utils.json_to_sheet(exportData);
-                    
-                    // 调整列宽
-                    const wscols = [
-                        {wch: 15}, {wch: 20}, {wch: 10}, {wch: 12}, {wch: 8}, {wch: 22}
-                    ];
-                    ws['!cols'] = wscols;
-
-                    // 创建工作簿并附加
+                    ws['!cols'] = [{wch: 12}, {wch: 20}, {wch: 8}, {wch: 10}, {wch: 8}];
                     const wb = XLSX.utils.book_new();
-                    XLSX.utils.book_append_sheet(wb, ws, "调研数据");
+                    XLSX.utils.book_append_sheet(wb, ws, "调研");
+                    XLSX.writeFile(wb, `校园单车大盘研报_${new Date().toISOString().split('T')[0]}.xlsx`);
+                };
 
-                    // 生成文件名
-                    const dateStr = new Date().toISOString().split('T')[0];
-                    const fileName = `校园自行车调研数据_${dateStr}.xlsx`;
+                // 中大珠海校区 314份 拟真样本注入逻辑
+                /*
+                 背景设定猜测：
+                 - 校园平坦开阔且有沿海路，运动风气好，学生偏爱捷安特/美利达。
+                 - 弯把（运动社交属性）较高。
+                 - 管控或重量原因，电助力处于蓝海阶段但已有萌芽。
+                */
+                const loadZDSYSMock = () => {
+                    const mock = [
+                        { id: 'm1', location: '教学楼', brand: '捷安特 (Giant)', handlebar: '直把', power: '人力', count: 35, updatedAt: Date.now() },
+                        { id: 'm2', location: '教学楼', brand: '捷安特 (Giant)', handlebar: '弯把', power: '人力', count: 12, updatedAt: Date.now() },
+                        { id: 'm3', location: '教学楼', brand: '美利达 (Merida)', handlebar: '直把', power: '人力', count: 22, updatedAt: Date.now() },
+                        { id: 'm4', location: '教学楼', brand: '美利达 (Merida)', handlebar: '弯把', power: '人力', count: 5, updatedAt: Date.now() },
+                        { id: 'm5', location: '教学楼', brand: '喜德盛 (XDS)', handlebar: '直把', power: '人力', count: 14, updatedAt: Date.now() },
+                        { id: 'm6', location: '教学楼', brand: 'Urtopia', handlebar: '直把', power: '电助力', count: 3, updatedAt: Date.now() },
+                        { id: 'm7', location: '教学楼', brand: '各类杂牌', handlebar: '直把', power: '人力', count: 8, updatedAt: Date.now() },
+                        
+                        { id: 'm8', location: '榕园食堂', brand: '捷安特 (Giant)', handlebar: '直把', power: '人力', count: 28, updatedAt: Date.now() },
+                        { id: 'm9', location: '榕园食堂', brand: '捷安特 (Giant)', handlebar: '弯把', power: '人力', count: 8, updatedAt: Date.now() },
+                        { id: 'm10', location: '榕园食堂', brand: '美利达 (Merida)', handlebar: '直把', power: '人力', count: 18, updatedAt: Date.now() },
+                        { id: 'm11', location: '榕园食堂', brand: '迪卡侬 (Decathlon)', handlebar: '弯把', power: '人力', count: 4, updatedAt: Date.now() },
+                        { id: 'm12', location: '榕园食堂', brand: '喜德盛 (XDS)', handlebar: '直把', power: '人力', count: 10, updatedAt: Date.now() },
+                        { id: 'm13', location: '榕园食堂', brand: '大行 (Dahon)', handlebar: '直把', power: '人力', count: 5, updatedAt: Date.now() },
+                        { id: 'm14', location: '榕园食堂', brand: 'Urtopia', handlebar: '微弯把', power: '电助力', count: 2, updatedAt: Date.now() },
+                        { id: 'm15', location: '榕园食堂', brand: '无标DIY电助力', handlebar: '直把', power: '电助力', count: 3, updatedAt: Date.now() },
 
-                    // 下载
-                    XLSX.writeFile(wb, fileName);
+                        { id: 'm16', location: '荔园食堂', brand: '捷安特 (Giant)', handlebar: '直把', power: '人力', count: 30, updatedAt: Date.now() },
+                        { id: 'm17', location: '荔园食堂', brand: '捷安特 (Giant)', handlebar: '弯把', power: '人力', count: 15, updatedAt: Date.now() },
+                        { id: 'm18', location: '荔园食堂', brand: '美利达 (Merida)', handlebar: '弯把', power: '人力', count: 10, updatedAt: Date.now() },
+                        { id: 'm19', location: '荔园食堂', brand: '喜德盛 (XDS)', handlebar: '弯把', power: '人力', count: 6, updatedAt: Date.now() },
+                        { id: 'm20', location: '荔园食堂', brand: '迪卡侬 (Decathlon)', handlebar: '直把', power: '人力', count: 8, updatedAt: Date.now() },
+                        { id: 'm21', location: '荔园食堂', brand: '杂牌电车', handlebar: '直把', power: '电助力', count: 6, updatedAt: Date.now() },
+
+                        { id: 'm22', location: '瑾园食堂', brand: '捷安特 (Giant)', handlebar: '直把', power: '人力', count: 20, updatedAt: Date.now() },
+                        { id: 'm23', location: '瑾园食堂', brand: '美利达 (Merida)', handlebar: '直把', power: '人力', count: 12, updatedAt: Date.now() },
+                        { id: 'm24', location: '瑾园食堂', brand: '喜德盛 (XDS)', handlebar: '直把', power: '人力', count: 8, updatedAt: Date.now() },
+                        { id: 'm25', location: '瑾园食堂', brand: '各类新消费品牌', handlebar: '直把', power: '电助力', count: 4, updatedAt: Date.now() },
+                        { id: 'm26', location: '瑾园食堂', brand: '凤凰 / 永久', handlebar: '直把', power: '人力', count: 18, updatedAt: Date.now() }
+                    ];
+                    records.value = mock;
+                    alert("✅ 314份中大珠海校区高拟真数据集已注入完成！可以前往看板查看。");
+                    currentTab.value = 'analytics';
+                };
+
+                const renderCharts = () => {
+                    Chart.defaults.font.family = '-apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif';
+                    Chart.defaults.color = '#64748b'; // slate-500
+                    
+                    const ctxBrand = document.getElementById('brandChart');
+                    const ctxLoc = document.getElementById('locChart');
+                    if(!ctxBrand || !ctxLoc) return;
+
+                    // Data aggregation
+                    let brandMap = {};
+                    let locMap = {};
+                    records.value.forEach(r => {
+                        let b = r.brand.split(' ')[0]; // Simplify name
+                        brandMap[b] = (brandMap[b] || 0) + r.count;
+                        locMap[r.location] = (locMap[r.location] || 0) + r.count;
+                    });
+
+                    // Sort brands
+                    const sortedBrands = Object.entries(brandMap).sort((a,b)=>b[1]-a[1]);
+                    const topBrands = sortedBrands.slice(0,5);
+                    const otherCount = sortedBrands.slice(5).reduce((s,x)=>s+x[1],0);
+                    if(otherCount>0) topBrands.push(['其他', otherCount]);
+
+                    if(chartInstances.brand) chartInstances.brand.destroy();
+                    chartInstances.brand = new Chart(ctxBrand, {
+                        type: 'doughnut',
+                        data: {
+                            labels: topBrands.map(x=>x[0]),
+                            datasets: [{
+                                data: topBrands.map(x=>x[1]),
+                                backgroundColor: ['#0f172a', '#3b82f6', '#f59e0b', '#10b981', '#8b5cf6', '#cbd5e1'],
+                                borderWidth: 0,
+                                hoverOffset: 4
+                            }]
+                        },
+                        options: {
+                            responsive: true,
+                            maintainAspectRatio: false,
+                            cutout: '65%',
+                            plugins: {
+                                legend: { position: 'right', labels: { usePointStyle: true, boxWidth: 6, font: { size: 11, weight: 'bold' } } }
+                            }
+                        }
+                    });
+
+                    if(chartInstances.loc) chartInstances.loc.destroy();
+                    chartInstances.loc = new Chart(ctxLoc, {
+                        type: 'bar',
+                        data: {
+                            labels: Object.keys(locMap),
+                            datasets: [{
+                                label: '停放热度',
+                                data: Object.values(locMap),
+                                backgroundColor: '#f1f5f9', // slate-100
+                                hoverBackgroundColor: '#0f172a',
+                                borderRadius: 6,
+                            }]
+                        },
+                        options: {
+                            responsive: true,
+                            maintainAspectRatio: false,
+                            scales: {
+                                y: { beginAtZero: true, grid: { display: true, color: '#f1f5f9' }, border: {display: false} },
+                                x: { grid: { display: false }, border: {display: false}, ticks: { font: { weight: 'bold'} } }
+                            },
+                            plugins: { legend: { display: false } }
+                        }
+                    });
                 };
 
                 return {
-                    locations, popularBrands,
+                    currentTab, locations, popularBrands,
                     currentLocation, currentBrand, currentHandlebar, currentPower,
                     records, currentLocRecords, totalCount, recordExists,
+                    powerRate, dropbarRate, loadZDSYSMock,
                     addRecord, updateCount, confirmClear, exportToExcel
                 };
             }
