@@ -197,6 +197,10 @@ export type SiteConfig = {
 	generateOgImages: boolean;
 	favicon: Favicon[];
 	showLastModified: boolean; // 控制“上次编辑”卡片显示的开关
+	maintenance?: {
+		enable: boolean; // 是否启用维护/密码上锁模式
+		password?: string; // 访问密码
+	};
 };
 
 export type Favicon = {
