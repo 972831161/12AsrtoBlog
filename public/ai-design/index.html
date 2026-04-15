@@ -1,0 +1,256 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>工程思维 - 小红书 3:4 长图</title>
+    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700;900&family=Inter:wght@300;400;600&family=Noto+Serif+SC:wght@700;900&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --bg-color: #fcfbf7;
+            --text-color: #1a1a1a;
+            --accent-color: #c9ada7;
+            --secondary-text: #666;
+            --aspect-ratio: 0.75; /* 3:4 */
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            background-color: #eee;
+            font-family: 'Inter', 'Noto Sans SC', sans-serif;
+            color: var(--text-color);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding: 40px 0;
+        }
+
+        /* 3:4 Container */
+        .slide {
+            width: 600px;
+            height: 800px;
+            background-color: var(--bg-color);
+            margin-bottom: 40px;
+            position: relative;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.05);
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+            padding: 60px;
+        }
+
+        .slide-footer {
+            position: absolute;
+            bottom: 40px;
+            left: 60px;
+            right: 60px;
+            display: flex;
+            justify-content: space-between;
+            font-size: 11px;
+            letter-spacing: 2px;
+            text-transform: uppercase;
+            color: var(--accent-color);
+            border-top: 1px solid #efefef;
+            padding-top: 20px;
+        }
+
+        h1, h2 {
+            font-family: 'Playfair Display', 'Noto Serif SC', serif;
+            line-height: 1.1;
+            margin-bottom: 20px;
+        }
+
+        h1 { font-size: 52px; font-weight: 900; }
+        h2 { font-size: 38px; font-weight: 700; }
+
+        p {
+            font-size: 18px;
+            line-height: 1.8;
+            color: var(--secondary-text);
+            margin-bottom: 20px;
+            text-align: justify;
+        }
+
+        .quote-box {
+            border-left: 3px solid var(--accent-color);
+            padding-left: 20px;
+            margin: 40px 0;
+            font-style: italic;
+        }
+
+        .big-number {
+            font-family: 'Playfair Display', serif;
+            font-size: 120px;
+            color: #f0f0f0;
+            position: absolute;
+            top: 20px;
+            right: 40px;
+            z-index: 0;
+            line-height: 1;
+        }
+
+        /* Slide Specific Styles */
+        .cover { justify-content: center; align-items: flex-start; }
+        .cover h1 { font-size: 64px; color: var(--text-color); margin-bottom: 10px; }
+        .cover .subtitle { font-size: 16px; letter-spacing: 4px; color: var(--accent-color); margin-bottom: 60px; }
+        .cover .brand { font-weight: 600; font-size: 14px; }
+
+        .highlight-text {
+            color: var(--text-color);
+            font-weight: 600;
+            background: linear-gradient(120deg, rgba(201,173,167,0.2) 0%, rgba(201,173,167,0.2) 100%);
+            background-repeat: no-repeat;
+            background-size: 100% 30%;
+            background-position: 0 80%;
+        }
+
+        .tag {
+            display: inline-block;
+            padding: 4px 12px;
+            background: #f0f0f0;
+            border-radius: 20px;
+            font-size: 12px;
+            margin-right: 8px;
+            color: #888;
+        }
+
+        .lfc-badge {
+            background: #e31a23;
+            color: white;
+            padding: 2px 8px;
+            font-size: 10px;
+            border-radius: 4px;
+            vertical-align: middle;
+        }
+
+        code {
+            font-family: 'Courier New', monospace;
+            background: #f5f5f5;
+            padding: 2px 6px;
+            border-radius: 4px;
+            font-size: 0.9em;
+        }
+
+        @media print {
+            body { padding: 0; background: none; }
+            .slide { margin: 0; page-break-after: always; box-shadow: none; }
+        }
+    </style>
+</head>
+<body>
+
+    <!-- Slide 1: Cover -->
+    <div class="slide cover">
+        <div class="subtitle">WEEKLY REVIEW / AI NATIVE</div>
+        <h1>最后比拼的是<br><span class="highlight-text">工程思维</span></h1>
+        <p style="font-size: 20px; color: #333;">本周运动 + 阅读汇报 ｜ 什么是 AI Native 最底层的能力究竟是什么？</p>
+        <div style="margin-top: 40px;">
+            <span class="tag">#计算思维</span>
+            <span class="tag">#工程化</span>
+            <span class="tag">#AI进化</span>
+        </div>
+        <div class="slide-footer">
+            <span>BY guxi</span>
+            <span>01 / 07</span>
+        </div>
+    </div>
+
+    <!-- Slide 2: Status -->
+    <div class="slide">
+        <div class="big-number">02</div>
+        <h2>沸腾的<br>近况汇报</h2>
+        <div class="quote-box">
+            “又把猴薅来杭州了，频繁开会策划接下来的AI系列。”
+        </div>
+        <p>写AI系列的大纲写得我<span class="highlight-text">兽血沸腾</span>，边沸腾又边以更大的强度、更高的标准去做研究，弄懂“所以然”。</p>
+        <p>去上海跑了半马，在杭州走了标毅线。这种在身体极度疲惫与大脑极度兴奋间的摆荡，让我触到了某种真实的生机。</p>
+        <div class="slide-footer">
+            <span>ACTIVITY & PASSION</span>
+            <span>02 / 07</span>
+        </div>
+    </div>
+
+    <!-- Slide 3: 2013 Flashback -->
+    <div class="slide">
+        <div class="big-number">03</div>
+        <h2>回响：<br>2013 的那个夏天</h2>
+        <p>18岁，第一次接触 Git，玩上了 Github。</p>
+        <p>被教授“逼”着学计算机，读基辛格的《On China》，读乔姆斯基。那时候总觉得沮丧，计算机的冰山没摸到一角，人文的攀爬又未启程。</p>
+        <div class="quote-box">
+            “人生的转折是要靠回头看的。打破沙锅去学习的行为本身，成了我这一生最重要的收获。”
+        </div>
+        <div class="slide-footer">
+            <span>LOG FROM 2013</span>
+            <span>03 / 07</span>
+        </div>
+    </div>
+
+    <!-- Slide 4: Boomerang -->
+    <div class="slide">
+        <div class="big-number">04</div>
+        <h2>回旋镖：<br>何为 AI Native？</h2>
+        <p>前几天爬山时讨论：到底什么才叫“被 AI 赋能的人”？</p>
+        <p>教授那门 <code>Computational Thinking</code> 打了个回旋镖过来。我们一致认为，AI Native 最底层的能力应该是：<span class="highlight-text">工程思维</span>。</p>
+        <p>当年的苦修，终于在 AI 语境下找到了它最锋利的落点。</p>
+        <div class="slide-footer">
+            <span>COMPUTATIONAL THINKING</span>
+            <span>04 / 07</span>
+        </div>
+    </div>
+
+    <!-- Slide 5: Core Logic -->
+    <div class="slide">
+        <div class="big-number">05</div>
+        <h2>工程思维的<br>深度解析</h2>
+        <p>到底什么是工程思维？</p>
+        <ul style="list-style: none; margin: 20px 0;">
+            <li style="margin-bottom: 15px; font-size: 20px; color: var(--text-color);">● <strong>定义问题</strong></li>
+            <li style="margin-bottom: 15px; font-size: 20px; color: var(--text-color);">● <strong>拆解问题</strong></li>
+            <li style="margin-bottom: 15px; font-size: 20px; color: var(--text-color);">● <strong>给出系统化解决方案</strong></li>
+        </ul>
+        <p>它不是一种技巧，而是一种<span class="highlight-text">思考方式</span>。计算机思维是它的底层，而它是你改造世界的图纸。</p>
+        <div class="slide-footer">
+            <span>SYSTEMATIC THINKING</span>
+            <span>05 / 07</span>
+        </div>
+    </div>
+
+    <!-- Slide 6: Practice -->
+    <div class="slide">
+        <div class="big-number">06</div>
+        <h2>拒绝无效对话<br>接入工作流</h2>
+        <p>有人觉得 AI 不好用，也许是把它当成了“搜索引擎”。</p>
+        <p>拥有工程思维的人，会把它接进工作流：</p>
+        <p style="font-size: 16px; border: 1px dashed var(--accent-color); padding: 15px; margin: 10px 0;">
+            反复调 Prompt + 细化步骤 + 喂上下文 + 搭检查机制
+        </p>
+        <p>最后，让它<span class="highlight-text">真的替自己干活</span>。</p>
+        <div class="slide-footer">
+            <span>FROM PROMPT TO WORKFLOW</span>
+            <span>06 / 07</span>
+        </div>
+    </div>
+
+    <!-- Slide 7: Outro -->
+    <div class="slide">
+        <div class="big-number">07</div>
+        <h2>终曲：<br>你只需学明白你自己</h2>
+        <p>教授说：“人是学不过 AI 的，你要学明白的是你自己。”</p>
+        <p>现在有 <code>Notebook LM</code> 这样的工具，你可以用接“外脑”的方式来学习。</p>
+        <div class="quote-box" style="font-size: 22px; color: var(--text-color);">
+            “这就是最好的时代：让工具成为延伸，让思考回归天性。”
+        </div>
+        <p style="margin-top: auto; font-size: 14px; text-align: center; letter-spacing: 2px;">感谢你的阅读 · 欢迎常来数字花园</p>
+        <div class="slide-footer">
+            <span>END OF REVIEW</span>
+            <span>07 / 07</span>
+        </div>
+    </div>
+
+</body>
+</html>
