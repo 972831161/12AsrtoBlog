@@ -6,7 +6,7 @@
   <title>宇宙 Planet Between | 电助力自行车竞品分析报告</title>
   <meta name="description" content="宇宙Planet Between电助力自行车竞品分析，覆盖Giant、Specialized、Trek、Merida、Riese & Müller、Super73六大品牌，聚焦中国市场深度商业战略解析。">
   <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Space+Grotesk:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700&family=Bricolage+Grotesque:opsz,wght@12..96,300;400;500;600;700;800&display=swap" rel="stylesheet">
   <style>
     :root {
       --bg: #030305;
@@ -14,29 +14,64 @@
       --bg-card-hover: rgba(22, 22, 30, 0.85);
       --bg-card2: rgba(25, 25, 35, 0.6);
       --border: rgba(255, 255, 255, 0.08);
-      --border-accent: rgba(0, 240, 255, 0.4);
+      --border-accent: rgba(0, 240, 255, 0.3);
       --primary: #00E5FF;
       --primary-glow: rgba(0, 229, 255, 0.25);
       --accent: #B026FF;
       --accent-glow: rgba(176, 38, 255, 0.25);
-      --text: #F8FAFC;
+      --text: #F1F5F9;
       --text-muted: #94A3B8;
       --text-dim: #475569;
       --danger: #FF4B4B;
       --warning: #F59E0B;
       --success: #10B981;
+      --font-display: 'Bricolage Grotesque', sans-serif;
+      --font-body: 'Plus Jakarta Sans', sans-serif;
     }
     * { margin:0; padding:0; box-sizing:border-box; }
-    html { scroll-behavior:smooth; }
+    html { scroll-behavior:smooth; color-scheme: dark; }
     body {
-      font-family:'Inter',sans-serif;
+      font-family: var(--font-body);
       background:var(--bg);
       color:var(--text);
       line-height:1.6;
       overflow-x:hidden;
       background-image: 
-        radial-gradient(circle at 15% 50%, rgba(0, 229, 255, 0.05) 0%, transparent 50%),
-        radial-gradient(circle at 85% 30%, rgba(176, 38, 255, 0.05) 0%, transparent 50%);
+        radial-gradient(circle at 10% 20%, rgba(0, 229, 255, 0.04) 0%, transparent 40%),
+        radial-gradient(circle at 90% 80%, rgba(176, 38, 255, 0.04) 0%, transparent 40%);
+    }
+
+    /* TYPOGRAPHY HIERARCHY */
+    h1, h2, h3, h4, .nav-brand { font-family: var(--font-display); font-weight: 700; letter-spacing: -0.03em; }
+    p { font-weight: 400; }
+    .text-balance { text-wrap: balance; }
+
+    /* NOISE OVERLAY */
+    .noise::before {
+      content: "";
+      position: fixed; inset: 0;
+      width: 100%; height: 100%;
+      opacity: 0.04; z-index: 9999;
+      pointer-events: none;
+      background-image: url('data:image/svg+xml,<svg viewBox="0 0 200 200" xmlns="http://www.w3.org/2000/svg"><filter id="noiseFilter"><feTurbulence type="fractalNoise" baseFrequency="0.65" numOctaves="3" stitchTiles="stitch"/></filter><rect width="100%" height="100%" filter="url(%23noiseFilter)"/></svg>');
+    }
+
+    /* ENTRY ANIMATIONS */
+    @keyframes reveal {
+      from { opacity: 0; transform: translateY(24px); filter: blur(8px); }
+      to { opacity: 1; transform: translateY(0); filter: blur(0); }
+    }
+    .reveal {
+      opacity: 0;
+      animation: reveal 1.2s cubic-bezier(0.19, 1, 0.22, 1) forwards;
+    }
+    .stagger-1 { animation-delay: 0.1s; }
+    .stagger-2 { animation-delay: 0.2s; }
+    .stagger-3 { animation-delay: 0.3s; }
+    .stagger-4 { animation-delay: 0.4s; }
+
+    @media (prefers-reduced-motion: reduce) {
+      .reveal { animation: none; opacity: 1; }
     }
 
     /* GRID LINES BG - Enhanced */
@@ -50,16 +85,16 @@
     /* NAV */
     nav {
       position:fixed; top:0; left:0; right:0; z-index:100;
-      background:rgba(3, 3, 5, 0.7);
-      backdrop-filter:blur(20px);
-      -webkit-backdrop-filter:blur(20px);
+      background:rgba(3, 3, 5, 0.75);
+      backdrop-filter:blur(32px);
+      -webkit-backdrop-filter:blur(32px);
       border-bottom:1px solid var(--border);
       padding:0 40px;
       height:65px;
       display:flex;
       align-items:center;
       justify-content:space-between;
-      transition: all 0.3s ease;
+      transition: transform 0.4s cubic-bezier(0.16, 1, 0.3, 1);
     }
     .nav-brand {
       font-family:'Space Grotesk',sans-serif;
@@ -72,12 +107,11 @@
     .nav-links { display:flex; gap:32px; list-style:none; }
     .nav-links a {
       color:var(--text-muted); font-size:13px; text-decoration:none;
-      font-weight: 500; letter-spacing: 0.05em;
-      transition:color .2s, text-shadow .2s;
+      font-weight: 500; letter-spacing: 0.02em;
+      transition: color 0.24s ease;
     }
     .nav-links a:hover { 
       color:var(--text); 
-      text-shadow: 0 0 8px rgba(255,255,255,0.4);
     }
     .nav-tag {
       background: rgba(176, 38, 255, 0.15);
@@ -126,13 +160,14 @@
       background: linear-gradient(90deg, var(--primary), transparent);
     }
     .hero h1 {
-      font-family:'Space Grotesk',sans-serif;
-      font-size:clamp(40px,6vw,72px);
-      font-weight:700;
-      line-height:1.05;
-      margin-bottom:28px;
-      letter-spacing:-.03em;
+      font-family: var(--font-display);
+      font-size:clamp(44px,7.5vw,92px);
+      font-weight:800;
+      line-height:0.95;
+      margin-bottom:32px;
+      letter-spacing:-.05em;
       color: #fff;
+      text-wrap: balance;
     }
     .hero h1 span { 
       background: linear-gradient(135deg, var(--primary), var(--accent));
@@ -140,7 +175,7 @@
       background-clip: text;
       -webkit-text-fill-color: transparent;
       display: inline-block;
-      filter: drop-shadow(0 0 20px rgba(176, 38, 255, 0.3));
+      filter: saturate(1.2);
     }
     .hero-sub {
       font-size:18px;
@@ -243,11 +278,11 @@
       background:linear-gradient(90deg,var(--primary),var(--accent), transparent);
     }
     .stat-num {
-      font-family:'Space Grotesk',sans-serif; font-size:36px; font-weight:700;
-      color:var(--text); text-shadow: 0 0 15px rgba(255,255,255,0.2);
+      font-family: var(--font-display); font-size:42px; font-weight:800;
+      color:var(--text); font-variant-numeric: tabular-nums; letter-spacing: -0.02em;
     }
-    .stat-unit { font-size:13px; color:var(--primary); font-weight:600; margin-top:4px; letter-spacing:0.05em; }
-    .stat-desc { font-size:13px; color:var(--text-muted); margin-top:10px; line-height:1.5; }
+    .stat-unit { font-size:13px; color:var(--primary); font-weight:600; margin-top:4px; letter-spacing:0.02em; }
+    .stat-desc { font-size:13px; color:var(--text-muted); margin-top:10px; line-height:1.6; }
 
     /* PLANET BETWEEN INTRO */
     .pb-intro { display:grid; grid-template-columns:1fr 1fr; gap:32px; margin-bottom:48px; }
@@ -590,12 +625,12 @@
     }
   </style>
 </head>
-<body class="grid-bg">
+<body class="grid-bg noise">
 
 <!-- NAV -->
 <nav>
-  <div class="nav-brand">PLANET BETWEEN 竞品分析</div>
-  <ul class="nav-links">
+  <div class="nav-brand reveal stagger-1">PLANET BETWEEN 竞品分析</div>
+  <ul class="nav-links reveal stagger-2">
     <li><a href="#market">市场</a></li>
     <li><a href="#pain-points">用户声量</a></li>
     <li><a href="#brands">竞品</a></li>
@@ -603,16 +638,16 @@
     <li><a href="#swot">SWOT</a></li>
     <li><a href="#strategy">策略建议</a></li>
   </ul>
-  <span class="nav-tag">INDUSTRY REPORT · 2026</span>
+  <span class="nav-tag reveal stagger-3">INDUSTRY REPORT · 2026</span>
 </nav>
 
 <!-- HERO -->
 <section class="hero">
   <div class="hero-content">
-    <div class="hero-label">竞品分析报告</div>
-    <h1>宇宙 <span>Planet Between</span><br>电助力自行车<br>中国市场战局</h1>
-    <p class="hero-sub">追求“100%是自己在骑的感觉”，宇宙 Planet Between 正通过极致轻量化与电机算法解算，重塑 E-Bike 的物理与心理边界。</p>
-    <div class="hero-meta">
+    <div class="hero-label reveal stagger-1">竞品分析报告</div>
+    <h1 class="reveal stagger-2">宇宙 <span>Planet Between</span><br>电助力自行车<br>中国市场战局</h1>
+    <p class="hero-sub reveal stagger-3 text-balance">追求“100% 是自己在骑的感觉”，宇宙 Planet Between 正通过极致轻量化与电机算法解算，重塑 E-Bike 的物理与心理边界。</p>
+    <div class="hero-meta reveal stagger-4">
       <div class="meta-item">
         <span class="meta-label">产品哲学</span>
         <span class="meta-value">100% 原生骑行感</span>
@@ -631,13 +666,17 @@
       </div>
     </div>
   </div>
-  <div class="hero-right">
+  <div class="hero-right reveal stagger-4">
     <div class="hero-img-wrap">
-      <!-- VAPOR 官网图（如无法加载请补充本地图片） -->
+      <!-- VAPOR 官网图 -->
       <img
         src="/ebike-analysis/images/vapor.webp"
         onerror="this.style.background='linear-gradient(135deg,#1a1a2e,#16213e)';this.style.display='flex';this.alt='宇宙 VAPOR — 旗舰电助力公路车 · 12kg · ¥29,999'"
         alt="宇宙 VAPOR 旗舰电助力公路车"
+        loading="eager"
+        fetchpriority="high"
+        width="460"
+        height="320"
       />
       <div class="img-overlay"></div>
     </div>
@@ -646,19 +685,19 @@
 
 <!-- RIDER'S PAIN POINTS -->
 <section class="section" id="pain-points" style="padding-top: 40px; padding-bottom: 40px;">
-  <div class="section-label" style="color: var(--danger);">VOC · 用户原声</div>
-  <div class="section-title">骑士的独白：那些被忽略的真实痛点</div>
+  <div class="section-label reveal" style="color: var(--danger);">VOC · 用户原声</div>
+  <div class="section-title reveal text-balance">骑士的独白：那些被忽略的真实痛点</div>
   
   <div class="pain-points-grid">
-    <div class="pain-card">
+    <div class="pain-card reveal stagger-1">
       <span class="pain-quote">“我非常喜欢骑行，但我真的受够了每次都要把 20kg 的电助力车手动搬进电梯或拎上公寓楼。”</span>
       <span class="pain-title">重量焦虑：难以跨越的物理门槛</span>
     </div>
-    <div class="pain-card">
+    <div class="pain-card reveal stagger-2">
       <span class="pain-quote">“市面上这些设计稍微好一点的电助力公路车动辄三五万，甚至更高。对于大多数心动的骑士来说，这个‘入场费’真的让人望而却步。”</span>
       <span class="pain-title">价格焦虑：高昂的溢价与现实的落差</span>
     </div>
-    <div class="pain-card">
+    <div class="pain-card reveal stagger-3">
       <span class="pain-quote">“一个人骑行有时会感到孤独。如果我的单车能帮我发现城市里有趣的伙伴或隐藏的路线，那该多好。”</span>
       <span class="pain-title">社交缺失：缺乏情感连接的数字生态</span>
     </div>
@@ -669,26 +708,26 @@
 
 <!-- MARKET OVERVIEW -->
 <section class="section" id="market">
-  <div class="section-label">01 · 市场背景</div>
-  <div class="section-title">中国电助力自行车市场概览</div>
+  <div class="section-label reveal">01 · 市场背景</div>
+  <div class="section-title reveal text-balance">中国电助力自行车市场概览</div>
 
   <div class="stat-grid">
-    <div class="stat-card">
-      <div class="stat-num">$178亿</div>
-      <div class="stat-unit">2024年中国市场规模</div>
+    <div class="stat-card reveal stagger-1">
+      <div class="stat-num">$178 亿</div>
+      <div class="stat-unit">2024 年中国市场规模</div>
       <div class="stat-desc">全球最大单一电助力自行车市场</div>
     </div>
-    <div class="stat-card">
+    <div class="stat-card reveal stagger-2">
       <div class="stat-num">12.4%</div>
       <div class="stat-unit">预期年复合增长率 CAGR</div>
-      <div class="stat-desc">2025—2033年高端赛道增速</div>
+      <div class="stat-desc">2025—2033 年高端赛道增速</div>
     </div>
-    <div class="stat-card">
+    <div class="stat-card reveal stagger-3">
       <div class="stat-num">19.1%</div>
       <div class="stat-unit">中高端车型占比</div>
       <div class="stat-desc">¥10,000+ 价格带正在快速扩张</div>
     </div>
-    <div class="stat-card">
+    <div class="stat-card reveal stagger-4">
       <div class="stat-num">78.8%</div>
       <div class="stat-unit">个人/家庭骑行用途</div>
       <div class="stat-desc">运动休闲需求推动高端消费升级</div>
@@ -696,7 +735,7 @@
   </div>
 
   <div class="pb-intro">
-    <div class="pb-card" style="display: flex; flex-direction: column; justify-content: space-between;">
+    <div class="pb-card reveal stagger-1" style="display: flex; flex-direction: column; justify-content: space-between;">
       <div>
         <h3 style="margin-bottom:12px;">🚀 宇宙 Planet Between · 品牌核心优势</h3>
         <p style="font-size:14px;color:var(--text-muted);line-height:1.7;margin-bottom:24px;">
@@ -722,7 +761,7 @@
         <span class="badge badge-blue">人力/电力 混合引擎</span>
       </div>
     </div>
-    <div class="pb-card">
+    <div class="pb-card reveal stagger-2">
       <h3>📦 核心产品线</h3>
       <div class="product-list" style="max-height: 400px; overflow-y: auto; padding-right: 5px;">
         <a class="product-item" href="https://mp.weixin.qq.com/s/kNnIYSPs2QI3nicbaBDlhg" target="_blank" style="text-decoration:none;">
@@ -788,10 +827,14 @@
   <div class="competitor-grid">
 
     <!-- Giant -->
-    <div class="comp-card">
+    <div class="comp-card reveal stagger-1">
       <img class="comp-img"
         src="/ebike-analysis/images/giant.webp"
-        alt="Giant Road E+ 电助力公路车">
+        alt="Giant Road E+ 电助力公路车"
+        loading="lazy"
+        width="400"
+        height="200"
+      >
       <div class="comp-body">
         <div class="comp-header">
           <span class="comp-name">Giant 捷安特</span>
@@ -1162,7 +1205,7 @@
       </ul>
     </div>
     <!-- Weaknesses -->
-    <div class="swot-card swot-w">
+    <div class="swot-card swot-w reveal stagger-2">
       <h4><span class="badge badge-red">W</span> Weaknesses</h4>
       <ul class="swot-list">
         <li><strong>大众认知深度：</strong>在非硬核圈层中，“极致轻量”的价值感知仍需进一步教育。</li>
@@ -1171,7 +1214,7 @@
       </ul>
     </div>
     <!-- Opportunities -->
-    <div class="swot-card swot-o">
+    <div class="swot-card swot-o reveal stagger-3">
       <h4><span class="badge badge-blue">O</span> Opportunities</h4>
       <ul class="swot-list">
         <li><strong>城市生活半径折跃：</strong>中产阶级对“精致出游”和“零负担通勤”的爆发式需求。</li>
@@ -1180,7 +1223,7 @@
       </ul>
     </div>
     <!-- Threats -->
-    <div class="swot-card swot-t">
+    <div class="swot-card swot-t reveal stagger-4">
       <h4><span class="badge badge-warning">T</span> Threats</h4>
       <ul class="swot-list">
         <li><strong>传统巨头的“降维打击”：</strong>捷安特等品牌若推出同量级轻量化子品牌，将带来价格压力。</li>

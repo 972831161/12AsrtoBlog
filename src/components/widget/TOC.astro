@@ -236,7 +236,7 @@ class TableOfContents extends HTMLElement {
             capture: true,
         });
 
-        this.activeIndicator = document.getElementById("active-indicator");
+        this.activeIndicator = this.querySelector("#active-indicator");
 
         this.tocEntries = Array.from(
             this.querySelectorAll<HTMLAnchorElement>("a[href^='#']")
