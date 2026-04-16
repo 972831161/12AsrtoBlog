@@ -15,7 +15,7 @@ pinned: true
 
 ---
 
-## 📐 板块一：AI 设计学习笔记 (Stable Diffusion & LoRA)
+# 📐 板块一：Stable Diffusion & LoRA
 
 
 ## ☁️ 新时代的设计：从 0 到 0.8 的跃迁
@@ -75,7 +75,7 @@ Stable Diffusion 是一种基于**潜空间扩散 (Latent Diffusion)** 技术的
 
 这次学习让我意识到，AI 设计的终点不是取代设计师，而是要求设计师从“画匠”变身为“导演”。YNWA!
 
-## 🚀 板块二：AI 设计实战 (工程思维与幻灯片输出)
+# 🚀 板块二：AI文本排版
 
 
 
@@ -91,14 +91,14 @@ Stable Diffusion 是一种基于**潜空间扩散 (Latent Diffusion)** 技术的
 
 ## 📱 小红书版文章输出
 
-为了更好呈现思考，我开发并利用了 **Agent Skill: [xhs-article-slides](https://github.com/972831161/12AsrtoBlog/blob/main/.agents/skills/xhs-article-slides/SKILL.md)**。
+为了更好呈现思考，我开发了 **Agent Skill: [xhs-article-slides](https://github.com/972831161/12AsrtoBlog/blob/main/.agents/skills/xhs-article-slides/SKILL.md)**。
 
-这个 Skill 可以自动将长文逻辑拆解并转化为符合 **3:4 比例的极简风格幻灯片**。这种方式既适合移动端沉浸式阅读，也契合 Z 世代的碎片化阅读偏好。
+这个 Skill 可以自动将长文逻辑拆解并转化为符合 **3:4 比例的极简风格幻灯片**，且可以选择极简风格或者是宇宙科幻风。这种方式既适合移动端沉浸式阅读，也契合 Z 世代的碎片化阅读偏好。
 
-- [🔧 最后比拼的是工程思维 (互动幻灯片页面)](/ai-design/index.html)
 
-> **Note**：
-> 内容来自小红书博主 [不好惹的娃娃脸 Guxi](https://www.xiaohongshu.com/user/profile/5b2f04e511be105be812f722?xsec_token=YBpI79WtRsIs_Hhvh7dWpn6N9NEG6Nvqk7OrYLgBXCWkU=&xsec_source=app_share&xhsshare=CopyLink&shareRedId=ODY5NTdJOT82NzUyOTgwNjY0OTc4Nj5A&apptime=1776260779&share_id=2ac5c7b4c32f4680abe6575fa25b0823)
+- [🔧 最后比拼的是工程思维](/ai-design/index.html). (极简风；内容来自小红书博主 [不好惹的娃娃脸 Guxi](https://www.xiaohongshu.com/user/profile/5b2f04e511be105be812f722?xsec_token=YBpI79WtRsIs_Hhvh7dWpn6N9NEG6Nvqk7OrYLgBXCWkU=&xsec_source=app_share&xhsshare=CopyLink&shareRedId=ODY5NTdJOT82NzUyOTgwNjY0OTc4Nj5A&apptime=1776260779&share_id=2ac5c7b4c32f4680abe6575fa25b0823))
+- [🚀 宇宙电动：悬崖边的三年](/universe-ebike/slides.html). (科幻极简风；内容来自[宇宙ebike微信公众号](https://mp.weixin.qq.com/s/URPbfLX8J0jFd7vfmKBzDg))
+
 
 ---
 

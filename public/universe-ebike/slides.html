@@ -1,0 +1,476 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>宇宙电动：悬崖边的三年 - MISSION LOG</title>
+    <!-- Fonts: Sci-fi & Humanistic mix -->
+    <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700&family=JetBrains+Mono:wght@300;500;700&family=Noto+Serif+SC:wght@400;700&family=Inter:wght@300;400;600&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --bg-color: #010103;
+            --primary-color: #00f3ff;
+            --primary-glow: rgba(0, 243, 255, 0.4);
+            --text-color: #e0e0e0;
+            --secondary-text: #8892b0;
+            --accent-color: #7000ff;
+            --danger-color: #ff3e3e;
+            --grid-color: rgba(0, 243, 255, 0.04);
+            --surface-color: rgba(255, 255, 255, 0.03);
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            -webkit-font-smoothing: antialiased;
+        }
+
+        body {
+            background-color: var(--bg-color);
+            color: var(--text-color);
+            font-family: 'Inter', sans-serif;
+            overflow-x: hidden;
+            overflow-y: auto;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding: 40px 0;
+            background-image: 
+                radial-gradient(circle at 50% 10%, rgba(20, 20, 45, 1) 0%, transparent 100%),
+                linear-gradient(to bottom, #010103, #050510);
+        }
+
+        /* 3:4 Aspect Ratio Container */
+        .slide-container {
+            position: relative;
+            width: 90vw;
+            height: calc(90vw * 4 / 3);
+            max-width: 600px;
+            max-height: 800px;
+            margin-bottom: 30px;
+            background-color: #020205;
+            box-shadow: 0 20px 50px rgba(0, 0, 0, 1), 0 0 20px rgba(0, 243, 255, 0.05);
+            overflow: hidden;
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            flex-shrink: 0;
+            display: flex;
+            flex-direction: column;
+        }
+
+        /* Universe Background Components */
+        .universe-bg {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: 0;
+            pointer-events: none;
+        }
+
+        .star {
+            position: absolute;
+            background: #fff;
+            border-radius: 50%;
+            opacity: 0.4;
+        }
+
+        .planet {
+            position: absolute;
+            border-radius: 50%;
+            z-index: 1;
+        }
+
+        /* Advanced Planet Styles */
+        .sun { width: 400px; height: 400px; background: radial-gradient(circle, rgba(255, 120, 0, 0.1) 0%, rgba(255, 60, 0, 0.05) 40%, transparent 70%); top: -100px; right: -100px; filter: blur(30px); }
+        .venus { width: 140px; height: 140px; background: radial-gradient(circle at 35% 35%, #ffd6aa 0%, #a3552a 40%, #200a00 100%); top: 18%; left: 8%; box-shadow: -15px -15px 40px rgba(255, 150, 50, 0.1), inset -20px -20px 40px rgba(0,0,0,0.9); }
+        .earth { width: 160px; height: 160px; background: radial-gradient(circle at 30% 30%, #4facfe 0%, #003366 50%, #000c19 100%); bottom: 12%; right: 10%; box-shadow: 0 0 30px rgba(79, 172, 254, 0.2), inset -25px -25px 45px rgba(0,0,0,0.9); }
+        .moon { width: 40px; height: 40px; background: radial-gradient(circle at 30% 30%, #d5d5d5 0%, #444 60%, #111 100%); bottom: 32%; right: 35%; box-shadow: inset -8px -8px 15px rgba(0,0,0,0.8); border: 1px solid rgba(255,255,255,0.1); }
+        .mars { width: 110px; height: 110px; background: radial-gradient(circle at 30% 30%, #ff7e5f 0%, #802010 45%, #1a0505 100%); top: 25%; right: 12%; box-shadow: 0 0 25px rgba(255, 62, 62, 0.15), inset -15px -15px 35px rgba(0,0,0,0.8); }
+        .jupiter { width: 280px; height: 280px; background: 
+            linear-gradient(135deg, rgba(0,0,0,0) 0%, rgba(0,0,0,0.8) 100%),
+            repeating-linear-gradient(0deg, #d39c7e 0%, #d39c7e 6%, #b07050 14%, #d39c7e 20%);
+            border-radius: 50%; top: -20px; right: -60px; opacity: 0.25; filter: blur(1px); }
+
+        /* UI/HUD Elements */
+        .grid-overlay {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-image: 
+                linear-gradient(var(--grid-color) 1px, transparent 1px),
+                linear-gradient(90deg, var(--grid-color) 1px, transparent 1px);
+            background-size: 50px 50px;
+            pointer-events: none;
+            z-index: 2;
+            mask-image: radial-gradient(circle, black 40%, transparent 95%);
+        }
+
+        .scanning-line {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 2px;
+            background: linear-gradient(90deg, transparent, var(--primary-color), transparent);
+            opacity: 0.15;
+            z-index: 3;
+            animation: scan 8s linear infinite;
+        }
+
+        @keyframes scan {
+            0% { top: 0%; }
+            100% { top: 100%; }
+        }
+
+        .corner-marker {
+            position: absolute;
+            width: 25px;
+            height: 25px;
+            border-color: var(--primary-color);
+            border-style: solid;
+            opacity: 0.4;
+            z-index: 10;
+        }
+        .marker-tl { top: 20px; left: 20px; border-width: 2px 0 0 2px; }
+        .marker-tr { top: 20px; right: 20px; border-width: 2px 2px 0 0; }
+        .marker-bl { bottom: 20px; left: 20px; border-width: 0 0 2px 2px; }
+        .marker-br { bottom: 20px; right: 20px; border-width: 0 2px 2px 0; }
+
+        .coordinate {
+            position: absolute;
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 0.55rem;
+            color: var(--secondary-text);
+            opacity: 0.6;
+            z-index: 10;
+        }
+        .coord-x { top: 10px; right: 50px; }
+        .coord-y { bottom: 50px; left: 10px; transform: rotate(-90deg); transform-origin: left bottom; }
+
+        /* Content Layout */
+        .slide-content {
+            position: relative;
+            z-index: 5;
+            padding: 15% 10% 10% 10%;
+            height: 100%;
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+        }
+
+        /* Typography System */
+        .header-meta {
+            font-family: 'Orbitron', sans-serif;
+            font-size: 0.75rem;
+            color: var(--primary-color);
+            letter-spacing: 4px;
+            margin-bottom: 0.5rem;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        .header-meta::after {
+            content: '';
+            flex-grow: 1;
+            height: 1px;
+            background: linear-gradient(90deg, var(--primary-glow), transparent);
+        }
+
+        .slide-title {
+            font-family: 'Noto Serif SC', serif;
+            font-size: 2.2rem;
+            font-weight: 700;
+            line-height: 1.25;
+            margin-bottom: 0.8rem;
+            background: linear-gradient(to bottom, #fff 60%, #ccc 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .slide-subtitle {
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 0.8rem;
+            color: var(--secondary-text);
+            margin-bottom: 2.5rem;
+            display: flex;
+            align-items: center;
+        }
+        .slide-subtitle::before {
+            content: ">> ";
+            color: var(--primary-color);
+        }
+
+        .body-group {
+            flex-grow: 1;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+        }
+
+        .paragraph {
+            font-size: 1rem;
+            line-height: 1.7;
+            color: rgba(255, 255, 255, 0.85);
+            margin-bottom: 1.5rem;
+            position: relative;
+        }
+
+        .highlight-text {
+            color: var(--primary-color);
+            font-weight: 600;
+            padding: 0 2px;
+            border-bottom: 1px dashed var(--primary-glow);
+        }
+
+        .quote-box {
+            background: rgba(112, 0, 255, 0.08);
+            border-left: 2px solid var(--accent-color);
+            padding: 1.2rem;
+            margin: 1.5rem 0;
+            font-size: 0.95rem;
+            font-style: italic;
+            color: #d1d1d1;
+            line-height: 1.6;
+        }
+
+        .stats-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+            margin-top: 1.5rem;
+        }
+
+        .stat-item {
+            display: flex;
+            flex-direction: column;
+        }
+        .item-val {
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 1.8rem;
+            color: var(--primary-color);
+            font-weight: 700;
+            line-height: 1;
+        }
+        .item-label {
+            font-size: 0.65rem;
+            color: var(--secondary-text);
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            margin-top: 4px;
+        }
+
+        .footer {
+            margin-top: auto;
+            border-top: 1px solid rgba(255, 255, 255, 0.05);
+            padding-top: 1.5rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-end;
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 0.6rem;
+            color: var(--secondary-text);
+            opacity: 0.6;
+        }
+
+        .nav-hint {
+            text-align: center;
+            margin: 20px 0;
+            color: var(--secondary-text);
+            font-size: 0.8rem;
+            font-family: 'JetBrains Mono', monospace;
+            animation: pulse-nav 2s infinite ease-in-out;
+        }
+
+        @keyframes pulse-nav {
+            0%, 100% { opacity: 0.3; }
+            50% { opacity: 0.7; }
+        }
+
+        /* Red Alert Theme for Slide 2 */
+        .theme-alert { border-color: rgba(255, 62, 62, 0.2); }
+        .theme-alert .header-meta { color: var(--danger-color); }
+        .theme-alert .header-meta::after { background: linear-gradient(90deg, rgba(255, 62, 62, 0.3), transparent); }
+        .theme-alert .item-val { color: var(--danger-color); }
+        .theme-alert .corner-marker { border-color: var(--danger-color); }
+
+    </style>
+</head>
+<body>
+
+    <!-- Slide 1: Mission Log 01 (Cover) -->
+    <div class="slide-container">
+        <div class="grid-overlay"></div>
+        <div class="universe-bg"><div class="planet sun"></div></div>
+        <div class="marker-tl corner-marker"></div><div class="marker-tr corner-marker"></div>
+        <div class="marker-bl corner-marker"></div><div class="marker-br corner-marker"></div>
+        <div class="coordinate coord-x">SEC_01 // VECTOR_ALPHA</div>
+        <div class="coordinate coord-y">SYS_ONLINE // 2021-2025</div>
+        <div class="slide-content">
+            <div class="header-meta">LOG_ENTRY_001</div>
+            <h1 class="slide-title">悬崖边的三年</h1>
+            <div class="slide-subtitle">宇宙电动：创业逻辑与复盘日志</div>
+            <div class="body-group">
+                <p class="paragraph">从零起步，烧掉 <span class="highlight-text">2000万</span>。我们在公路车上挂载电机，向欧美顶级大牌的天价规则发起挑战。</p>
+                <div class="quote-box">“制造业创业的难，不在于肌肉，而在于你是否敢在悬崖边蒙眼狂奔。”</div>
+                <div class="stats-grid">
+                    <div class="stat-item"><span class="item-val">2.0W</span><span class="item-label">单价挑战 (CNY)</span></div>
+                    <div class="stat-item"><span class="item-val">3Y+</span><span class="item-label">实战周期</span></div>
+                </div>
+            </div>
+            <div class="footer"><span>UNIVERSE E-BIKE</span><span>ST01 / TOTAL 07</span></div>
+        </div>
+    </div>
+
+    <!-- Slide 2: Industry Crash 02 -->
+    <div class="slide-container theme-alert">
+        <div class="grid-overlay"></div>
+        <div class="universe-bg"><div class="planet venus"></div></div>
+        <div class="marker-tl corner-marker"></div><div class="marker-tr corner-marker"></div>
+        <div class="marker-bl corner-marker"></div><div class="marker-br corner-marker"></div>
+        <div class="slide-content">
+            <div class="header-meta">ERROR_REPORT_002</div>
+            <h1 class="slide-title">黄金赛道的熄火</h1>
+            <div class="slide-subtitle">欧洲市场的断崖与贸易高墙</div>
+            <div class="body-group">
+                <p class="paragraph">2020年 500 万辆的蓝海，转瞬成为各品牌的墓地。高昂的库存与 <span class="highlight-text">70% 惩罚性关税</span> 封锁了出海的所有幻觉。</p>
+                <p class="paragraph" style="font-size: 0.9rem;">“只要实控人是中国人，无论你在哪组装，都逃不开地缘政治的压制。”</p>
+                <div class="stats-grid">
+                    <div class="stat-item"><span class="item-val">1000+</span><span class="item-label">品牌宣告破产</span></div>
+                    <div class="stat-item"><span class="item-val">-50%</span><span class="item-label">行业营收均值</span></div>
+                </div>
+            </div>
+            <div class="footer"><span>UNIVERSE E-BIKE</span><span>ST02 / TOTAL 07</span></div>
+        </div>
+    </div>
+
+    <!-- Slide 3: Pivot Strategy 03 -->
+    <div class="slide-container">
+        <div class="grid-overlay"></div>
+        <div class="universe-bg"><div class="planet earth"></div><div class="planet moon"></div></div>
+        <div class="marker-tl corner-marker"></div><div class="marker-tr corner-marker"></div>
+        <div class="marker-bl corner-marker"></div><div class="marker-br corner-marker"></div>
+        <div class="slide-content">
+            <div class="header-meta">STRATEGY_PIVOT_003</div>
+            <h1 class="slide-title">撤退，是为了更好的冲锋</h1>
+            <div class="slide-subtitle">调转枪口：从寻找外需到深耕内销</div>
+            <div class="body-group">
+                <p class="paragraph">当欧美大门紧闭，我们做出了第一个续命抉择：<span class="highlight-text">彻底放弃外贸幻想</span>。与其在别人的规则里求生，不如回国内建立自己的规则。</p>
+                <div class="quote-box">国内 E-BIKE 还是荒地，但荒地意味着“第一个播种的人”拥有定义权。</div>
+            </div>
+            <div class="footer"><span>UNIVERSE E-BIKE</span><span>ST03 / TOTAL 07</span></div>
+        </div>
+    </div>
+
+    <!-- Slide 4: Real Market Failure? 04 -->
+    <div class="slide-container">
+        <div class="grid-overlay"></div>
+        <div class="universe-bg"><div class="planet mars"></div></div>
+        <div class="marker-tl corner-marker"></div><div class="marker-tr corner-marker"></div>
+        <div class="marker-bl corner-marker"></div><div class="marker-br corner-marker"></div>
+        <div class="slide-content">
+            <div class="header-meta">PRODUCT_LOG_004</div>
+            <h1 class="slide-title">减掉那 5KG</h1>
+            <div class="slide-subtitle">工业硬指标 vs 真实的用户体感</div>
+            <div class="body-group">
+                <p class="paragraph">我们早期迷信“坦克级”抗疲劳测试，导致车重冗余。回国后的第二个抉择：<span class="highlight-text">砍掉工业思维</span>。</p>
+                <p class="paragraph">用户在城市骑行，不需要 20 万次的铁人三项级疲劳测试，他们需要的是轻盈、优雅和那一抹推背感。</p>
+                <div class="stats-grid">
+                    <div class="stat-item"><span class="item-val">-5.2kg</span><span class="item-label">空车重量优化</span></div>
+                    <div class="stat-item"><span class="item-val">100%</span><span class="item-label">美学认可度提升</span></div>
+                </div>
+            </div>
+            <div class="footer"><span>UNIVERSE E-BIKE</span><span>ST04 / TOTAL 07</span></div>
+        </div>
+    </div>
+
+    <!-- Slide 5: Testing Boundaries 05 -->
+    <div class="slide-container">
+        <div class="grid-overlay"></div>
+        <div class="scanning-line"></div>
+        <div class="universe-bg"></div>
+        <div class="marker-tl corner-marker"></div><div class="marker-tr corner-marker"></div>
+        <div class="marker-bl corner-marker"></div><div class="marker-br corner-marker"></div>
+        <div class="slide-content">
+            <div class="header-meta">USER_TRUST_005</div>
+            <h1 class="slide-title">无人区的 20000 公里</h1>
+            <div class="slide-subtitle">信任资产：不可复制的护城河</div>
+            <div class="body-group">
+                <p class="paragraph">我不信流量广告，我只信脚下的路。在西藏、阿里、新疆大海道，我骑着 VAPOR 走过了死神都侧目的无人区。</p>
+                <div class="quote-box">“如果我想卖给用户一个梦想，我必须先替他们去触摸那个梦想。”</div>
+                <div class="stats-grid">
+                    <div class="stat-item"><span class="item-val">20K km</span><span class="item-label">极境实测距离</span></div>
+                    <div class="stat-item"><span class="item-val">5200m</span><span class="item-label">平均测试海拔</span></div>
+                </div>
+            </div>
+            <div class="footer"><span>UNIVERSE E-BIKE</span><span>ST05 / TOTAL 07</span></div>
+        </div>
+    </div>
+
+    <!-- Slide 6: Breakthrough 06 -->
+    <div class="slide-container">
+        <div class="grid-overlay"></div>
+        <div class="universe-bg"><div class="planet jupiter"></div></div>
+        <div class="marker-tl corner-marker"></div><div class="marker-tr corner-marker"></div>
+        <div class="marker-bl corner-marker"></div><div class="marker-br corner-marker"></div>
+        <div class="slide-content">
+            <div class="header-meta">SUCCESSION_006</div>
+            <h1 class="slide-title">VAPOR：重塑渴望</h1>
+            <div class="slide-subtitle">超越性价比，驶向极致体验</div>
+            <div class="body-group">
+                <p class="paragraph">2024 年，我们决定不再与 2000 元的电瓶车角力。VAPOR 提供了 <span class="highlight-text">300+ 种个性选配</span>。</p>
+                <p class="paragraph">结果是复利：老用户转推荐率超过 40%，因为他们不仅买了一台车，而是加入了一场科技远征。</p>
+                <div class="stats-grid">
+                    <div class="stat-item"><span class="item-val">5X</span><span class="item-label">销量年复合增长</span></div>
+                    <div class="stat-item"><span class="item-val">+42%</span><span class="item-label">用户口碑推荐</span></div>
+                </div>
+            </div>
+            <div class="footer"><span>UNIVERSE E-BIKE</span><span>ST06 / TOTAL 07</span></div>
+        </div>
+    </div>
+
+    <!-- Slide 7: Outro 07 -->
+    <div class="slide-container">
+        <div class="grid-overlay"></div>
+        <div class="marker-tl corner-marker"></div><div class="marker-tr corner-marker"></div>
+        <div class="marker-bl corner-marker"></div><div class="marker-br corner-marker"></div>
+        <div class="slide-content">
+            <div class="header-meta">FINAL_LOG_007</div>
+            <h1 class="slide-title">悬崖在变宽阔</h1>
+            <div class="slide-subtitle">2025：下一段星辰大海</div>
+            <div class="body-group">
+                <p class="paragraph">三年前，我们在悬崖边求生。现在，悬崖已变成了广阔的平原。杭州 3000m² 新总部已经落成。</p>
+                <div class="quote-box">这不是终点，这只是星际远航的第一站。欢迎来杭州，一起围炉夜话。</div>
+                <div class="stats-grid">
+                    <div class="stat-item"><span class="item-val">3000㎡</span><span class="item-label">新总部空间</span></div>
+                    <div class="stat-item"><span class="item-val">∞</span><span class="item-label">未来想象力</span></div>
+                </div>
+            </div>
+            <div class="header-meta" style="margin-top: 1rem; opacity: 0.5;">[ TRANSMISSION_END ]</div>
+            <div class="footer"><span>UNIVERSE E-BIKE</span><span>ST07 / TOTAL 07</span></div>
+        </div>
+    </div>
+
+    <div class="nav-hint">END OF MISSION LOG // SCROLL TO TOP TO REVIEW</div>
+
+    <script>
+        // Generate stars for each container
+        document.querySelectorAll('.universe-bg').forEach(bg => {
+            for (let i = 0; i < 50; i++) {
+                const star = document.createElement('div');
+                star.className = 'star';
+                star.style.left = `${Math.random() * 100}%`;
+                star.style.top = `${Math.random() * 100}%`;
+                const size = Math.random() * 2;
+                star.style.width = `${size}px`;
+                star.style.height = `${size}px`;
+                star.style.animation = `pulse-nav ${2 + Math.random() * 3}s infinite`;
+                bg.appendChild(star);
+            }
+        });
+    </script>
+</body>
+</html>
