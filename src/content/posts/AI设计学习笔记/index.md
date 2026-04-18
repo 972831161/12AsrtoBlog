@@ -97,7 +97,12 @@ Stable Diffusion 是一种基于**潜空间扩散 (Latent Diffusion)** 技术的
 
 
 - [🔧 最后比拼的是工程思维](/ai-design/index.html). (极简风；内容来自小红书博主 [不好惹的娃娃脸 Guxi](https://www.xiaohongshu.com/user/profile/5b2f04e511be105be812f722?xsec_token=YBpI79WtRsIs_Hhvh7dWpn6N9NEG6Nvqk7OrYLgBXCWkU=&xsec_source=app_share&xhsshare=CopyLink&shareRedId=ODY5NTdJOT82NzUyOTgwNjY0OTc4Nj5A&apptime=1776260779&share_id=2ac5c7b4c32f4680abe6575fa25b0823))
-- [🚀 宇宙电动：悬崖边的三年](/universe-ebike/slides.html). (科幻极简风；内容来自[宇宙ebike微信公众号](https://mp.weixin.qq.com/s/URPbfLX8J0jFd7vfmKBzDg))
+- **项目：宇宙电动内容资产活化** (利用 [html-ppt-skill](https://github.com/lewislulu/html-ppt-skill) 实现的多风格一键转化案例)
+    - [🚀 宇宙电动：悬崖边的三年](/universe-ebike-cyber-slides/index.html). (科幻极简风)
+    - [📈 宇宙电动：品牌发展全史](/universe-ebike-full/index.html). (全量沉浸风)
+    - [🎯 宇宙电动：VAPOR 产品路演](/universe-ebike-pitch/index.html). (商务路演风)
+    - [📱 宇宙电动：小红书内容复用示例](/universe-ebike-xhs/index.html). (移动端适配)
+- [📊 宇宙电动：官方号内容升级建议](/universe-ebike/mission-archive.html). (集成方案；包含 66 条记录的全量资产审计与 12 条黄金资产重构手册)
 
 
 ---

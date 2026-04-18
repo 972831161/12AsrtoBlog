@@ -1,0 +1,136 @@
+/* pitch-deck — classic YC/VC pitch */
+.tpl-pitch-deck{
+  --bg:#ffffff;--bg-soft:#f6f7fb;--surface:#ffffff;--surface-2:#f2f4fa;
+  --border:rgba(20,25,60,.08);--border-strong:rgba(20,25,60,.18);
+  --text-1:#0d1130;--text-2:#4a5070;--text-3:#8a90ad;
+  --accent:#3b5bff;--accent-2:#7a46ff;--accent-3:#d94cff;
+  --grad:linear-gradient(135deg,#3b5bff 0%,#7a46ff 55%,#d94cff 100%);
+  --grad-soft:linear-gradient(135deg,#eef1ff,#f4edff 55%,#fbedff);
+  --radius:20px;--radius-lg:28px;
+  --shadow:0 14px 40px rgba(20,25,60,.08),0 2px 8px rgba(20,25,60,.04);
+  font-family:'Inter','Noto Sans SC',sans-serif;
+}
+.tpl-pitch-deck .slide{padding:88px 112px; display: flex; flex-direction: column; justify-content: center;}
+.tpl-pitch-deck .kicker{color:var(--accent);font-weight:700; font-size: 20px; letter-spacing: 0.1em; margin-bottom: 20px;}
+.tpl-pitch-deck h1{font-size:86px;line-height:1.02;font-weight:900;letter-spacing:-.035em; margin: 0;}
+.tpl-pitch-deck h2{font-size:62px;font-weight:800;letter-spacing:-.03em; margin: 0;}
+.tpl-pitch-deck h3{font-size:32px;font-weight:700; margin-bottom: 12px;}
+.tpl-pitch-deck p{font-size:20px; line-height: 1.5; color: var(--text-2);}
+.tpl-pitch-deck .sub{font-size:28px;color:var(--text-3);margin-top:24px; max-width: 800px;}
+
+.tpl-pitch-deck .text-grad {
+  background: var(--grad);
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+}
+.tpl-pitch-deck .text-danger { color: #f04438; }
+
+.tpl-pitch-deck .grid-3 { display: grid; grid-template-columns: repeat(3, 1fr); gap: 40px; }
+.tpl-pitch-deck .grid-2 { display: grid; grid-template-columns: repeat(2, 1fr); gap: 60px; align-items: center; }
+.tpl-pitch-deck .gap-lg { gap: 40px; }
+.tpl-pitch-deck .gap-xl { gap: 80px; }
+
+.tpl-pitch-deck .card {
+  background: var(--bg-soft);
+  padding: 40px;
+  border-radius: var(--radius);
+  border: 1px solid var(--border);
+  transition: transform 0.3s ease;
+}
+.tpl-pitch-deck .card:hover { transform: translateY(-8px); }
+.tpl-pitch-deck .label {
+  display: inline-block;
+  padding: 6px 12px;
+  background: var(--accent);
+  color: #fff;
+  font-size: 14px;
+  font-weight: 700;
+  border-radius: 6px;
+  margin-bottom: 20px;
+  text-transform: uppercase;
+}
+
+.tpl-pitch-deck .columns { display: flex; align-items: center; }
+.tpl-pitch-deck .col { flex: 1; }
+
+.tpl-pitch-deck .check-list {
+  list-style: none;
+  padding: 0;
+}
+.tpl-pitch-deck .check-list li {
+  font-size: 24px;
+  margin-bottom: 30px;
+  padding-left: 40px;
+  position: relative;
+  color: var(--text-2);
+}
+.tpl-pitch-deck .check-list li::before {
+  content: '✓';
+  position: absolute;
+  left: 0;
+  color: var(--accent);
+  font-weight: 900;
+}
+
+.tpl-pitch-deck .stat-box { display: flex; gap: 40px; }
+.tpl-pitch-deck .stat-item .val {
+  font-size: 64px;
+  font-weight: 900;
+  background: var(--grad);
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+  line-height: 1.1;
+}
+.tpl-pitch-deck .stat-item .lab { font-size: 18px; color: var(--text-3); font-weight: 600; margin-top: 8px; }
+
+.tpl-pitch-deck .timeline {
+  display: flex;
+  flex-direction: column;
+  gap: 30px;
+  padding-left: 20px;
+  border-left: 4px solid var(--border);
+}
+.tpl-pitch-deck .time-item {
+  position: relative;
+  padding-left: 40px;
+}
+.tpl-pitch-deck .time-item::before {
+  content: '';
+  position: absolute;
+  left: -12px;
+  top: 8px;
+  width: 20px;
+  height: 20px;
+  border-radius: 50%;
+  background: var(--accent);
+  border: 4px solid #fff;
+  box-shadow: 0 0 0 4px var(--border);
+}
+.tpl-pitch-deck .time-item .date { font-size: 28px; font-weight: 800; color: var(--text-1); margin-bottom: 4px; }
+.tpl-pitch-deck .time-item .info { font-size: 22px; color: var(--text-2); }
+
+.tpl-pitch-deck .hero-quote { text-align: center; }
+.tpl-pitch-deck .hero-quote h2 { font-size: 80px; font-style: italic; margin-bottom: 40px; }
+
+.tpl-pitch-deck .contact-card {
+  background: var(--grad);
+  color: #fff;
+  padding: 40px 60px;
+  border-radius: var(--radius-lg);
+  text-align: center;
+  box-shadow: 0 30px 60px rgba(59,91,255,0.3);
+}
+.tpl-pitch-deck .contact-card p { color: rgba(255,255,255,0.9); font-weight: 600; margin: 5px 0; font-size: 24px; }
+
+.tpl-pitch-deck .content-centered {
+  text-align: center;
+  align-items: center;
+}
+.tpl-pitch-deck .hero-img-wrap {
+  margin-top: 50px;
+  max-width: 900px;
+  margin-left: auto;
+  margin-right: auto;
+}

@@ -1,0 +1,328 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>从零起步创业做制造业真的太难了</title>
+<link rel="stylesheet" href="assets/fonts.css">
+<link rel="stylesheet" href="assets/base.css">
+<link rel="stylesheet" href="assets/themes/xiaohongshu-white.css">
+<link rel="stylesheet" href="style.css">
+<style>
+  /* 全局强制背景与消除边距 */
+  html, body { 
+    background: #111; 
+    margin: 0; 
+    padding: 0; 
+    width: 100vw; 
+    height: 100vh; 
+    overflow: hidden; 
+    display: flex; 
+    align-items: center; 
+    justify-content: center; 
+    cursor: default;
+  }
+
+  /* 核心画布：锁死 1920x1080 横屏 */
+  #app-workspace { 
+    position: relative; 
+    width: 1920px; 
+    height: 1080px; 
+    background: #fff; 
+    flex-shrink: 0; 
+    box-shadow: 0 50px 150px rgba(0,0,0,0.6); 
+    transform-origin: center center;
+    overflow: hidden;
+  }
+
+  /* 导航系统 */
+  .deck { position: absolute; inset: 0; width: 100%; height: 100%; }
+  
+  /* 基础横排布局：横屏 PPT 的核心 */
+  .slide { 
+    padding: 0 !important; /* 内部由 layout 控制 */
+    display: flex; 
+    width: 100%; 
+    height: 100%;
+    overflow: hidden;
+  }
+
+  /* 左右分栏容器 */
+  .layout-cols { display: flex; width: 100%; height: 100%; }
+  .col-side { padding: 100px 80px; flex: 1; display: flex; flex-direction: column; justify-content: center; }
+  .col-side.text-center { align-items: center; text-align: center; }
+  .col-img  { flex: 1.2; position: relative; overflow: hidden; background: #f5f5f5; }
+  .col-img img { width: 100%; height: 100%; object-fit: cover; }
+
+  /* 文字样式 - 全屏横屏优化 */
+  .text-prose { font-size: 34px; line-height: 1.75; color: #333; font-family: 'Noto Sans SC', sans-serif; }
+  .text-highlight { color: #f50; font-weight: 800; margin-bottom: 20px; font-size: 48px; }
+  .section-tag { font-size: 18px; color: #aaa; text-transform: uppercase; letter-spacing: 0.4em; border-left: 5px solid #f50; padding-left: 20px; margin-bottom: 40px; }
+  .bold-title { font-size: 110px; font-weight: 950; line-height: 1.1; margin-bottom: 40px; letter-spacing: -2px; }
+  .highlight { color: #f50; }
+
+  /* 装饰性元素 */
+  .quote-box { margin-top: 40px; border-left: 10px solid #f50; padding: 30px 40px; font-style: italic; font-size: 42px; background: #fffaf5; border-radius: 0 30px 30px 0; line-height: 1.4; color: #222; }
+  .vapor-pills { margin-top: 50px; display: flex; gap: 20px; flex-wrap: wrap; }
+  .vapor-pills span { padding: 12px 32px; background: #eef1f5; border: 1px solid #ddd; border-radius: 60px; font-size: 20px; font-weight: 800; color: #555; }
+
+  /* 水平矩阵 */
+  .grid-horizontal { display: flex; gap: 40px; width: 100%; margin-top: 50px; }
+  .stat-card { flex: 1; background: #f9f9fb; padding: 40px; border-radius: 24px; border: 1px solid #eee; }
+  .stat-card strong { display: block; font-size: 80px; color: #111; margin-bottom: 10px; font-weight: 900; }
+  .stat-card span { font-size: 24px; color: #999; text-transform: uppercase; font-weight: 700; }
+
+</style>
+</head>
+<body class="tpl-xhs-white-editorial">
+<div id="app-workspace">
+<div class="deck">
+
+  <!-- 1. COVER: LEFT TEXT / RIGHT IMG -->
+  <section class="slide is-active">
+    <div class="layout-cols">
+      <div class="col-side">
+        <div class="section-tag">UNIVERSE E-BIKE // 2021-2025</div>
+        <h1 class="bold-title">从零起步<br>做制造业<br><span class="highlight">真的太难了</span></h1>
+        <p class="text-prose" style="font-size: 36px; margin-top: 20px;">
+          三年前，我开始造自行车，到现在已经烧掉了两千多万。<br>
+          这是在悬崖边缘的求生记录。
+        </p>
+      </div>
+      <div class="col-img">
+        <img src="interior.png">
+      </div>
+    </div>
+  </section>
+
+  <!-- 2. THE BEGINNING: RIGHT TEXT / LEFT IMG -->
+  <section class="slide">
+    <div class="layout-cols">
+      <div class="col-img">
+        <img src="tibet.png">
+      </div>
+      <div class="col-side">
+        <div class="section-tag">01 // ORIGIN</div>
+        <div class="text-highlight">烧掉两千万，只为那台梦幻机器</div>
+        <p class="text-prose">
+          为了造出真正的电助力公路车，我们投入了千万级的研发成本。欧美大牌卖十几万的产品，我们只卖两万多。<br><br>有了它，你可以和我一样，骑着车去珠峰大本营，穿越新疆大海道和羌塘无人区。我在无人区骑了 20,000 公里，只为验证它的韧性。
+        </p>
+      </div>
+    </div>
+  </section>
+
+  <!-- 3. MARKET ILLUSION: FULL CONTENT WITH HORIZ GRID -->
+  <section class="slide">
+    <div class="col-side" style="padding: 100px 140px;">
+      <div class="section-tag">02 // ILLUSION</div>
+      <div class="text-highlight">繁华背后的错觉：漫长的等待</div>
+      <p class="text-prose" style="max-width: 1200px;">
+        2020年，欧洲电助力自行车销量突破 500 万辆，渗透率 23%。这个数字让投资人兴奋。大家以为国内市场能复制欧美的增长曲线，但等待的过程却格外漫长。
+      </p>
+      <div class="grid-horizontal">
+         <div class="stat-card"><strong>5M+</strong><span>EU SALES 2020</span></div>
+         <div class="stat-card"><strong>23%</strong><span>MARKET PENETRATION</span></div>
+         <div class="stat-card"><strong>1000+</strong><span>BRANDS INVOLVED</span></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 4. CRISIS: LEFT TEXT / RIGHT IMG -->
+  <section class="slide">
+    <div class="layout-cols">
+      <div class="col-side">
+        <div class="section-tag">03 // CRISIS</div>
+        <div class="text-highlight">黄金赛道，突然熄火</div>
+        <p class="text-prose">
+          宇宙电动成立于 2021 年底。半年后情况急转直下：德国、荷兰等市场销量断崖式下跌。这个翻了十倍的黄金赛道，突然熄火了。<br><br>
+          上市公司财报里刺眼的数字——营收腰斩、利润下滑 80%。据统计，22 年来超 1000 家骑行品牌申请破产保护。
+        </p>
+      </div>
+      <div class="col-img">
+        <img src="crisis.png">
+      </div>
+    </div>
+  </section>
+
+  <!-- 5. BARRIERS: CENTERED FOCUS -->
+  <section class="slide">
+    <div class="col-side text-center" style="background:#fffafa">
+      <div class="section-tag">04 // BARRIERS</div>
+      <h1 class="bold-title"><span class="highlight">无法逃脱的“宿命”</span></h1>
+      <p class="text-prose" style="max-width: 1300px; font-size: 42px;">
+        欧美壁垒：禁止在中国组装整车，限制核心部件。美国 45%、欧洲 70% 的歧视性关税，让品牌和消费者都难以承受。只要企业实控人是中国人，就逃不开被欧美压制的宿命。
+      </p>
+      <div style="margin-top: 80px; display: flex; gap: 40px;">
+          <div class="stat-card" style="border: 2px solid #f50;"><strong>70%</strong><span>EU TARIFF</span></div>
+          <div class="stat-card" style="border: 2px solid #f50;"><strong>45%</strong><span>US TARIFF</span></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 6. PIVOT: LEFT IMG / RIGHT TEXT -->
+  <section class="slide">
+    <div class="layout-cols">
+       <div class="col-img">
+        <img src="factory.png">
+      </div>
+      <div class="col-side">
+        <div class="section-tag">05 // PIVOT</div>
+        <div class="text-highlight">调转枪口：回主场大干一场</div>
+        <p class="text-prose">
+          那年，我烧掉了第一个 1000 万。为了赢得信任，我亲自带队在西藏测车。首批 300 台在国内迅速售罄。<br><br>
+          我逐渐想明白：行业周期性回暖也无法改变政策歧视，我们需要扎根自己的主场。<b>所以，我们决定在国内市场大干一场。</b>
+        </p>
+      </div>
+    </div>
+  </section>
+
+  <!-- 7. RESTART: FULL CONTENT -->
+  <section class="slide">
+    <div class="col-side" style="padding: 100px 140px;">
+      <div class="section-tag">06 // RESTART</div>
+      <div class="text-highlight">老船厂里的孤独与当头一棒</div>
+      <p class="text-prose" style="max-width: 1400px;">
+        2023 年初，我们在杭州运河边租下了一间老船厂。但现实给了我当头一棒：资本市场完全停滞。在大疆进入行业前，多数基金将电助力归类为前途未卜的新领域。
+      </p>
+      <div class="quote-box">
+          「做一个全新的领域很孤独，我没有可参考的路径。每一个商业决策都需要独立判断。」 
+      </div>
+    </div>
+  </section>
+
+  <!-- 8. TRANSFORMATION: LEFT TEXT / RIGHT IMG -->
+  <section class="slide">
+    <div class="layout-cols">
+      <div class="col-side">
+        <div class="section-tag">07 // TRANSFORMATION</div>
+        <div class="text-highlight">战略转型：一站式解决方案</div>
+        <p class="text-prose">
+          我们将线下空间从单一展厅升级为“一站式骑行解决方案服务商”：代理优质品牌，系统性投入文化培育。<br><br>
+          这一步让我们从被动式获客转向主动的内容营销，打通了整车、装备、服务全链路。
+        </p>
+      </div>
+      <div class="col-img">
+        <img src="center.png">
+      </div>
+    </div>
+  </section>
+
+  <!-- 9. THE WALL: FULL WIDTH -->
+  <section class="slide">
+    <div class="col-side" style="padding: 100px 140px; background: #fafafa">
+      <div class="section-tag">08 // THE WALL</div>
+      <div class="text-highlight">为什么拒绝“低价车型”？</div>
+      <p class="text-prose" style="max-width: 1400px;">
+        2000 元电瓶车垄断了实用主义，任何性价比 E-BIKE 在它面前都显得苍白。我相信没人会“爱”自己的电瓶车。用户真正需要的不是强行灌输的销售话术，而是一个能让他们完整感受产品的空间。
+      </p>
+      <div class="grid-horizontal">
+          <div class="stat-card"><strong>2k RMB</strong><span>ELECTRIC SCOOTERS</span></div>
+          <div class="stat-card"><strong>VS</strong></div>
+          <div class="stat-card" style="border-color: #f50;"><strong>VAPOR</strong><span>CULTURE HUB</span></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 10. REJECTION: LEFT IMG / RIGHT TEXT -->
+  <section class="slide">
+    <div class="layout-cols">
+       <div class="col-img" style="background: #eee;">
+        <img src="vapor.png" style="width: 150%; transform: translateX(-20%);">
+      </div>
+      <div class="col-side">
+        <div class="section-tag">09 // DECISION</div>
+        <div class="text-highlight">砍掉 9999 元的产品：拒绝平庸</div>
+        <p class="text-prose">
+          2022 年秋天，离推出 9999 元车型只差一步，我决定不卖了。白做了就白做了。<br><br>
+          理由很简单：这类产品牺牲了核心骑行体验。<b>如果一开始就觉得别扭的产品，最终一定是错的。</b> 最终，同质化的辅助轮毂产品在内卷中逐渐消失。
+        </p>
+      </div>
+    </div>
+  </section>
+
+  <!-- 11. VAPOR: HERO PAGE -->
+  <section class="slide">
+    <div class="layout-cols">
+      <div class="col-side">
+        <div class="section-tag">10 // VAPOR</div>
+        <h1 class="bold-title">VAPOR <span style="font-size: 60px; font-weight: 400;">诞生</span></h1>
+        <p class="text-prose">
+          向国际一线发起挑战。300 多种选配方案，让每位车主都能订到“一步到位”的梦中情车。<br><br>
+          <b>真正的突破口是用户未被满足的期待。</b>
+        </p>
+        <div class="vapor-pills">
+            <span>巅峰性能</span><span>个性选配</span><span>服务标杆</span><span>复购率增长 5x</span>
+        </div>
+      </div>
+      <div class="col-img">
+        <img src="vapor.png">
+      </div>
+    </div>
+  </section>
+
+  <!-- 12. VISION: PILL GRID -->
+  <section class="slide">
+    <div class="col-side" style="padding: 100px 140px;">
+      <div class="section-tag">11 // PHILOSOPHY</div>
+      <div class="text-highlight">我们在悬崖边缘，学会了抢跑</div>
+      <div class="grid-horizontal" style="flex-wrap: wrap;">
+          <div class="stat-card" style="min-width: 400px;"><strong>2022</strong><span>放弃欧美 / 扎根国内</span></div>
+          <div class="stat-card" style="min-width: 400px;"><strong>2023</strong><span>内容营销 / 文化综合体</span></div>
+          <div class="stat-card" style="min-width: 400px; border-color: #f50;"><strong>2024</strong><span>VAPOR / 重塑真实需求</span></div>
+      </div>
+      <p class="text-prose" style="margin-top: 50px; font-size: 40px;">
+        在实用主义与体验综合体的两极，我们选择向深处深耕。看上去在走弯路，其实可能在抢跑。
+      </p>
+    </div>
+  </section>
+
+  <!-- 13. SPIRIT: FULL IMAGE BG STYLE -->
+  <section class="slide">
+    <div class="layout-cols">
+      <div class="col-img" style="flex: 2;">
+        <img src="tibet.png">
+      </div>
+      <div class="col-side" style="background:#000; color:#fff;">
+        <div class="section-tag" style="border-color: #fff; color: #fff;">12 // SPIRIT</div>
+        <h2 style="font-size: 60px; font-weight: 800; line-height: 1.2;">人是可以<br><span class="highlight">这么活着</span>的</h2>
+        <p class="text-prose" style="color: #ccc; margin-top: 40px;">
+          每当疲惫时点开那些骑行视频，那些世界角落的壮丽风景依旧让我热泪盈眶。<br><br>
+          宇宙 E-BIKE // 杭州市滨江区启智东街 35 号。
+        </p>
+      </div>
+    </div>
+  </section>
+
+  <!-- 14. THE FUTURE -->
+  <section class="slide text-center" style="display: flex; flex-direction: column; justify-content: center; align-items: center;">
+    <div class="section-tag" style="border:none; padding:0; text-align: center;">13 // STATUS</div>
+    <h1 class="bold-title" style="font-size: 150px; margin-bottom: 10px;">悬崖变宽阔了</h1>
+    <p class="text-prose" style="font-size: 48px; max-width: 1200px;">
+      路径清晰了，销量增长了。 brands are still being written.<br>
+      欢迎伙伴们来杭州围炉夜话。
+    </p>
+    <div style="margin-top: 80px;">
+        <h2 style="font-size: 200px; font-weight: 950; letter-spacing: -10px; opacity: 0.1;">COSMOS</h2>
+    </div>
+  </section>
+
+</div>
+</div>
+
+<script src="assets/runtime.js"></script>
+<script>
+  function autoscale() {
+    const ws = document.getElementById('app-workspace');
+    const winW = window.innerWidth;
+    const winH = window.innerHeight;
+    const refW = 1920;
+    const refH = 1080;
+    const scale = Math.min(winW / refW, winH / refH);
+    ws.style.transform = `scale(${scale})`;
+  }
+  window.addEventListener('resize', autoscale);
+  window.addEventListener('pageshow', autoscale);
+  autoscale();
+</script>
+</body>
+</html>
