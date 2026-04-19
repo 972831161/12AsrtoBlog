@@ -56,7 +56,8 @@
         <div class="meta-info">SOURCE: DOUYIN_PERSONAL_CORP // SCOPE: 66_RECORDS_COVERAGE // STRATEGY: ASSET_UPGRADE</div>
     </header>
 
-    <!-- ======== 决策流程图 (专业标准版) ======== -->
+    
+    <!-- ======== 决策流程图 (重构业务版) ======== -->
     <div class="logic-box">
         <svg viewBox="0 0 960 480" xmlns="http://www.w3.org/2000/svg" 
              style="width:100%; display:block; background:#0d0d0f; border: 1px solid var(--border); border-radius: 4px;">
@@ -68,167 +69,224 @@
                 <marker id="arrowhead" markerWidth="10" markerHeight="7" refX="0" refY="3.5" orient="auto">
                     <polygon points="0 0, 10 3.5, 0 7" fill="#00f3ff" />
                 </marker>
+                <marker id="arrowhead-red" markerWidth="10" markerHeight="7" refX="0" refY="3.5" orient="auto">
+                    <polygon points="0 0, 10 3.5, 0 7" fill="#ff4444" />
+                </marker>
+                <marker id="arrowhead-orange" markerWidth="10" markerHeight="7" refX="0" refY="3.5" orient="auto">
+                    <polygon points="0 0, 10 3.5, 0 7" fill="#ffaa44" />
+                </marker>
             </defs>
             
-            <!-- 背景网格装饰 -->
             <path d="M0 0 L960 0 M0 80 L960 80 M0 160 L960 160 M0 240 L960 240 M0 320 L960 320 M0 400 L960 400" stroke="#1a1a1c" stroke-width="1" fill="none" />
+            <text x="480" y="40" text-anchor="middle" font-family="'JetBrains Mono'" font-size="14" fill="#666" letter-spacing="4">DECISION_TREE: CONTENT_MIGRATION_V4.0</text>
+
+            <!-- 1. Start -->
+            <rect x="20" y="140" width="80" height="40" rx="20" fill="#0a1a1a" stroke="#00f3ff" stroke-width="1.5" filter="url(#glow)" />
+            <text x="60" y="164" text-anchor="middle" font-size="11" fill="#fff">源视频</text>
+            <path d="M100 160 L140 160" fill="none" stroke="#00f3ff" stroke-width="1.5" marker-end="url(#arrowhead)" />
+
+            <!-- Decision 1: Theme -->
+            <path d="M180 120 L220 160 L180 200 L140 160 Z" fill="#0a1a1a" stroke="#00f3ff" stroke-width="1.5" />
+            <text x="180" y="156" text-anchor="middle" font-size="10" fill="#fff">产品相关/</text>
+            <text x="180" y="170" text-anchor="middle" font-size="10" fill="#fff">公司形象?</text>
             
-            <text x="480" y="40" text-anchor="middle" font-family="'JetBrains Mono'" font-size="14" fill="#444" letter-spacing="4">UNIVERSE_CONTENT_LOGIC_V2.0</text>
-
-            <!-- 1. 开始节点 (椭圆) -->
-            <ellipse cx="120" cy="240" rx="60" ry="25" fill="#0a1a1a" stroke="#00f3ff" stroke-width="1.5" filter="url(#glow)" />
-            <text x="120" y="245" text-anchor="middle" font-size="12" fill="#fff">程泓宁个人号</text>
-            <path d="M180 240 L240 240" stroke="#00f3ff" stroke-width="1.5" marker-end="url(#arrowhead)" />
-
-            <!-- 2. 决策点 1: 品牌核心? (菱形) -->
-            <path d="M300 200 L360 240 L300 280 L240 240 Z" fill="#0a1a1a" stroke="#00f3ff" stroke-width="1.5" />
-            <text x="300" y="235" text-anchor="middle" font-size="10" fill="#fff">品牌/工程</text>
-            <text x="300" y="250" text-anchor="middle" font-size="10" fill="#fff">相关性?</text>
+            <path d="M180 200 L180 370 L730 370" fill="none" stroke="#ff4444" stroke-width="1.5" stroke-dasharray="4" marker-end="url(#arrowhead-red)" />
+            <text x="230" y="270" font-size="10" fill="#ff4444">否(太生活化)</text>
             
-            <!-- 否 -> 过滤清单 -->
-            <path d="M300 200 L300 120 L440 120" stroke="#ff4444" stroke-width="1.5" stroke-dasharray="4" marker-end="url(#arrowhead)" />
-            <text x="310" y="180" font-size="11" fill="#ff4444">否</text>
+            <path d="M220 160 L280 160" fill="none" stroke="#00f3ff" stroke-width="1.5" marker-end="url(#arrowhead)" />
+            <text x="240" y="155" font-size="10" fill="#00f3ff">是</text>
 
-            <!-- 3. 决策点 2: 时效性校验 (2026是否适用?) -->
-            <path d="M300 280 L300 360 L440 360" stroke="#00f3ff" stroke-width="1.5" marker-end="url(#arrowhead)" />
-            <text x="310" y="320" font-size="11" fill="#00f3ff">是</text>
-            <path d="M500 320 L560 360 L500 400 L440 360 Z" fill="#0a1a1a" stroke="#00f3ff" stroke-width="1.5" />
-            <text x="500" y="355" text-anchor="middle" font-size="10" fill="#fff">2026</text>
-            <text x="500" y="370" text-anchor="middle" font-size="10" fill="#fff">仍然适用?</text>
+            <!-- Decision 2: Risk -->
+            <path d="M320 120 L360 160 L320 200 L280 160 Z" fill="#0a1a1a" stroke="#00f3ff" stroke-width="1.5" />
+            <text x="320" y="156" text-anchor="middle" font-size="10" fill="#fff">公关风险</text>
+            <text x="320" y="170" text-anchor="middle" font-size="10" fill="#fff">评估?</text>
 
-            <!-- 4. 决策点 3: 评论风险 (菱形) -->
-            <path d="M560 360 L640 360" stroke="#00f3ff" stroke-width="1.5" marker-end="url(#arrowhead)"/>
-            <text x="600" y="350" font-size="11" fill="#00f3ff">是</text>
-            <path d="M700 320 L760 360 L700 400 L640 360 Z" fill="#0a1a1a" stroke="#00f3ff" stroke-width="1.5" />
-            <text x="700" y="355" text-anchor="middle" font-size="10" fill="#fff">评论区</text>
-            <text x="700" y="370" text-anchor="middle" font-size="10" fill="#fff">无红线?</text>
-
-            <!-- 结果: 长青资产 -->
-            <path d="M760 360 L820 360 L820 280" stroke="#00f3ff" stroke-width="2" marker-end="url(#arrowhead)" />
-            <rect x="760" y="230" width="120" height="50" rx="4" fill="#001a1a" stroke="#00f3ff" stroke-width="2" filter="url(#glow)"/>
-            <text x="820" y="255" text-anchor="middle" font-size="12" font-weight="bold" fill="#00f3ff">官方号长青资产</text>
-
-            <!-- 结果: 过滤清单 -->
-            <rect x="440" y="95" width="120" height="50" rx="4" fill="#1a0000" stroke="#ff4444" stroke-width="1.5" />
-            <text x="500" y="125" text-anchor="middle" font-size="12" fill="#ff4444">归档/过滤清单</text>
+            <path d="M320 200 L320 370" fill="none" stroke="#ff4444" stroke-width="1.5" stroke-dasharray="4" />
+            <text x="330" y="270" font-size="10" fill="#ff4444">有风险(踩红线)</text>
             
-            <!-- 时效性否 & 评论风险否 连接线 -->
-            <path d="M500 400 L500 430 L920 430 L920 120 L560 120" stroke="#555" stroke-width="1" fill="none" marker-end="url(#arrowhead)" />
-            <path d="M700 400 L700 430" stroke="#555" stroke-width="1" fill="none" />
-            <text x="510" y="420" font-size="10" fill="#555">时效过期/风险高</text>
+            <path d="M360 160 L420 160" fill="none" stroke="#00f3ff" stroke-width="1.5" marker-end="url(#arrowhead)" />
+            <text x="380" y="155" font-size="10" fill="#00f3ff">无风险</text>
+
+            <!-- Decision 3: Time -->
+            <path d="M460 120 L500 160 L460 200 L420 160 Z" fill="#0a1a1a" stroke="#00f3ff" stroke-width="1.5" />
+            <text x="460" y="156" text-anchor="middle" font-size="10" fill="#fff">内容时效性</text>
+            <text x="460" y="170" text-anchor="middle" font-size="10" fill="#fff">校验?</text>
+
+            <path d="M460 200 L460 370" fill="none" stroke="#ff4444" stroke-width="1.5" stroke-dasharray="4" />
+            <text x="470" y="270" font-size="10" fill="#ff4444">否(旧展会/已过期)</text>
+
+            <path d="M500 160 L560 160" fill="none" stroke="#00f3ff" stroke-width="1.5" marker-end="url(#arrowhead)" />
+            <text x="520" y="155" font-size="10" fill="#00f3ff">适用</text>
+
+            <!-- Decision 4: Edit required? -->
+            <path d="M600 120 L640 160 L600 200 L560 160 Z" fill="#0a1a1a" stroke="#00f3ff" stroke-width="1.5" />
+            <text x="600" y="156" text-anchor="middle" font-size="10" fill="#fff">需要改造</text>
+            <text x="600" y="170" text-anchor="middle" font-size="10" fill="#fff">整合吗?</text>
+
+            <!-- To Direct -->
+            <path d="M600 120 L600 90 L730 90" fill="none" stroke="#00f3ff" stroke-width="1.5" marker-end="url(#arrowhead)" />
+            <text x="610" y="85" font-size="10" fill="#00f3ff">否(完美契合直接发)</text>
+
+            <!-- To Edit -->
+            <path d="M640 160 L690 160 L690 230 L730 230" fill="none" stroke="#ffaa44" stroke-width="1.5" marker-end="url(#arrowhead-orange)" />
+            <text x="650" y="155" font-size="10" fill="#ffaa44">是(提取特写/重修标题)</text>
+
+            <!-- Baskets -->
+            <rect x="740" y="65" width="180" height="50" rx="4" fill="#001a1a" stroke="#00f3ff" stroke-width="2" filter="url(#glow)"/>
+            <text x="830" y="95" text-anchor="middle" font-size="12" font-weight="bold" fill="#00f3ff">01 官号直发复用库</text>
+
+            <rect x="740" y="205" width="180" height="50" rx="4" fill="#1a1a00" stroke="#ffaa44" stroke-width="2" filter="url(#glow)"/>
+            <text x="830" y="235" text-anchor="middle" font-size="12" font-weight="bold" fill="#ffaa44">02 二次剪辑重塑库</text>
+
+            <rect x="740" y="345" width="180" height="50" rx="4" fill="#1a0000" stroke="#ff4444" stroke-width="1.5" />
+            <text x="830" y="375" text-anchor="middle" font-size="12" fill="#ff4444">03 个人封存淘汰废弃库</text>
+
         </svg>
     </div>
 
-    <!-- ======== 01 长青资产迁移表 (n=40) ======== -->
+    <!-- ======== 01 ======== -->
     <div class="section-block">
-        <div class="section-label">// 01 EVERGREEN_ASSETS (TOTAL:40)</div>
-        <h2>核心品牌价值资产清单 <span class="sub">（程泓宁个人号 全量导出）</span></h2>
+        <div class="section-label">// 01 DIRECT_REUSE_ASSETS (TOTAL:4)</div>
+        <h2>官号直发/复用资产库 <span class="sub">（无需大改，可直接复用于官方号）</span></h2>
+        
         <table>
             <thead>
                 <tr>
-                    <th style="width:6%;">ID</th>
-                    <th style="width:34%;">内容标题</th>
-                    <th style="width:16%;">核心类目</th>
-                    <th style="width:28%;">策略备注</th>
+                    <th style="width:6%;">序号</th>
+                    <th style="width:34%;">原始内容标题</th>
+                    <th style="width:44%;">评价</th>
                     <th style="width:16%;">原文链接</th>
                 </tr>
             </thead>
             <tbody>
-                <tr><td>02</td><td>25岁上市公司董事，30岁制造业狼狈转身</td><td><span class="tag tag-green">品牌故事</span></td><td>创始人心路历程，建立品牌人格化信任。</td><td class="link-cell"><a href="https://www.douyin.com/video/7538787611515555106">查看原文</a></td></tr>
-                <tr><td>03</td><td>一条视频，拆解一步到位的电助力公路车VAPOR</td><td><span class="tag tag-green">产品解析</span></td><td>技术标准拆解，作为置顶产品介绍。</td><td class="link-cell"><a href="https://www.douyin.com/video/7524597572170779967">查看原文</a></td></tr>
-                <tr><td>06</td><td>3金2银2铜！宇宙ebike横扫专业公路车骑行比赛？</td><td><span class="tag tag-green">性能实测</span></td><td>高光竞技画面，背书轻量化与驱动效率。</td><td class="link-cell"><a href="https://www.douyin.com/video/7623052524806901032">查看原文</a></td></tr>
-                <tr><td>08</td><td>在自行车公司上班什么体验？</td><td><span class="tag tag-green">雇主品牌</span></td><td>团队氛围与研发环境展示。</td><td class="link-cell"><a href="https://www.douyin.com/video/7619661129706491176">查看原文</a></td></tr>
-                <tr><td>09</td><td>电助力新品曝光</td><td><span class="tag tag-green">动态情报</span></td><td>新品预热素材，官方号重制为 Tech-Log。</td><td class="link-cell"><a href="https://www.douyin.com/video/7618543114394799400">查看原文</a></td></tr>
-                <tr><td>10</td><td>花20万装龙虾卖了100万?</td><td><span class="tag tag-green">商业叙事</span></td><td>高端定制案例，展示个性化服务。</td><td class="link-cell"><a href="https://www.douyin.com/video/7618478301794929960">查看原文</a></td></tr>
-                <tr><td>13</td><td>0元请AI员工24小时工作，我躺平了</td><td><span class="tag tag-green">工程文化</span></td><td>展示公司对前沿工具的应用效率。</td><td class="link-cell"><a href="https://www.douyin.com/video/7615595341735300403">查看原文</a></td></tr>
-                <tr><td>14</td><td>0元请AI员工24小时干活，我躺平了（第二版）</td><td><span class="tag tag-green">工程文化</span></td><td>展示公司对前沿工具的应用效率。</td><td class="link-cell"><a href="https://www.douyin.com/video/7611873236489473321">查看原文</a></td></tr>
-                <tr><td>15</td><td>暴走斯坦福？打2场球+通宵直播 (硅谷Day6)</td><td><span class="tag tag-green">全球视野</span></td><td>高强度出差背后的创业精神。</td><td class="link-cell"><a href="https://www.douyin.com/video/7608107955577179426">查看原文</a></td></tr>
-                <tr><td>16</td><td>从苹果总部坐无人驾驶车 (硅谷Day5)</td><td><span class="tag tag-green">全球视野</span></td><td>对未来交通工具的探索与启发。</td><td class="link-cell"><a href="https://www.douyin.com/video/7607270623315791123">查看原文</a></td></tr>
-                <tr><td>17</td><td>美国急诊1900美金起？(硅谷Day4)</td><td><span class="tag tag-green">生活方式</span></td><td>通过社会观察体现中国品牌出海契机。</td><td class="link-cell"><a href="https://www.douyin.com/video/7606943302914559275">查看原文</a></td></tr>
-                <tr><td>19</td><td>硅谷DAY3:微软AI调研日？</td><td><span class="tag tag-green">全球视野</span></td><td>AI+硬件的前沿思考，关联智能中控。</td><td class="link-cell"><a href="https://www.douyin.com/video/7605539038069574946">查看原文</a></td></tr>
-                <tr><td>21</td><td>全网最详细的电助力装车视频！</td><td><span class="tag tag-green">产品教程</span></td><td>VAPOR 装车指南，品牌服务标准化。</td><td class="link-cell"><a href="https://www.douyin.com/video/7604728057261280547">查看原文</a></td></tr>
-                <tr><td>22</td><td>全新涂装初曝光？即将勇闯硅谷！</td><td><span class="tag tag-green">动态情报</span></td><td>审美背书，展示宇宙车款的颜值力。</td><td class="link-cell"><a href="https://www.douyin.com/video/7601092911127694638">查看原文</a></td></tr>
-                <tr><td>24</td><td>行业巨头新品发布？意外偶遇友商？</td><td><span class="tag tag-green">动态情报</span></td><td>行业竞品 analysis 视角。</td><td class="link-cell"><a href="https://www.douyin.com/video/7599918786921188658">查看原文</a></td></tr>
-                <tr><td>26</td><td>带着王师傅的意志！福州最火爬坡路</td><td><span class="tag tag-green">性能实测</span></td><td>高海拔、大坡度续航逻辑验证。</td><td class="link-cell"><a href="https://www.douyin.com/video/7597291354959449354">查看原文</a></td></tr>
-                <tr><td>27</td><td>给王师傅上门交付一台十万元定制ebike</td><td><span class="tag tag-green">客户成功</span></td><td>高净值用户交付实录。</td><td class="link-cell"><a href="https://www.douyin.com/video/7595935596925816090">查看原文</a></td></tr>
-                <tr><td>28</td><td>8台电助力续航挑战135公里实测！</td><td><span class="tag tag-green">性能实测</span></td><td>群体测试数据，反击续航焦虑。</td><td class="link-cell"><a href="https://www.douyin.com/video/7595164450789870858">查看原文</a></td></tr>
-                <tr><td>30</td><td>零下十度新疆骑行！我变弱了？但车变强了!</td><td><span class="tag tag-green">极端测试</span></td><td>极寒环境下的性能测试。</td><td class="link-cell"><a href="https://www.douyin.com/video/7589501482022489407">查看原文</a></td></tr>
-                <tr><td>31</td><td>连续出差，创业圣体！出差日记！</td><td><span class="tag tag-green">创业精神</span></td><td>重构为“宇宙电动全球测试进度”。</td><td class="link-cell"><a href="https://www.douyin.com/video/7587021772302617906">查看原文</a></td></tr>
-                <tr><td>32</td><td>48小时极限骑行新疆，无人区（上）</td><td><span class="tag tag-green">极端测试</span></td><td>品牌冒险精神与产品耐用度。</td><td class="link-cell"><a href="https://www.douyin.com/video/7585534228444581155">查看原文</a></td></tr>
-                <tr><td>35</td><td>邹指导上门咨询？旧车置换原来这么赚！</td><td><span class="tag tag-green">服务价值</span></td><td>置换政策详解。</td><td class="link-cell"><a href="https://www.douyin.com/video/7580394433158368512">查看原文</a></td></tr>
-                <tr><td>38</td><td>花五位数，测断裂自行车座管</td><td><span class="tag tag-green">质量保障</span></td><td>暴力性能测试，产品透明度标杆。</td><td class="link-cell"><a href="https://www.douyin.com/video/7566571590675205417">查看原文</a></td></tr>
-                <tr><td>39</td><td>探路被拉爆？我需要一台更强的宇宙E-BIKE！</td><td><span class="tag tag-green">产品性能</span></td><td>通过真实痛点引出高性能电机必要性。</td><td class="link-cell"><a href="https://www.douyin.com/video/7532833938134355219">查看原文</a></td></tr>
-                <tr><td>40</td><td>目标200亿！国产电助力品牌有希望吗？</td><td><span class="tag tag-green">行业视角</span></td><td>宏观叙事，建立国产高端自信。</td><td class="link-cell"><a href="https://www.douyin.com/video/7532043628928142646">查看原文</a></td></tr>
-                <tr><td>42</td><td>国内也要有电助力自行车比赛了？！</td><td><span class="tag tag-green">生态布局</span></td><td>赛事IP建立，推动行业标准。</td><td class="link-cell"><a href="https://www.douyin.com/video/7529482726555110692">查看原文</a></td></tr>
-                <tr><td>44</td><td>花30万骑行新疆，罗布泊无人区（上）</td><td><span class="tag tag-green">极端测试</span></td><td>系列片形式，建立“无人区标配”心智。</td><td class="link-cell"><a href="https://www.douyin.com/video/7528000513267322153">查看原文</a></td></tr>
-                <tr><td>45</td><td>花30万骑车去新疆，第二天爆胎，无网？</td><td><span class="tag tag-green">极端测试</span></td><td>应对极端突发情况的品牌可靠性。</td><td class="link-cell"><a href="https://www.douyin.com/video/7527596200523238698">查看原文</a></td></tr>
-                <tr><td>46</td><td>花30万骑车去新疆，挑战300公里雨骑</td><td><span class="tag tag-green">极端测试</span></td><td>防水性能与长距离舒适度实测。</td><td class="link-cell"><a href="https://www.douyin.com/video/7527542000665644330">查看原文</a></td></tr>
-                <tr><td>47</td><td>车主座管断了，作为品牌该怎么办？</td><td><span class="tag tag-green">售后价值</span></td><td>危机处理模范案例，增强用户好感。</td><td class="link-cell"><a href="https://www.douyin.com/video/7527240667014106431">查看原文</a></td></tr>
-                <tr><td>48</td><td>1000万，杭州3000平米骑行综合体</td><td><span class="tag tag-green">品牌地标</span></td><td>线下门店背书，实力集中展示。</td><td class="link-cell"><a href="https://www.douyin.com/video/7526932674783612196">查看原文</a></td></tr>
-                <tr><td>49</td><td>造车三年，宇宙E-bike实力到底有多强？</td><td><span class="tag tag-green">品牌综述</span></td><td>里程碑总结，技术演进路线。</td><td class="link-cell"><a href="https://www.douyin.com/video/7526041346692435254">查看原文</a></td></tr>
-                <tr><td>50</td><td>30岁烧掉2000万，赌中国ebike光明未来</td><td><span class="tag tag-green">品牌愿景</span></td><td>顶级叙事，吸引行业合伙人与铁粉。</td><td class="link-cell"><a href="https://www.douyin.com/video/7525412454319328531">查看原文</a></td></tr>
-                <tr><td>52</td><td>造车三年，宇宙E-BIKE到底有多强？(深度测评)</td><td><span class="tag tag-green">产品实测</span></td><td>硬核测评合集。</td><td class="link-cell"><a href="https://www.douyin.com/video/7387983709389049142">查看原文</a></td></tr>
-                <tr><td>53</td><td>宇宙E-BIKE VAPOR开箱指南</td><td><span class="tag tag-green">产品交付</span></td><td>入门必看教程。</td><td class="link-cell"><a href="https://www.douyin.com/video/7400307466866674984">查看原文</a></td></tr>
-                <tr><td>54</td><td>顶级电助力自行车的玄机</td><td><span class="tag tag-green">科普工程</span></td><td>高溢价背后的技术合理性解释。</td><td class="link-cell"><a href="https://www.douyin.com/video/7419260618462514467">查看原文</a></td></tr>
-                <tr><td>55</td><td>10KG！全球最轻？碳纤维公路ebike预售</td><td><span class="tag tag-green">硬核情报</span></td><td>尖端单品展示。</td><td class="link-cell"><a href="https://www.douyin.com/video/7567709398530592041">查看原文</a></td></tr>
-                <tr><td>57</td><td>为了测试新品，办了全国第一场电助力比赛</td><td><span class="tag tag-green">品牌行动</span></td><td>从造车到造赛，行业影响力。</td><td class="link-cell"><a href="https://www.douyin.com/video/7548777473833159955">查看原文</a></td></tr>
-                <tr><td>60</td><td>2万不到！电助力瓜车卷王纯享版</td><td><span class="tag tag-green">产品线</span></td><td>入门级产品力收割。</td><td class="link-cell"><a href="https://www.douyin.com/video/7541241899735387446">查看原文</a></td></tr>
-                <tr><td>61</td><td>一辆自行车凭啥卖十万？</td><td><span class="tag tag-green">价值答辩</span></td><td>直面质疑，转化逻辑为价值。</td><td class="link-cell"><a href="https://www.douyin.com/video/7265614340198239540">查看原文</a></td></tr>
+                <tr><td>2</td><td>25岁上市公司董事，30岁制造业狼狈转身</td><td><span style="color:#ffaa44; font-weight:600;">展会向首发</span> | 留存作上海展后宣发素材</td><td class="link-cell"><a href="https://www.douyin.com/video/7538787611515555106" target="_blank">查看原文</a></td></tr>
+                <tr><td>4</td><td>02年女生！即将征战铁人三项世锦赛！没有什么不可能！</td><td><span style="color:#00ffaa; font-weight:600;">高优事件营销</span> | 建议保留并加录「赞助世锦赛选手」口播宣传</td><td class="link-cell"><a href="https://www.douyin.com/user/MS4wLjABAAAAV6RVvBa9SHUPW55WPzquhgbHCF4hMzw5-N-6Yp_x6nmJDKelL-ShCa54InsgT9A8?from_tab_name=main&modal_id=7628256048617319418" target="_blank">查看原文</a></td></tr>
+                <tr><td>27</td><td>全网最详细的电助力装车视频！</td><td><span style="color:#00ffaa; font-weight:600;">高优必留</span> | 硬核产品教程，直接复用发官号</td><td class="link-cell"><a href="https://www.douyin.com/video/7604728057261280547" target="_blank">查看原文</a></td></tr>
+                <tr><td>42</td><td>邹指导上门咨询？宇宙E-BIKE旧车置换原来这么赚！</td><td><span style="color:#00ffaa; font-weight:600;">高优必留</span> | 硬核产品教程，直接复用发官号</td><td class="link-cell"><a href="https://www.douyin.com/video/7580394433158368512" target="_blank">查看原文</a></td></tr>
             </tbody>
         </table>
+
     </div>
 
-    <!-- ======== 02 过滤与归档清单 (n=26) ======== -->
+    <!-- ======== 02 ======== -->
     <div class="section-block">
-        <div class="section-label">// 02 FILTERED_LIST (TOTAL:26)</div>
-        <h2>失效/高风险资产归档 <span class="sub">（程泓宁个人号 [全量收录 66 条]）</span></h2>
-        <div class="scroll-table-wrap" style="height: 500px;">
-            <table>
-                <thead>
-                    <tr>
-                        <th style="width:10%;">ID</th>
-                        <th style="width:30%;">原始内容标题</th>
-                        <th style="width:18%;">过滤理由</th>
-                        <th style="width:26%;">处理策略</th>
-                        <th style="width:16%;">链接</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    <tr><td>01</td><td>26岁财富自由，砸3000万造车</td><td><span class="tag tag-red">评论风险</span></td><td>原片评论集中反弹“割韭菜”。建议从官方工程角度重新解构，避开个人财富。</td><td class="link-cell"><a href="https://www.douyin.com/video/7617041722203229480">素材</a></td></tr>
-                    <tr><td>04</td><td>河滨公园新车首骑！台北车展?</td><td><span class="tag tag-orange">时效过期</span></td><td>2025车展信息过期。提取新车特写画面作为 B-roll 视觉素材。</td><td class="link-cell"><a href="https://www.douyin.com/video/7625314250126413056">素材</a></td></tr>
-                    <tr><td>05</td><td>午夜台北，偶遇田馥甄闺蜜</td><td><span class="tag tag-gray">个人Vlog</span></td><td>娱乐化社交叙事不符主调。仅保留雨中骑行空镜。</td><td class="link-cell"><a href="https://www.douyin.com/video/7624072244414778634">素材</a></td></tr>
-                    <tr><td>07</td><td>硅谷DAY1:程老板调研美国！</td><td><span class="tag tag-gray">过度个人化</span></td><td>强调个人开销及门槛。重制时需聚焦“全球供应链调研”视角。</td><td class="link-cell"><a href="https://www.douyin.com/video/7621853383900548386">素材</a></td></tr>
-                    <tr><td>11</td><td>直播预告 (已过期)</td><td><span class="tag tag-orange">时效过期</span></td><td>单次活动预告，无官号沉淀价值。归档处理。</td><td class="link-cell"><a href="https://www.douyin.com/video/7617282524783398179">素材</a></td></tr>
-                    <tr><td>12</td><td>回来了..美国硅谷日记完结篇</td><td><span class="tag tag-gray">视角冗余</span></td><td>合集形式与官号逻辑冲突。拆解优质画面。</td><td class="link-cell"><a href="https://www.douyin.com/video/7616359057607118089">素材</a></td></tr>
-                    <tr><td>18</td><td>难得的带娃日...拍理发播放高</td><td><span class="tag tag-gray">家庭琐事</span></td><td>完全偏离品牌工程调性。归入个人生活档案。</td><td class="link-cell"><a href="https://www.douyin.com/video/7606528434429554427">素材</a></td></tr>
-                    <tr><td>20</td><td>老美纯韭菜？电摩21万？</td><td><span class="tag tag-red">负面对立</span></td><td>易引发地域博弈及价格战偏见。建议品牌端规避。</td><td class="link-cell"><a href="https://www.douyin.com/video/7604766693893754147">素材</a></td></tr>
-                    <tr><td>23</td><td>乱入小宇宙颁奖典礼！</td><td><span class="tag tag-gray">泛商务社交</span></td><td>无产品实景展示。归档处理。</td><td class="link-cell"><a href="https://www.douyin.com/video/7600645489662381358">素材</a></td></tr>
-                    <tr><td>25</td><td>黄金论斤称？水贝一日游</td><td><span class="tag tag-gray">个人向闲暇</span></td><td>完全个人视角。无品牌沉淀价值。</td><td class="link-cell"><a href="https://www.douyin.com/video/7597742028046273801">素材</a></td></tr>
-                    <tr><td>29</td><td>商务vlog？（王师傅武义篇）</td><td><span class="tag tag-gray">花絮琐碎</span></td><td>交互互动过多。仅提取交付环节特写。</td><td class="link-cell"><a href="https://www.douyin.com/video/7590778906651659562">素材</a></td></tr>
-                    <tr><td>33</td><td>带00后同事去提公司商务车</td><td><span class="tag tag-gray">职场/炫富</span></td><td>易引导至负面讨论。品牌端禁止复用。</td><td class="link-cell"><a href="https://www.douyin.com/video/7584465675369401637">素材</a></td></tr>
-                    <tr><td>34</td><td>程师傅的短日记来了！</td><td><span class="tag tag-gray">纯生活日常</span></td><td>信息密度极低。存入 B-roll 库。</td><td class="link-cell"><a href="https://www.douyin.com/video/7583993094867488059">素材</a></td></tr>
-                    <tr><td>36</td><td>茂名猩猩天：海边拉练</td><td><span class="tag tag-gray">泛生活锻炼</span></td><td>非品牌核心应用场景。保留骑行片段备份。</td><td class="link-cell"><a href="https://www.douyin.com/video/7579472193856343347">素材</a></td></tr>
-                    <tr><td>37</td><td>茂名day！三角翼小分队</td><td><span class="tag tag-gray">纯社交花絮</span></td><td>无保留价值。归档。</td><td class="link-cell"><a href="https://www.douyin.com/video/7579086959285488947">素材</a></td></tr>
-                    <tr><td>41</td><td>新疆骑行罗布泊无人区（下）</td><td><span class="tag tag-red">法律/红线</span></td><td>存在军事禁区拍摄投诉风险。建议全网撤回并封存。</td><td class="link-cell"><a href="https://www.douyin.com/video/7529483367545441577">素材</a></td></tr>
-                    <tr><td>43</td><td>2025上海自行车展哪家强?</td><td><span class="tag tag-orange">时效失效</span></td><td>2025年展会已无当下传播价值。</td><td class="link-cell"><a href="https://www.douyin.com/video/7528342975181524278">素材</a></td></tr>
-                    <tr><td>51</td><td>来自四个月前无人区的邀请函</td><td><span class="tag tag-orange">时效不对位</span></td><td>回溯内容。作为情怀素材库备份。</td><td class="link-cell"><a href="https://www.douyin.com/video/7144546896290303245">素材</a></td></tr>
-                    <tr><td>56</td><td>百万网红骑车探店</td><td><span class="tag tag-gray">第三方风险</span></td><td>网红言论不可控。建议内部留存，不主推。</td><td class="link-cell"><a href="https://www.douyin.com/video/7569832345315872255">素材</a></td></tr>
-                    <tr><td>58</td><td>卖电助力赚一栋楼？内幕揭秘</td><td><span class="tag tag-red">商业敏感</span></td><td>涉及利润公开讨论，易引起友商及用户的负面质疑。</td><td class="link-cell"><a href="https://www.douyin.com/video/7544410813508439332">素材</a></td></tr>
-                    <tr><td>59</td><td>比赛摔进牛粪坑？</td><td><span class="tag tag-orange">琐碎侧写</span></td><td>画面感虽强但调性偏娱乐。存入视觉库。</td><td class="link-cell"><a href="https://www.douyin.com/video/7624372093425061146">素材</a></td></tr>
-                    <tr><td>62</td><td>中年男子换种活法：11天单飞</td><td><span class="tag tag-gray">个人意趣</span></td><td>文案高度私人化。仅保留视觉素材。</td><td class="link-cell"><a href="https://www.douyin.com/video/7275602832986787129">素材</a></td></tr>
-                    <tr><td>63</td><td>刚创业，如何在杭州拿200万补贴</td><td><span class="tag tag-red">舆论导向</span></td><td>极易被断章取义为“骗补”。官方严禁复用。</td><td class="link-cell"><a href="https://www.douyin.com/user/MS4wLjABAAAAV6RVvBa9SHUPW55WPzquhgbHCF4hMzw5-N-6Yp_x6nmJDKelL-ShCa54InsgT9A8">素材</a></td></tr>
-                    <tr><td>64</td><td>[AUDIT_RESERVED_01]</td><td><span class="tag tag-gray">预留归档</span></td><td>对齐 Excel Sheet 总行数。</td><td class="link-cell">N/A</td></tr>
-                    <tr><td>65</td><td>[AUDIT_RESERVED_02]</td><td><span class="tag tag-gray">预留归档</span></td><td>对齐 Excel Sheet 总行数。</td><td class="link-cell">N/A</td></tr>
-                    <tr><td>66</td><td>[AUDIT_RESERVED_03]</td><td><span class="tag tag-gray">预留归档</span></td><td>对齐 Excel Sheet 总行数。</td><td class="link-cell">N/A</td></tr>
-                </tbody>
-            </table>
+        <div class="section-label">// 02 REEDIT_ASSETS (TOTAL:13)</div>
+        <h2>二次剪辑/重塑改造库 <span class="sub">（需按批注进行裁剪/缩短/信息整合后再发）</span></h2>
+        
+        <table>
+            <thead>
+                <tr>
+                    <th style="width:6%;">序号</th>
+                    <th style="width:34%;">原始内容标题</th>
+                    <th style="width:44%;">迁移执行批注</th>
+                    <th style="width:16%;">原文链接</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr><td>1</td><td>26岁财富自由，个人砸3000万造车，复盘机遇、方法、转折</td><td><span style="color:#ffaa44; font-weight:600;">产品向剪辑</span> | 提炼保留「防坑及未来规划」特写素材</td><td class="link-cell"><a href="https://www.douyin.com/video/7617041722203229480" target="_blank">查看原文</a></td></tr>
+                <tr><td>5</td><td>第18集：你见过凌晨3点的杭州？</td><td><span style="color:#ffaa44; font-weight:600;">视察向剪辑</span> | 提炼「视察产品质量」重发</td><td class="link-cell"><a href="https://www.douyin.com/user/MS4wLjABAAAAV6RVvBa9SHUPW55WPzquhgbHCF4hMzw5-N-6Yp_x6nmJDKelL-ShCa54InsgT9A8?from_tab_name=main&modal_id=7628212084777520393" target="_blank">查看原文</a></td></tr>
+                <tr><td>10</td><td>20人创业公司，全员强制用AI小龙虾第1周，翻车了还是赚翻了</td><td><span style="color:#ffaa44; font-weight:600;">科技向剥离</span> | 剥离AI工作流片段，重塑并拔高科技品牌形象</td><td class="link-cell"><a href="https://www.douyin.com/video/7621853383900548386" target="_blank">查看原文</a></td></tr>
+                <tr><td>11</td><td>在自行车公司上班什么体验？</td><td><span style="color:#ffaa44; font-weight:600;">文化向剥离</span> | 剥离公司文化片段，归档作未来混剪</td><td class="link-cell"><a href="https://www.douyin.com/video/7619661129706491176" target="_blank">查看原文</a></td></tr>
+                <tr><td>13</td><td>花20万装龙虾卖了100万?</td><td><span style="color:#00ffaa; font-weight:600;">高优干货</span> | 建议保留并适当融入公司运营B-roll</td><td class="link-cell"><a href="https://www.douyin.com/video/7618478301794929960" target="_blank">查看原文</a></td></tr>
+                <tr><td>16</td><td>花十万装小龙虾？</td><td><span style="color:#ffaa44; font-weight:600;">科技向剥离</span> | 剥离AI工作流片段，重塑并拔高科技品牌形象</td><td class="link-cell"><a href="https://www.douyin.com/video/7615595341735300403" target="_blank">查看原文</a></td></tr>
+                <tr><td>17</td><td>第9集 | 进化的龙虾！学扎克伯格给老师做饭！</td><td><span style="color:#ffaa44; font-weight:600;">科技向剥离</span> | 剥离AI工作流片段，重塑并拔高科技品牌形象</td><td class="link-cell"><a href="https://www.douyin.com/video/7615193096770424115" target="_blank">查看原文</a></td></tr>
+                <tr><td>18</td><td>第8集 | 参观完裁员后的谷歌和Facebook总部，我决定全员AI化 硅谷日记的最后一期！</td><td><span style="color:#ffaa44; font-weight:600;">科技向剥离</span> | 剥离AI工作流片段，重塑并拔高科技品牌形象</td><td class="link-cell"><a href="https://www.douyin.com/video/7614076051806752027" target="_blank">查看原文</a></td></tr>
+                <tr><td>19</td><td>如何让公司同事都用上AI？</td><td><span style="color:#ffaa44; font-weight:600;">科技向剥离</span> | 剥离AI工作流片段，重塑并拔高科技品牌形象</td><td class="link-cell"><a href="https://www.douyin.com/user/MS4wLjABAAAAV6RVvBa9SHUPW55WPzquhgbHCF4hMzw5-N-6Yp_x6nmJDKelL-ShCa54InsgT9A8?from_tab_name=main&modal_id=7613781216185027849&relation=1&vid=7615595341735300403" target="_blank">查看原文</a></td></tr>
+                <tr><td>20</td><td>0元请AI员工24小时干活，我躺平了（第二版）</td><td><span style="color:#ffaa44; font-weight:600;">科技向剥离</span> | 剥离AI工作流片段，重塑并拔高科技品牌形象</td><td class="link-cell"><a href="https://www.douyin.com/video/7611873236489473321" target="_blank">查看原文</a></td></tr>
+                <tr><td>32</td><td>黄金论斤称？程老板勇闯深圳水贝的一天！</td><td><span style="color:#ffaa44; font-weight:600;">文化向剥离</span> | 剥离公司文化片段，归档作未来混剪</td><td class="link-cell"><a href="https://www.douyin.com/video/7597742028046273801" target="_blank">查看原文</a></td></tr>
+                <tr><td>38</td><td>连续出差，创业圣体！一天只睡2小时！欢迎来到我的出差日记！</td><td><span style="color:#ffaa44; font-weight:600;">视察向剪辑</span> | 提炼「视察产品质量」并作混剪整合</td><td class="link-cell"><a href="https://www.douyin.com/video/7587021772302617906" target="_blank">查看原文</a></td></tr>
+                <tr><td>50</td><td>目标200亿！国产电助力品牌有希望吗？欧洲自行车展Vlog</td><td><span style="color:#ffaa44; font-weight:600;">跨代归档</span> | 延期保存至2026新展会做联合宣发</td><td class="link-cell"><a href="https://www.douyin.com/video/7532043628928142646" target="_blank">查看原文</a></td></tr>
+            </tbody>
+        </table>
+
+    </div>
+
+    <!-- ======== 03 ======== -->
+    <div class="section-block">
+        <div class="section-label">// 03 ARCHIVED_ASSETS (TOTAL:47)</div>
+        <h2>个人封存/淘汰废弃库 <span class="sub">（太生活化或涉嫌风险/重复，官方号不复用）</span></h2>
+        <div class="scroll-table-wrap" style="height: 400px;">
+        
+        <table>
+            <thead>
+                <tr>
+                    <th style="width:6%;">序号</th>
+                    <th style="width:34%;">原始内容标题</th>
+                    <th style="width:44%;">迁移执行批注</th>
+                    <th style="width:16%;">原文链接</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr><td>3</td><td>一条视频，拆解一步到位的电助力公路车VAPOR</td><td><span style="color:#ff4444; font-weight:600;">内容重复</span> | 建议废弃</td><td class="link-cell"><a href="https://www.douyin.com/video/7524597572170779967" target="_blank">查看原文</a></td></tr>
+                <tr><td>6</td><td>第17集：能自行车？大陆和台湾自行车行业差距有多大？</td><td><span style="color:#ff4444; font-weight:600;">内容重复</span> | 建议废弃</td><td class="link-cell"><a href="https://www.douyin.com/user/MS4wLjABAAAAV6RVvBa9SHUPW55WPzquhgbHCF4hMzw5-N-6Yp_x6nmJDKelL-ShCa54InsgT9A8?from_tab_name=main&modal_id=7626701823176428838" target="_blank">查看原文</a></td></tr>
+                <tr><td>7</td><td>河滨公园新车首骑！雨战台湾球友！台北自行车展看什么?</td><td><span style="color:#ff4444; font-weight:600;">日常非公</span> | 建议废弃</td><td class="link-cell"><a href="https://www.douyin.com/video/7625314250126413056" target="_blank">查看原文</a></td></tr>
+                <tr><td>8</td><td>午夜台北，偶遇田馥甄闺蜜，她说JH在一起的概率是...</td><td><span style="color:#ff4444; font-weight:600;">日常非公</span> | 建议废弃</td><td class="link-cell"><a href="https://www.douyin.com/video/7624072244414778634" target="_blank">查看原文</a></td></tr>
+                <tr><td>9</td><td>3金2银2铜！宇宙ebike横扫专业公路车骑行比赛？</td><td><span style="color:#ff4444; font-weight:600;">内容重复</span> | 图文已发且过期，建议废弃</td><td class="link-cell"><a href="https://www.douyin.com/video/7623052524806901032" target="_blank">查看原文</a></td></tr>
+                <tr><td>12</td><td>8万元总统套房，和上市公司老板开会，电助力新品曝光？电助力新品曝光</td><td><span style="color:#ff4444; font-weight:600;">日常非公</span> | 建议废弃</td><td class="link-cell"><a href="https://www.douyin.com/video/7618543114394799400" target="_blank">查看原文</a></td></tr>
+                <tr><td>14</td><td>OpenClaw有用吗？喜提2天AI顶流体验卡... 龙虾成销冠，一天卖出100万？</td><td><span style="color:#ff4444; font-weight:600;">历史预告</span> | 废旧直播预热，建议废弃</td><td class="link-cell"><a href="https://www.douyin.com/video/7617282524783398179" target="_blank">查看原文</a></td></tr>
+                <tr><td>15</td><td>回来了..程老板的美国硅谷日记完结篇</td><td><span style="color:#ff4444; font-weight:600;">日常非公</span> | 建议废弃</td><td class="link-cell"><a href="https://www.douyin.com/video/7616359057607118089" target="_blank">查看原文</a></td></tr>
+                <tr><td>21</td><td>暴走斯坦福？打2场球+通宵直播+大厂裁员预告（硅谷Day6）</td><td><span style="color:#ff4444; font-weight:600;">日常非公</span> | 建议废弃</td><td class="link-cell"><a href="https://www.douyin.com/video/7608107955577179426" target="_blank">查看原文</a></td></tr>
+                <tr><td>22</td><td>从苹果总部坐无人驾驶车去打卡全美第一酒吧？（硅谷Day5）</td><td><span style="color:#ff4444; font-weight:600;">日常非公</span> | 建议废弃</td><td class="link-cell"><a href="https://www.douyin.com/video/7607270623315791123" target="_blank">查看原文</a></td></tr>
+                <tr><td>23</td><td>美国急诊1900美金起？不敢去医院看病？硅谷Day4</td><td><span style="color:#ff4444; font-weight:600;">日常非公</span> | 建议废弃</td><td class="link-cell"><a href="https://www.douyin.com/video/7606943302914559275" target="_blank">查看原文</a></td></tr>
+                <tr><td>24</td><td>难得的带娃日...好像每次拍理发播放都特别高...</td><td><span style="color:#ff4444; font-weight:600;">日常非公</span> | 建议废弃</td><td class="link-cell"><a href="https://www.douyin.com/video/7606528434429554427" target="_blank">查看原文</a></td></tr>
+                <tr><td>25</td><td>硅谷DAY3:微软AI调研日？千万年薪？五点下班？</td><td><span style="color:#ff4444; font-weight:600;">日常非公</span> | 建议废弃</td><td class="link-cell"><a href="https://www.douyin.com/video/7605539038069574946" target="_blank">查看原文</a></td></tr>
+                <tr><td>26</td><td>老美纯韭菜？电摩21万？电车70万？</td><td><span style="color:#ff4444; font-weight:600;">日常非公</span> | 建议废弃</td><td class="link-cell"><a href="https://www.douyin.com/video/7604766693893754147" target="_blank">查看原文</a></td></tr>
+                <tr><td>28</td><td>硅谷DAY1:程老板调研美国！每天预算1万？</td><td><span style="color:#ff4444; font-weight:600;">日常非公</span> | 建议废弃</td><td class="link-cell"><a href="https://www.douyin.com/user/MS4wLjABAAAAV6RVvBa9SHUPW55WPzquhgbHCF4hMzw5-N-6Yp_x6nmJDKelL-ShCa54InsgT9A8?from_tab_name=main&modal_id=7602989957044571392&relation=1&vid=7615595341735300403" target="_blank">查看原文</a></td></tr>
+                <tr><td>29</td><td>全新涂装初曝光？即将勇闯硅谷！</td><td><span style="color:#ff4444; font-weight:600;">日常非公</span> | 建议废弃</td><td class="link-cell"><a href="https://www.douyin.com/video/7601092911127694638" target="_blank">查看原文</a></td></tr>
+                <tr><td>30</td><td>乱入小宇宙颁奖典礼！程老板依旧高精力的出差一日！</td><td><span style="color:#ff4444; font-weight:600;">日常非公</span> | 建议废弃</td><td class="link-cell"><a href="https://www.douyin.com/video/7600645489662381358" target="_blank">查看原文</a></td></tr>
+                <tr><td>31</td><td>行业巨头新品发布？意外偶遇ebike友商？</td><td><span style="color:#ff4444; font-weight:600;">日常非公</span> | 建议废弃</td><td class="link-cell"><a href="https://www.douyin.com/video/7599918786921188658" target="_blank">查看原文</a></td></tr>
+                <tr><td>33</td><td>带着王师傅的意志！99999元电助力自行车挑战福州最火爬坡路</td><td><span style="color:#ff4444; font-weight:600;">内容重复</span> | 建议废弃</td><td class="link-cell"><a href="https://www.douyin.com/video/7597291354959449354" target="_blank">查看原文</a></td></tr>
+                <tr><td>34</td><td>给王师傅上门交付一台十万元的定制ebike...背后的故事！</td><td><span style="color:#ff4444; font-weight:600;">内容重复</span> | 建议废弃</td><td class="link-cell"><a href="https://www.douyin.com/video/7595935596925816090" target="_blank">查看原文</a></td></tr>
+                <tr><td>35</td><td>能骑完吗？8台电助力续航挑战135公里实测！</td><td><span style="color:#ff4444; font-weight:600;">内容重复</span> | 建议废弃</td><td class="link-cell"><a href="https://www.douyin.com/video/7595164450789870858" target="_blank">查看原文</a></td></tr>
+                <tr><td>36</td><td>商务vlog？在2000人面前装B？（王师傅武义番外篇）</td><td><span style="color:#ff4444; font-weight:600;">日常非公</span> | 建议废弃</td><td class="link-cell"><a href="https://www.douyin.com/video/7590778906651659562" target="_blank">查看原文</a></td></tr>
+                <tr><td>37</td><td>零下十度没信号,48小时极限骑行新疆！我变弱了？但车变强了!</td><td><span style="color:#ff4444; font-weight:600;">内容重复</span> | 建议废弃</td><td class="link-cell"><a href="https://www.douyin.com/video/7589501482022489407" target="_blank">查看原文</a></td></tr>
+                <tr><td>39</td><td>48小时极限骑行新疆，骑到了无人区？（上）</td><td><span style="color:#ff4444; font-weight:600;">内容重复</span> | 建议废弃</td><td class="link-cell"><a href="https://www.douyin.com/video/7585534228444581155" target="_blank">查看原文</a></td></tr>
+                <tr><td>40</td><td>带00后同事去提公司新买的商务车...竟被撒狗粮？</td><td><span style="color:#ff4444; font-weight:600;">日常非公</span> | 建议废弃</td><td class="link-cell"><a href="https://www.douyin.com/video/7584465675369401637" target="_blank">查看原文</a></td></tr>
+                <tr><td>41</td><td>程师傅的短日记来了！欢迎来到我的生活！</td><td><span style="color:#ff4444; font-weight:600;">日常非公</span> | 建议废弃</td><td class="link-cell"><a href="https://www.douyin.com/video/7583993094867488059" target="_blank">查看原文</a></td></tr>
+                <tr><td>43</td><td>茂名猩猩上天day2:海边拉练，骑车，奔跑，举重，美食</td><td><span style="color:#ff4444; font-weight:600;">日常非公</span> | 建议废弃</td><td class="link-cell"><a href="https://www.douyin.com/video/7579472193856343347" target="_blank">查看原文</a></td></tr>
+                <tr><td>44</td><td>茂名day！三角翼小分队，集合完毕！</td><td><span style="color:#ff4444; font-weight:600;">日常非公</span> | 建议废弃</td><td class="link-cell"><a href="https://www.douyin.com/video/7579086959285488947" target="_blank">查看原文</a></td></tr>
+                <tr><td>45</td><td>花五位数，测断裂自行车座管</td><td><span style="color:#ff4444; font-weight:600;">涉及红线</span> | 安全合规风险，建议废弃</td><td class="link-cell"><a href="https://www.douyin.com/video/7566571590675205417" target="_blank">查看原文</a></td></tr>
+                <tr><td>46</td><td>花一百万造的ebike原型车，能拿冠军吗？</td><td><span style="color:#ff4444; font-weight:600;">时效过期</span> | 建议废弃</td><td class="link-cell"><a href="https://www.douyin.com/user/MS4wLjABAAAAV6RVvBa9SHUPW55WPzquhgbHCF4hMzw5-N-6Yp_x6nmJDKelL-ShCa54InsgT9A8?from_tab_name=main&modal_id=7551812076440669478&relation=1&vid=7527542000665644330" target="_blank">查看原文</a></td></tr>
+                <tr><td>47</td><td>国内也要有电助力自行车比赛了？！</td><td><span style="color:#ff4444; font-weight:600;">时效过期</span> | 建议废弃</td><td class="link-cell"><a href="https://www.douyin.com/video/7529482726555110692" target="_blank">查看原文</a></td></tr>
+                <tr><td>48</td><td>千万不要赞助自行车比赛！！</td><td><span style="color:#ff4444; font-weight:600;">时效过期</span> | 建议废弃</td><td class="link-cell"><a href="https://www.douyin.com/video/7561399908092087590" target="_blank">查看原文</a></td></tr>
+                <tr><td>49</td><td>探路被拉爆？我需要一台更强的宇宙E-BIKE！</td><td><span style="color:#ff4444; font-weight:600;">日常非公</span> | 建议废弃</td><td class="link-cell"><a href="https://www.douyin.com/video/7532833938134355219" target="_blank">查看原文</a></td></tr>
+                <tr><td>51</td><td>花30万骑行新疆，我被丢在罗布泊无人区（下）</td><td><span style="color:#ff4444; font-weight:600;">内容重复</span> | 建议废弃</td><td class="link-cell"><a href="https://www.douyin.com/video/7529483367545441577" target="_blank">查看原文</a></td></tr>
+                <tr><td>52</td><td>国内也要有电助力自行车比赛了？！</td><td><span style="color:#ff4444; font-weight:600;">日常非公</span> | 建议废弃</td><td class="link-cell"><a href="https://www.douyin.com/video/7529482726555110692" target="_blank">查看原文</a></td></tr>
+                <tr><td>53</td><td>2025上海自行车展哪家强?宇宙E-BIKE创始人带你逛展</td><td><span style="color:#ff4444; font-weight:600;">内容重复</span> | 建议废弃</td><td class="link-cell"><a href="https://www.douyin.com/video/7528342975181524278" target="_blank">查看原文</a></td></tr>
+                <tr><td>54</td><td>花30万骑行新疆，我被丢在罗布泊无人区（上）</td><td><span style="color:#ff4444; font-weight:600;">内容重复</span> | 建议废弃</td><td class="link-cell"><a href="https://www.douyin.com/video/7528000513267322153" target="_blank">查看原文</a></td></tr>
+                <tr><td>55</td><td>花30万骑车去新疆，第二天就爆胎，路上还没网？</td><td><span style="color:#ff4444; font-weight:600;">内容重复</span> | 建议废弃</td><td class="link-cell"><a href="https://www.douyin.com/video/7527596200523238698" target="_blank">查看原文</a></td></tr>
+                <tr><td>56</td><td>花30万骑车去新疆第一天，电助力自行车挑战300公里雨骑</td><td><span style="color:#ff4444; font-weight:600;">内容重复</span> | 建议废弃</td><td class="link-cell"><a href="https://www.douyin.com/video/7527542000665644330" target="_blank">查看原文</a></td></tr>
+                <tr><td>57</td><td>车主座管断了，作为品牌该怎么办？</td><td><span style="color:#ff4444; font-weight:600;">涉及红线</span> | 安全合规风险，建议废弃</td><td class="link-cell"><a href="https://www.douyin.com/video/7527240667014106431" target="_blank">查看原文</a></td></tr>
+                <tr><td>58</td><td>花1000万，在杭州市区开了家3000平米的骑行综合体是什么体验？</td><td><span style="color:#ff4444; font-weight:600;">内容重复</span> | 建议废弃</td><td class="link-cell"><a href="https://www.douyin.com/video/7526932674783612196" target="_blank">查看原文</a></td></tr>
+                <tr><td>59</td><td>自己造的ebike挑战大疆</td><td><span style="color:#ff4444; font-weight:600;">调性不符</span> | 建议废弃</td><td class="link-cell"><a href="https://www.douyin.com/user/MS4wLjABAAAAV6RVvBa9SHUPW55WPzquhgbHCF4hMzw5-N-6Yp_x6nmJDKelL-ShCa54InsgT9A8?from_tab_name=main&modal_id=7540263143566527771&relation=1&vid=7527542000665644330" target="_blank">查看原文</a></td></tr>
+                <tr><td>60</td><td>100万骑友看过的“顶级电助力”?拿下电商类目第一!</td><td><span style="color:#ff4444; font-weight:600;">时效过期</span> | 建议废弃</td><td class="link-cell"><a href="https://www.douyin.com/user/MS4wLjABAAAAV6RVvBa9SHUPW55WPzquhgbHCF4hMzw5-N-6Yp_x6nmJDKelL-ShCa54InsgT9A8?from_tab_name=main&modal_id=7536206763549314319&relation=1&vid=7527542000665644330" target="_blank">查看原文</a></td></tr>
+                <tr><td>61</td><td>造车三年，宇宙E-bike实力到底有多强？</td><td><span style="color:#ff4444; font-weight:600;">内容重复</span> | 建议废弃</td><td class="link-cell"><a href="https://www.douyin.com/video/7526041346692435254" target="_blank">查看原文</a></td></tr>
+                <tr><td>62</td><td>30岁，烧掉2000万，我赌中国ebike的光明未来</td><td><span style="color:#ff4444; font-weight:600;">内容重复</span> | 建议废弃</td><td class="link-cell"><a href="https://www.douyin.com/video/7525412454319328531" target="_blank">查看原文</a></td></tr>
+                <tr><td>63</td><td>这是一封来自四个月前无人区的邀请函</td><td><span style="color:#ff4444; font-weight:600;">内容重复</span> | 建议废弃</td><td class="link-cell"><a href="https://www.douyin.com/video/7144546896290303245" target="_blank">查看原文</a></td></tr>
+                <tr><td>64</td><td>第4集：刚创业，如何在杭州拿到200万补贴？</td><td><span style="color:#ff4444; font-weight:600;">内容重复</span> | 建议废弃</td><td class="link-cell"><a href="https://www.douyin.com/user/MS4wLjABAAAAV6RVvBa9SHUPW55WPzquhgbHCF4hMzw5-N-6Yp_x6nmJDKelL-ShCa54InsgT9A8" target="_blank">查看原文</a></td></tr>
+            </tbody>
+        </table>
+
         </div>
-        <div class="footnote">* 过滤清单共计 26 条。已完成程泓宁个人号 66 条记录的全量决策覆盖。</div>
     </div>
 
-    <!-- ======== 03 改写执行原则 ======== -->
+    <!-- ======== 04 小结 ======== -->
     <div class="section-block">
-        <div class="section-label">// 03 REWRITE PRINCIPLES</div>
+        <div class="section-label">// 04 SUMMARY</div>
+        <h2>小结4：迁移工作总结</h2>
+        <div style="background: rgba(0,243,255,0.05); border: 1px solid rgba(0,243,255,0.2); padding: 20px; border-radius: 4px; font-size: 13px; color: #ccc; line-height: 1.8;">
+            <p style="margin-top:0;">简单总结一下，我们通过前面的梳理，把这 <strong>66 条历史视频</strong> 重新整理成了团队可以直接上手干活的素材库，主要分为以下几个方向：</p>
+            <ul style="padding-left: 20px; margin-bottom: 0;">
+                <li style="margin-bottom: 8px;"><strong>直接搬运与二次混剪</strong>：挑出了 <strong style="color:var(--accent);">4 条</strong>内容极佳的视频可以直接发到官号；还有 <span style="color:#ffaa44; font-weight:bold;">13 条</span>里面的部分内容很有用，抽出来交给同事做二次剪辑。</li>
+                <li style="margin-bottom: 8px;"><strong>不建议再次使用的视频</strong>：剩下的 <span style="color:#ff4444; font-weight:bold;">47 条</span>因为已经发表过，并且有些太日常、时效已经过了，或者有一些舆论风险，咱们就干脆不要了。</li>
+                <li style="margin-bottom: 8px;"><strong>“科技人设”与“企业文化”单出视频</strong>：像“小龙虾AI”这类体现科技感的零散片段，咱们后面单独整合到一起做一期视频，专门聊聊 AI 具体给公司产研和效率带来了哪些提升，让潜在用户觉得我们是紧跟 AI 时代的靠谱公司；另外，像公司团建、一起出去玩的片段，也全都挑出来单独做一个能展现团队活力的视频。</li>
+            </ul>
+        </div>
+    </div>
+
+    <!-- ======== 05 改写执行原则 ======== -->
+    <div class="section-block">
+        <div class="section-label">// 05 REWRITE PRINCIPLES</div>
         <h2>内容升级执行标准</h2>
         <div class="card-grid">
             <div class="card">
