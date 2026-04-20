@@ -248,7 +248,7 @@ const useJapaneseBadge = siteConfig.toc.useJapaneseBadge;
 		private panel: HTMLElement | null;
 		private content: HTMLElement | null;
 		private wrapper: HTMLElement | null;
-		private isOpen = false;
+		private isOpen = true;
 		private observer: MutationObserver | null = null;
 		private headings: HTMLElement[] = [];
 
@@ -284,6 +284,7 @@ const useJapaneseBadge = siteConfig.toc.useJapaneseBadge;
 			this.generateTOC();
 			this.observeContent();
 			this.updateProgress();
+			this.open();
 		}
 
 		private observeContent() {
