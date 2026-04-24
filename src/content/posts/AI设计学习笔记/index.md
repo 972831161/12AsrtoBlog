@@ -72,11 +72,15 @@ pinned: true
 <div class="comparison-grid">
   <div class="comparison-card">
     <div class="card-label">SD 1.5 默认底模 (中规中矩)</div>
-    <img src="./萨拉赫_sd1.5_1.webp" alt="SD 1.5 默认输出">
+
+![SD 1.5 默认输出](./萨拉赫_sd1.5_1.webp)
+
   </div>
   <div class="comparison-card">
     <div class="card-label">高级写实模型 (光影/质感飞跃)</div>
-    <img src="./salah_realistic.webp" alt="Realistic 模型输出">
+
+![Realistic 模型输出](./salah_realistic.webp)
+
   </div>
 </div>
 
@@ -109,11 +113,15 @@ pinned: true
 <div class="comparison-grid">
   <div class="comparison-card">
     <div class="card-label">LoRA 权重触发测试</div>
-    <img src="./salah_toy.webp" alt="LoRA 触发效果">
+
+![LoRA 触发效果](./salah_toy.webp)
+
   </div>
   <div class="comparison-card">
     <div class="card-label">img2img 局部重绘后期</div>
-    <img src="./萨拉赫_img2img.webp" alt="图生图后期处理">
+
+![图生图后期处理](./萨拉赫_img2img.webp)
+
   </div>
 </div>
 
@@ -153,7 +161,7 @@ pinned: true
 它能自动拆解长文逻辑，生成 **3:4 比例的极简风幻灯片**（也可以选宇宙科幻风）。这种形式更适合移动端的沉浸式阅读，也更对 Z 世代碎片化阅读的胃口。以下是一些具体案例：
 
 - [🔧 最后拼的是工程思维](/ai-design/index.html)。 （内容来源：小红书博主 [不好惹的娃娃脸 Guxi](https://www.xiaohongshu.com/user/profile/5b2f04e511be105be812f722)）
-- **项目：宇宙电动公众号内容“视频化”活化** （利用 [html-ppt-skill](https://github.com/lewislulu/html-ppt-skill) 实现的多风格一键转化）
+- **项目：宇宙电动公众号内容“视频化”活化** （利用 [html-ppt-skill](https://github.com/lewislulu/html-ppt-skill) 实现的多风格一键转化。）
     - [🚀 宇宙电动：悬崖边的三年](/universe-ebike-cyber-slides/index.html)。 （科幻版）
     - [📈 宇宙电动：品牌发展全史](/universe-ebike-full/index.html)。 （全量版）
     - [🎯 宇宙电动：VAPOR 产品路演](/universe-ebike-pitch/index.html)。 （商务版）
@@ -163,7 +171,7 @@ pinned: true
 > **关于 `html-ppt-skill` (by lewislulu)**：
 > 这是我在项目中引入的一款非常硬核的开源工具，可以极大地提升内容转化的效率。
 > - **基本功能**：支持将 Markdown 或 HTML 内容一键导出为具备高度交互性的幻灯片，内置多种专业皮肤。
-> - **快捷操作**：生成的页面支持 `Space / Enter` 下一页，`N` 键切换演讲者模式，以及 `F` 键全屏。
+> - **快捷操作**：通过键盘⬅️  ➡️播放页面，生成的页面支持 `Space / Enter` 下一页，`N` 键切换演讲者模式，以及 `F` 键全屏。
 
 ---
 
