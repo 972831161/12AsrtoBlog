@@ -1,5 +1,6 @@
 import sitemap from "@astrojs/sitemap";
 import svelte, { vitePreprocess } from "@astrojs/svelte";
+import vercel from "@astrojs/vercel";
 import tailwindcss from "@tailwindcss/vite";
 import { pluginCollapsibleSections } from "@expressive-code/plugin-collapsible-sections";
 import { pluginLineNumbers } from "@expressive-code/plugin-line-numbers";
@@ -35,6 +36,9 @@ export default defineConfig({
 	trailingSlash: "always",
 
 	output: "static",
+	adapter: vercel({
+		webAnalytics: { enabled: true },
+	}),
 
 	integrations: [
 		umami({
