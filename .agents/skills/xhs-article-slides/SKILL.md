@@ -43,6 +43,32 @@ description: 将深度长文转化为适合小红书发布的 3:4 比例极简�
     - **Coordinates**：页面侧边显示 16 进制坐标或版本号。
 - **字体**：`Orbitron` (Header), `JetBrains Mono` (Data), `Noto Serif SC` (Body)。
 
+## ⚠️ 静态资源加载注意事项 (Best Practices)
+
+为确保内嵌 HTML 在不同部署环境下（特别是 Vercel/GitHub Pages）通过子目录访问时样式不丢失，必须遵循：
+
+### 1. 路径基准锁定 (强制)
+在 HTML 的 `<head>` 顶部必须添加 `<base href>` 标签。
+- **示例**：如果文件位于 `public/custom-slides/index.html`，则添加：
+  ```html
+  <base href="/custom-slides/">
+  ```
+- **目的**：防止用户由于访问 URL 缺少尾部斜杠（`/custom-slides` 而非 `/custom-slides/`）导致相对路径（如 `assets/style.css`）解析到错误的根目录。
+
+### 2. 国内字体加载优化
+禁止直接引用 `fonts.googleapis.com`，应统一使用国内镜像以提升访问速度。
+- **替换方案**：将 `googleapis.com` 改为 `font.im`。
+- **示例**：`@import url('https://fonts.font.im/css2?family=Inter:wght@400;700&display=swap');`
+
+### 3. CSS 兜底显示
+为防止 JavaScript 加载失败导致幻灯片初始化异常（全黑/全透明），在 `<head>` 中内联一段兜底 CSS：
+```html
+<style>
+  /* 兜底：不依赖 JS 强制显示首张 active slide */
+  .slide.is-active { opacity: 1 !important; visibility: visible !important; }
+</style>
+```
+
 ## 💡 使用示例
 - "帮我把这篇文章转成小红书版本，内容切片要深度一些。"
 - "按照 xhs-article-slides 流程，把最新的 AI 研究笔记做成幻灯片。"
