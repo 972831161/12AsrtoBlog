@@ -160,12 +160,12 @@ pinned: true
 
 它能自动拆解长文逻辑，生成 **3:4 比例的极简风幻灯片**（也可以选宇宙科幻风）。这种形式更适合移动端的沉浸式阅读，也更对 Z 世代碎片化阅读的胃口。以下是一些具体案例：
 
-- [🔧 最后拼的是工程思维](/ai-design/index.html)。 （内容来源：小红书博主 [不好惹的娃娃脸 Guxi](https://www.xiaohongshu.com/user/profile/5b2f04e511be105be812f722)）
+- <a href="/ai-design/index.html" data-astro-reload>🔧 最后拼的是工程思维</a>。 （内容来源：小红书博主 [不好惹的娃娃脸 Guxi](https://www.xiaohongshu.com/user/profile/5b2f04e511be105be812f722)）
 - **项目：宇宙电动公众号内容“视频化”活化** （利用 [html-ppt-skill](https://github.com/lewislulu/html-ppt-skill) 实现的多风格一键转化。）
-    - [🚀 宇宙电动：悬崖边的三年](/universe-ebike-cyber-slides/index.html)。 （科幻版）
-    - [📈 宇宙电动：品牌发展全史](/universe-ebike-full/index.html)。 （全量版）
-    - [🎯 宇宙电动：VAPOR 产品路演](/universe-ebike-pitch/index.html)。 （商务版）
-    - [📱 宇宙电动：小红书内容复用示例](/universe-ebike-xhs/index.html)。 （适配移动端）
+    - <a href="/universe-ebike-cyber-slides/index.html" data-astro-reload>🚀 宇宙电动：悬崖边的三年</a>。（科幻版）
+    - <a href="/universe-ebike-full/index.html" data-astro-reload>📈 宇宙电动：品牌发展全史</a>。（全量版）
+    - <a href="/universe-ebike-pitch/index.html" data-astro-reload>🎯 宇宙电动：VAPOR 产品路演</a>。（商务版）
+    - <a href="/universe-ebike-xhs/index.html" data-astro-reload>📱 宇宙电动：小红书内容复用示例</a>。（适配移动端）
 
 > [!NOTE]
 > **关于 `html-ppt-skill` (by lewislulu)**：
