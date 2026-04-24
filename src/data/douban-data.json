@@ -1,5 +1,20 @@
 [
   {
+    "title": "浪浪山小妖怪",
+    "status": "completed",
+    "rating": 5,
+    "cover": "https://images.weserv.nl/?url=http%3A%2F%2Flain.bgm.tv%2Fpic%2Fcover%2Fl%2F93%2F79%2F440095_HJh7H.jpg&output=webp",
+    "description": "推荐: 力荐",
+    "episodes": "0 episodes",
+    "year": "2026",
+    "genre": [],
+    "link": "https://movie.douban.com/subject/36438475/",
+    "progress": 0,
+    "totalEpisodes": 0,
+    "startDate": "Sun, 05 Apr 2026 12:38:51 GMT",
+    "endDate": "Sun, 05 Apr 2026 12:38:51 GMT"
+  },
+  {
     "title": "河狸变身计划",
     "status": "planned",
     "rating": 0,
@@ -400,17 +415,6 @@
     "rating": 0,
     "startDate": "2025-08-22",
     "cover": "https://images.weserv.nl/?url=http%3A%2F%2Flain.bgm.tv%2Fpic%2Fcover%2Fl%2F86%2Fe5%2F442114_nSSO1.jpg&output=webp",
-    "status": "planned",
-    "description": "",
-    "year": "2025",
-    "genre": []
-  },
-  {
-    "title": "浪浪山小妖怪",
-    "link": "https://movie.douban.com/subject/36438475/",
-    "rating": 0,
-    "startDate": "2025-08-22",
-    "cover": "https://images.weserv.nl/?url=http%3A%2F%2Flain.bgm.tv%2Fpic%2Fcover%2Fl%2F93%2F79%2F440095_HJh7H.jpg&output=webp",
     "status": "planned",
     "description": "",
     "year": "2025",
