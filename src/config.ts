@@ -368,6 +368,18 @@ export const navBarConfig: NavBarConfig = {
 					url: "/timeline/",
 					icon: "material-symbols:timeline",
 				},
+				{
+					name: "Tools",
+					url: "/tools/",
+					icon: "material-symbols:build",
+					children: [
+						{
+							name: "U&I Ops Intelligence",
+							url: "/ops-tool/index.html",
+							icon: "material-symbols:analytics",
+						},
+					],
+				},
 			],
 		},
 	],

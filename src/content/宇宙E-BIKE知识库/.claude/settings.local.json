@@ -1,0 +1,12 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(lark-cli wiki:*)",
+      "Bash(npx @larksuite/cli --version)",
+      "Bash(npm --version)",
+      "Bash(echo $PATH)",
+      "Bash(export PATH=\"$PATH:$HOME/.nvm/versions/node/v24.14.1/bin\")",
+      "Bash(lark-cli docs:*)"
+    ]
+  }
+}

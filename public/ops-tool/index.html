@@ -17,14 +17,64 @@
                 <button id="btn-illusion">幻驰illusion</button>
             </div>
             
+            <!-- 模块 1：账号表现录入 -->
+            <div class="entry-pane stats-pane">
+                <div class="pane-header">
+                    <h2>品牌数据看板</h2>
+                </div>
+                <div class="input-group">
+                    <label>记录日期</label>
+                    <input type="date" id="in-record-date">
+                </div>
+                <div class="input-group" style="display: flex; gap: 10px;">
+                    <div style="flex: 1;">
+                        <label>新增关注</label>
+                        <input type="number" id="in-new-followers" placeholder="0">
+                    </div>
+                    <div style="flex: 1;">
+                        <label>总粉丝数</label>
+                        <input type="number" id="in-total-followers" placeholder="0">
+                    </div>
+                </div>
+                
+                <!-- 新增：双重评论计数器 -->
+                <div class="counters-row">
+                    <div class="comment-counter valid">
+                        <label>有效评论 (意向)</label>
+                        <div class="counter-control">
+                            <span id="txt-valid-count">0</span>
+                            <div class="counter-btns">
+                                <button id="btn-sub-valid" type="button">-</button>
+                                <button id="btn-add-valid" type="button">+</button>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="comment-counter invalid">
+                        <label>无效评论 (杂音)</label>
+                        <div class="counter-control">
+                            <span id="txt-invalid-count">0</span>
+                            <div class="counter-btns">
+                                <button id="btn-sub-invalid" type="button">-</button>
+                                <button id="btn-add-invalid" type="button">+</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <button id="btn-update-stats" class="btn-secondary" style="margin-top: 5px; font-size: 13px;">同步今日总数据</button>
+            </div>
+
+            <hr style="opacity: 0.1;">
+
+            <!-- 模块 2：具体咨询录入 -->
             <form id="entry-form" class="entry-pane">
                 <div class="pane-header">
-                    <h2>情报录入</h2>
+                    <h2>线索录入</h2>
                     <span class="source-tag" id="current-brand-label">Universe E-bike</span>
                 </div>
                 
                 <div class="input-group">
-                    <label>来源 ID (帖子标题/URL)</label>
+                    <label>归属帖子 (来源 ID)</label>
                     <input type="text" id="in-source" placeholder="例如：悬崖边的三年" required>
                 </div>
                 
@@ -40,7 +90,7 @@
                 
                 <div class="input-group">
                     <label>内容正文</label>
-                    <textarea id="in-content" rows="3" placeholder="复制评论或私信内容..."></textarea>
+                    <textarea id="in-content" rows="2" placeholder="复制评论或私信内容..."></textarea>
                 </div>
 
                 <div class="input-group">
@@ -49,16 +99,18 @@
                 </div>
 
                 <div class="tag-selector">
-                    <label>分类打标 (可多选)</label>
                     <div class="tags">
-                        <input type="checkbox" id="tag-purchase" value="purchase"><label for="tag-purchase">💰 购买咨询</label>
-                        <input type="checkbox" id="tag-lead" value="lead"><label for="tag-lead">👤 微信引流</label>
-                        <input type="checkbox" id="tag-pro" value="pro"><label for="tag-pro">📦 专业/催货</label>
-                        <input type="checkbox" id="tag-order" value="order"><label for="tag-order">🛒 订单查询</label>
+                        <input type="checkbox" id="tag-purchase" value="purchase"><label for="tag-purchase">💰 咨询</label>
+                        <input type="checkbox" id="tag-lead" value="lead"><label for="tag-lead">👤 引流</label>
+                        <input type="checkbox" id="tag-pro" value="pro"><label for="tag-pro">📦 专业</label>
+                        <input type="checkbox" id="tag-order" value="order"><label for="tag-order">🛒 订单</label>
                     </div>
                 </div>
 
-                <button type="submit" class="btn-submit">保存记录</button>
+                <div class="form-actions" style="display: flex; flex-direction: column; gap: 10px; margin-top: 10px;">
+                    <button type="submit" id="btn-submit-main" class="btn-submit">保存此条线索</button>
+                    <button type="button" id="btn-cancel-edit" class="btn-secondary" style="display: none; background: rgba(255,255,255,0.1); color: #fff;">取消编辑</button>
+                </div>
             </form>
         </aside>
 
@@ -71,14 +123,14 @@
                     <div class="sub" id="stat-ratio-count">0 / 0</div>
                 </div>
                 <div class="stat-card">
-                    <span class="label">待加微信线索</span>
+                    <span class="label">今日新增关注</span>
                     <div class="value" id="stat-leads">0</div>
-                    <div class="sub">潜力客户池</div>
+                    <div class="sub">账号粉丝增长</div>
                 </div>
                 <div class="stat-card">
-                    <span class="label">专业/客诉问题</span>
+                    <span class="label">账号总粉丝量</span>
                     <div class="value" id="stat-pro">0</div>
-                    <div class="sub">需运营介入</div>
+                    <div class="sub">品牌资产底色</div>
                 </div>
                 <div class="action-btns">
                     <button id="btn-export" class="btn-secondary">导出 CSV</button>
@@ -103,13 +155,13 @@
                     <table id="data-table">
                         <thead>
                             <tr>
-                                <th>时间</th>
-                                <th>来源</th>
-                                <th>用户</th>
-                                <th>车型</th>
-                                <th>分类</th>
-                                <th>微信号</th>
-                                <th>状态</th>
+                                <th>录入时间</th>
+                                <th>来源归属</th>
+                                <th>用户 ID</th>
+                                <th>具体车型</th>
+                                <th>线索分类</th>
+                                <th>微信号码</th>
+                                <th>操作</th>
                             </tr>
                         </thead>
                         <tbody>

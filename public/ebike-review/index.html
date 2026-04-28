@@ -152,6 +152,34 @@
             background: rgba(255,255,255,0.1);
         }
 
+        /* 增加已处理样式 */
+        tr.processed {
+            opacity: 0.45;
+            transition: all 0.3s ease;
+        }
+        
+        tr.processed td:not(:first-child) {
+            text-decoration: line-through;
+            text-decoration-color: var(--text-muted);
+        }
+
+        .process-checkbox {
+            cursor: pointer;
+            width: 18px;
+            height: 18px;
+            accent-color: var(--accent);
+        }
+
+        table tr th:first-child, 
+        table tr td:first-child {
+            width: 50px;
+            text-align: center;
+        }
+
+        .toggle-switch:hover {
+            background: rgba(255,255,255,0.1);
+        }
+
         .toggle-switch input {
             display: none;
         }
@@ -519,6 +547,12 @@
 
             const headers = rowsData[headerIndex].cells;
             const headerRow = document.createElement('tr');
+            
+            // 添加处理列头
+            const thProc = document.createElement('th');
+            thProc.innerText = '处理';
+            headerRow.appendChild(thProc);
+
             headers.forEach(h => {
                 const th = document.createElement('th');
                 th.innerText = h || '';
@@ -533,6 +567,27 @@
                 if (r.join('').replace(/ /g, '') === '') continue;
                 
                 const tr = document.createElement('tr');
+                const rowKey = `proc_${sheetName}_${i}`;
+                const isProcessed = localStorage.getItem(rowKey) === 'true';
+                
+                if (isProcessed) tr.classList.add('processed');
+
+                // 添加处理勾选框
+                const tdProc = document.createElement('td');
+                const chk = document.createElement('input');
+                chk.type = 'checkbox';
+                chk.className = 'process-checkbox';
+                chk.checked = isProcessed;
+                chk.onchange = (e) => {
+                    localStorage.setItem(rowKey, e.target.checked);
+                    if (e.target.checked) {
+                        tr.classList.add('processed');
+                    } else {
+                        tr.classList.remove('processed');
+                    }
+                };
+                tdProc.appendChild(chk);
+                tr.appendChild(tdProc);
                 
                 if(level === '重点检查') {
                     tr.classList.add('row-zhongdian');

@@ -1,0 +1,85 @@
+---
+import MainGridLayout from '../layouts/MainGridLayout.astro'
+import { i18n } from '../i18n/translation'
+import I18nKey from '../i18n/i18nKey'
+
+const tools = [
+  {
+    title: 'U&I Ops Intelligence',
+    desc: '品牌运营数据情报站，支持双品牌反馈收集与线索导出。',
+    url: '/ops-tool/index.html',
+    icon: 'material-symbols:analytics',
+    color: 'var(--primary)'
+  },
+  {
+    title: 'Cyber Slides',
+    desc: 'Universe E-bike 赛博朋克风幻灯片演示，适配 3:4 比例。',
+    url: '/universe-ebike-cyber-slides/index.html',
+    icon: 'material-symbols:present-to-all',
+    color: '#00f2ff'
+  },
+  {
+    title: 'Markdown Editor',
+    desc: '本地沉浸式 Markdown 内容编辑器。',
+    url: '/docs/editor/editor.html',
+    icon: 'material-symbols:edit-document',
+    color: '#ffdd00'
+  },
+  {
+    title: 'AI Design Note',
+    desc: 'AI 辅助设计学习笔记的演示原型。',
+    url: '/ai-design/index.html',
+    icon: 'material-symbols:draw',
+    color: '#ff00ff'
+  },
+  {
+    title: 'Mission Archive',
+    desc: 'Universe 品牌任务与执行细节归档。',
+    url: '/universe-ebike/mission-archive.html',
+    icon: 'material-symbols:archive',
+    color: '#00ff88'
+  }
+]
+---
+
+<MainGridLayout title="工具矩阵" description="Darwin 的个人工具与矩阵入口">
+    <div class="flex w-full rounded-[var(--radius-large)] overflow-hidden relative min-h-32 mb-4">
+        <div class="card-base z-10 px-9 py-6 w-full flex flex-col justify-center">
+            <div class="flex items-center gap-3 mb-2">
+                <div class="w-2 h-8 bg-[var(--primary)] rounded-full"></div>
+                <h1 class="text-3xl font-bold text-90">工具矩阵</h1>
+            </div>
+            <p class="text-secondary">Darwin's Intelligence & Creative Toolset</p>
+        </div>
+    </div>
+
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-8">
+        {tools.map(tool => (
+            <a href={tool.url} target="_blank" data-astro-reload class="tool-card group relative overflow-hidden card-base p-6 transition-all hover:translate-y-[-4px]">
+                <div class="flex items-start justify-between">
+                    <div class="z-10">
+                        <div class="flex items-center gap-2 mb-2">
+                            <iconify-icon icon={tool.icon} class="text-3xl" style={`color: ${tool.color}`}></iconify-icon>
+                            <h2 class="text-xl font-bold text-90 group-hover:text-[var(--primary)] transition-colors">{tool.title}</h2>
+                        </div>
+                        <p class="text-sm text-secondary leading-relaxed">{tool.desc}</p>
+                    </div>
+                </div>
+                <!-- 装饰性光影 -->
+                <div class="absolute right-[-20px] bottom-[-20px] opacity-10 group-hover:opacity-20 transition-opacity">
+                    <iconify-icon icon={tool.icon} class="text-[120px]"></iconify-icon>
+                </div>
+            </a>
+        ))}
+    </div>
+
+    <style>
+        .tool-card {
+            border: 1px solid var(--card-border);
+        }
+        .tool-card:hover {
+            border-color: var(--primary);
+            box-shadow: 0 10px 30px -10px var(--primary-opacity-20);
+        }
+    </style>
+</MainGridLayout>

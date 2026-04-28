@@ -44,9 +44,9 @@ export default defineConfig({
 			theme: false,
 			animationClass: "transition-swup-",
 			containers: ["main"],
-			smoothScrolling: false, // 禁用平滑滚动以提升性能，避免与锚点导航冲突
+			smoothScrolling: false, // 禁用平滑滚动以提升性能
 			cache: true,
-			preload: true, // swup 默认鼠标悬停预加载
+			preload: false, // 本地开发禁用预加载，防止抢占 CPU 导致卡顿
 			accessibility: true,
 			updateHead: true,
 			updateBodyClass: false,
@@ -55,7 +55,7 @@ export default defineConfig({
 			resolveUrl: (url) => url,
 			animateHistoryBrowsing: false,
 			skipPopStateHandling: (event) => {
-				// 跳过锚点链接的处理，让浏览器原生处理
+				// 跳过锚点链接的处理
 				return (
 					event.state &&
 					event.state.url &&
@@ -168,6 +168,20 @@ export default defineConfig({
 	},
 	vite: {
 		plugins: [tailwindcss()],
+		server: {
+			// 优化开发环境下的文件监控和响应速度
+			watch: {
+				ignored: ["**/dist/**", "**/node_modules/**", "**/public/music/**"],
+			},
+			fs: {
+				// 允许跨目录读取资源
+				allow: [".."],
+			},
+		},
+		optimizeDeps: {
+			// 排除不必要的重型库以减少启动时间
+			exclude: ["@swup/astro"],
+		},
 		build: {
 			// 静态资源处理优化，防止小图片转 base64 导致 HTML 体积过大（可选，根据需要调整）
 			assetsInlineLimit: 4096,
