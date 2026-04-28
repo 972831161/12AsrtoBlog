@@ -1,0 +1,129 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <base href="/ops-tool/">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>U&I Ops Intelligence | 品牌运营看板</title>
+    <link rel="stylesheet" href="style.css">
+    <link rel="stylesheet" href="https://fonts.font.im/css2?family=Inter:wght@300;400;600;800&display=swap">
+</head>
+<body data-theme="universe">
+    <div class="app-container">
+        <!-- 侧边录入栏 -->
+        <aside class="sidebar">
+            <div class="brand-switcher">
+                <button id="btn-universe" class="active">宇宙自行车</button>
+                <button id="btn-illusion">幻驰illusion</button>
+            </div>
+            
+            <form id="entry-form" class="entry-pane">
+                <div class="pane-header">
+                    <h2>情报录入</h2>
+                    <span class="source-tag" id="current-brand-label">Universe E-bike</span>
+                </div>
+                
+                <div class="input-group">
+                    <label>来源 ID (帖子标题/URL)</label>
+                    <input type="text" id="in-source" placeholder="例如：悬崖边的三年" required>
+                </div>
+                
+                <div class="input-group">
+                    <label>用户名</label>
+                    <input type="text" id="in-user" placeholder="小红书/微信 ID" required>
+                </div>
+
+                <div class="input-group">
+                    <label>咨询车型 (选填)</label>
+                    <input type="text" id="in-model" placeholder="例如：VAPOR, Mars">
+                </div>
+                
+                <div class="input-group">
+                    <label>内容正文</label>
+                    <textarea id="in-content" rows="3" placeholder="复制评论或私信内容..."></textarea>
+                </div>
+
+                <div class="input-group">
+                    <label>待加微信号 (如有)</label>
+                    <input type="text" id="in-wechat" placeholder="提取到的微信 ID">
+                </div>
+
+                <div class="tag-selector">
+                    <label>分类打标 (可多选)</label>
+                    <div class="tags">
+                        <input type="checkbox" id="tag-purchase" value="purchase"><label for="tag-purchase">💰 购买咨询</label>
+                        <input type="checkbox" id="tag-lead" value="lead"><label for="tag-lead">👤 微信引流</label>
+                        <input type="checkbox" id="tag-pro" value="pro"><label for="tag-pro">📦 专业/催货</label>
+                        <input type="checkbox" id="tag-order" value="order"><label for="tag-order">🛒 订单查询</label>
+                    </div>
+                </div>
+
+                <button type="submit" class="btn-submit">保存记录</button>
+            </form>
+        </aside>
+
+        <!-- 主展示区 -->
+        <main class="main-content">
+            <header class="main-header">
+                <div class="stat-card">
+                    <span class="label">购买咨询占比</span>
+                    <div class="value" id="stat-ratio">0%</div>
+                    <div class="sub" id="stat-ratio-count">0 / 0</div>
+                </div>
+                <div class="stat-card">
+                    <span class="label">待加微信线索</span>
+                    <div class="value" id="stat-leads">0</div>
+                    <div class="sub">潜力客户池</div>
+                </div>
+                <div class="stat-card">
+                    <span class="label">专业/客诉问题</span>
+                    <div class="value" id="stat-pro">0</div>
+                    <div class="sub">需运营介入</div>
+                </div>
+                <div class="action-btns">
+                    <button id="btn-export" class="btn-secondary">导出 CSV</button>
+                    <button id="btn-reset" class="btn-danger">清空数据</button>
+                </div>
+            </header>
+
+            <section class="data-section">
+                <div class="section-title">
+                    <h3>实时数据明细</h3>
+                    <div class="filters">
+                        <select id="filter-type">
+                            <option value="all">所有分类</option>
+                            <option value="purchase">💰 购买咨询</option>
+                            <option value="lead">👤 微信引流</option>
+                            <option value="pro">📦 专业问题</option>
+                            <option value="order">🛒 订单查询</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="table-container">
+                    <table id="data-table">
+                        <thead>
+                            <tr>
+                                <th>时间</th>
+                                <th>来源</th>
+                                <th>用户</th>
+                                <th>车型</th>
+                                <th>分类</th>
+                                <th>微信号</th>
+                                <th>状态</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <!-- JS 填充 -->
+                        </tbody>
+                    </table>
+                </div>
+            </section>
+        </main>
+    </div>
+
+    <!-- 弹窗通知 -->
+    <div id="toast" class="toast">记录成功</div>
+
+    <script src="app.js"></script>
+</body>
+</html>
