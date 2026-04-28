@@ -168,6 +168,7 @@ export default defineConfig({
 	},
 	vite: {
 		plugins: [tailwindcss()],
+		assetsInclude: ["**/*.docx"],
 		server: {
 			// 优化开发环境下的文件监控和响应速度
 			watch: {
