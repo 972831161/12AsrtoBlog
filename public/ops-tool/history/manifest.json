@@ -1,0 +1,4 @@
+[
+    { "id": "hist_universe_20260428", "name": "宇宙BIKE-今日存档", "path": "history/UI-Report-universe-2026_4_28.csv", "enabled": true },
+    { "id": "hist_illusion_20260428", "name": "幻驰ILLUSION-今日存档", "path": "history/UI-Report-illusion-2026_4_28.csv", "enabled": true }
+]

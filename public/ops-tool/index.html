@@ -69,7 +69,7 @@
             <!-- 模块 2：具体咨询录入 -->
             <form id="entry-form" class="entry-pane">
                 <div class="pane-header">
-                    <h2>线索录入</h2>
+                    <h2>潜在客户录入</h2>
                     <span class="source-tag" id="current-brand-label">Universe E-bike</span>
                 </div>
                 
@@ -112,6 +112,7 @@
                     <button type="button" id="btn-cancel-edit" class="btn-secondary" style="display: none; background: rgba(255,255,255,0.1); color: #fff;">取消编辑</button>
                 </div>
             </form>
+
         </aside>
 
         <!-- 主展示区 -->
@@ -140,7 +141,10 @@
 
             <section class="data-section">
                 <div class="section-title">
-                    <h3>实时数据明细</h3>
+                    <div class="table-tabs">
+                        <button id="tab-realtime" class="tab-btn active">今日实时明细</button>
+                        <button id="tab-history" class="tab-btn">云端历史明细</button>
+                    </div>
                     <div class="filters">
                         <select id="filter-type">
                             <option value="all">所有分类</option>
@@ -176,6 +180,8 @@
     <!-- 弹窗通知 -->
     <div id="toast" class="toast">记录成功</div>
 
+    <!-- 引入 Supabase JS SDK -->
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <script src="app.js"></script>
 </body>
 </html>
