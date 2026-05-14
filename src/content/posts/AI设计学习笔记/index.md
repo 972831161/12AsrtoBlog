@@ -1,9 +1,9 @@
 ---
-title: AI 设计全攻略：从算法学习到实战输出
+title: 宇宙ebike实习产出
 published: 2026-04-15
-description: “从 0 到 0.8 的跃迁，比拼的是工程思维。” 一份硬核的 Stable Diffusion 学习笔记与小红书实战复盘手册。
+description: 记录在宇宙e-bike的vibe coding 经历与成果
 image: "./sd_concept.webp"
-tags: [AI 设计, Stable Diffusion, 工程思维, 小红书, LoRA]
+tags: [Vibe, Stable Diffusion, 工程思维, 小红书, LoRA]
 category: AI 实战
 draft: false
 pinned: true
@@ -177,10 +177,23 @@ pinned: true
 
 ## 💼 板块三：工作任务
 
-同步老程和昊禹哥布置的工作任务：
+<!-- - [🔍 宇宙电动：舆情内容核查网站](/ebike-review/index.html)
+    - **S (Situation)**：品牌在小红书、抖音等多平台账号内容激增，手动审计舆情风险的压力巨大。
+    - **T (Task)**：构建一个集中式的审查工作台，实现跨平台内容的快速批量核查与标记。
+    - **A (Action)**：开发响应式审查界面，集成分类筛选与风险等级标注功能，优化了长文本审查的视觉体验。
+    - **R (Result)**：将单条内容的审查耗时降低了 60%，并成功捕捉多起潜在公关风险点。 -->
 
-- [🔍 宇宙电动：舆情内容核查网站](/ebike-review/index.html)。 （逐条审查各平台账号内容、评论是否有潜在风险）
-- [📊 宇宙电动：官方号内容升级建议](/universe-ebike/mission-archive.html)。 （评估老板个人账号内容是否有迁移到官号下的价值）
+- [📊 宇宙电动：官方号内容升级建议](/universe-ebike/mission-archive.html)
+    - **S (Situation)**：老板个人 IP 积累了大量优质原生内容，但官方账号内容建设相对滞后，缺乏品牌调性支撑。
+    - **T (Task)**：评估个人账号历史内容的“官号化”迁移价值，制定差异化内容策略。
+    - **A (Action)**：对 100+ 条历史视频进行深度标签化拆解，分析用户互动分布，提取核心爆款逻辑。
+    - **R (Result)**：输出了系统的品牌内容升级方案，助力官方号在保持品牌感的同时实现了流量的稳定增长。
+
+- [🛠️ 宇宙电动：用户反馈统计工具 (U&I Ops Intelligence)](/ops-tool/index.html)
+    - **S (Situation)**：售后与销售过程中的用户真实反馈（Leads）分布在各种聊天记录中，难以形成系统性洞察。
+    - **T (Task)**：开发一套具备云端同步能力的实时反馈统计看板，支持多维度趋势分析。
+    - **A (Action)**：利用 Supabase 建立后端数据库，前端实现实时数据流更新、动态图表展示及多表关联筛选。
+    - **R (Result)**：实现了用户痛点的分钟级响应，为产品快速迭代提供了最前线的真实数据闭环。
 
 <style>
 /* 导航栏完整显示：解决文字截断问题 */
