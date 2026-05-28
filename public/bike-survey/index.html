@@ -2,6 +2,7 @@
 <html lang="zh-CN">
 <head>
     <meta charset="UTF-8">
+    <base href="/bike-survey/">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>校园自行车使用调研</title>
     <!-- Tailwind CSS -->
@@ -44,6 +45,12 @@
         /* 使平滑过渡生效 */
         .fade-enter-active, .fade-leave-active { transition: opacity 0.2s ease, transform 0.2s ease; }
         .fade-enter-from, .fade-leave-to { opacity: 0; transform: translateY(-5px); }
+
+        /* 兜底：不依赖 JS 尝试显示初始状态 */
+        #app {
+            opacity: 1 !important;
+            display: flex !important;
+        }
     </style>
 </head>
 <body class="bg-slate-50 text-slate-800 antialiased h-screen flex flex-col overflow-hidden selection:bg-slate-200">
@@ -153,7 +160,7 @@
                                 <i class="ph-fill ph-lightning"></i> 具体的电助力分析(关键数据)
                             </label>
                             <input type="text" v-model="currentBikeModel" placeholder="例如：凤凰折叠锂电款、捷安特某某系..." 
-                                   class="w-full bg-white border border-amber-200 text-slate-800 rounded-lg px-3 py-2 text-sm font-medium focus:outline-none focus:border-amber-400 transition-colors">
+                                    class="w-full bg-white border border-amber-200 text-slate-800 rounded-lg px-3 py-2 text-sm font-medium focus:outline-none focus:border-amber-400 transition-colors">
                         </div>
                     </transition>
 

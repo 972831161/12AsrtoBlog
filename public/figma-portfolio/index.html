@@ -1,0 +1,485 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <!-- 强制锁定路径基准，子目录名为 figma-portfolio -->
+  <base href="/figma-portfolio/">
+  <title>Figma × AI 小红书内容设计与排版作品集</title>
+  <!-- 引入国内镜像字体 -->
+  <link rel="stylesheet" href="https://fonts.font.im/css2?family=Inter:wght@300;400;600;700&family=Outfit:wght@400;700;900&display=swap">
+  
+  <style>
+    :root {
+      --bg-color: #fcfcfc;
+      --card-bg: #ffffff;
+      --text-main: #111111;
+      --text-muted: #666666;
+      --accent: #000000;
+      --border-color: rgba(0, 0, 0, 0.08);
+      --font-sans: 'Inter', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+      --font-display: 'Outfit', var(--font-sans);
+    }
+
+    /* 保证暗色模式偏好也能高质感 */
+    @media (prefers-color-scheme: dark) {
+      :root {
+        --bg-color: #0b0b0b;
+        --card-bg: #121212;
+        --text-main: #f3f3f3;
+        --text-muted: #a0a0a0;
+        --accent: #ffffff;
+        --border-color: rgba(255, 255, 255, 0.08);
+      }
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      background-color: var(--bg-color);
+      color: var(--text-main);
+      font-family: var(--font-sans);
+      line-height: 1.6;
+      overflow-x: hidden;
+      -webkit-font-smoothing: antialiased;
+    }
+
+    /* 极简网格背景 */
+    .grid-overlay {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100vw;
+      height: 100vh;
+      background-image: 
+        linear-gradient(to right, var(--border-color) 1px, transparent 1px),
+        linear-gradient(to bottom, var(--border-color) 1px, transparent 1px);
+      background-size: 100px 100px;
+      opacity: 0.15;
+      pointer-events: none;
+      z-index: 1;
+    }
+
+    .container {
+      max-width: 1100px;
+      margin: 0 auto;
+      padding: 6rem 2rem 4rem 2rem;
+      position: relative;
+      z-index: 2;
+    }
+
+    /* Header 样式 */
+    header {
+      margin-bottom: 5rem;
+    }
+
+    .back-link {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.5rem;
+      color: var(--text-muted);
+      text-decoration: none;
+      font-size: 0.9rem;
+      margin-bottom: 2rem;
+      transition: color 0.2s ease;
+    }
+
+    .back-link:hover {
+      color: var(--text-main);
+    }
+
+    .back-link svg {
+      width: 16px;
+      height: 16px;
+      transition: transform 0.2s ease;
+    }
+
+    .back-link:hover svg {
+      transform: translateX(-4px);
+    }
+
+    h1 {
+      font-family: var(--font-display);
+      font-size: clamp(2.5rem, 5vw, 4rem);
+      font-weight: 900;
+      letter-spacing: -0.05em;
+      line-height: 1.1;
+      margin-bottom: 1.5rem;
+    }
+
+    .subtitle {
+      font-size: clamp(1.1rem, 2vw, 1.3rem);
+      color: var(--text-muted);
+      max-width: 600px;
+      font-weight: 300;
+    }
+
+    /* 瀑布流/网格布局 */
+    .portfolio-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+      gap: 3rem;
+      margin-bottom: 6rem;
+    }
+
+    /* 卡片设计 */
+    .project-card {
+      background-color: var(--card-bg);
+      border: 1px solid var(--border-color);
+      border-radius: 16px;
+      overflow: hidden;
+      text-decoration: none;
+      color: inherit;
+      display: flex;
+      flex-direction: column;
+      transition: transform 0.4s cubic-bezier(0.16, 1, 0.3, 1), box-shadow 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+      box-shadow: 0 4px 20px rgba(0, 0, 0, 0.02);
+      opacity: 0;
+      transform: translateY(20px);
+      animation: fadeInUp 0.8s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+    }
+
+    @keyframes fadeInUp {
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+
+    .project-card:nth-child(1) { animation-delay: 0.1s; }
+    .project-card:nth-child(2) { animation-delay: 0.25s; }
+    .project-card:nth-child(3) { animation-delay: 0.4s; }
+
+    .page-ready .project-card {
+      opacity: 1 !important;
+      transform: translateY(0) !important;
+    }
+
+    .project-card:hover {
+      transform: translateY(-8px);
+      box-shadow: 0 30px 60px rgba(0, 0, 0, 0.08);
+      border-color: var(--accent);
+    }
+
+    /* 图片/Figma 线框展示区 */
+    .image-wrapper {
+      width: 100%;
+      aspect-ratio: 1 / 1;
+      overflow: hidden;
+      background-color: rgba(0, 0, 0, 0.01);
+      border-bottom: 1px solid var(--border-color);
+    }
+
+    /* Figma Wireframe 样式 */
+    .figma-wireframe {
+      width: 100%;
+      height: 100%;
+      background-color: var(--bg-color);
+      position: relative;
+      display: flex;
+      flex-direction: column;
+      padding: 1.5rem;
+      font-family: monospace;
+      font-size: 0.75rem;
+      color: var(--text-muted);
+      transition: background 0.3s ease;
+    }
+
+    .project-card:hover .figma-wireframe {
+      background-color: rgba(0,0,0,0.01);
+    }
+    
+    @media (prefers-color-scheme: dark) {
+      .project-card:hover .figma-wireframe {
+        background-color: rgba(255,255,255,0.01);
+      }
+    }
+
+    /* 文字卡片区域 */
+    .project-info {
+      padding: 2rem;
+      display: flex;
+      flex-direction: column;
+      flex-grow: 1;
+    }
+
+    .project-tag-container {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.5rem;
+      margin-bottom: 1rem;
+    }
+
+    .project-tag {
+      font-size: 0.75rem;
+      font-weight: 600;
+      letter-spacing: 0.05em;
+      text-transform: uppercase;
+      padding: 0.25rem 0.75rem;
+      border-radius: 100px;
+      background-color: var(--border-color);
+      color: var(--text-muted);
+    }
+
+    .project-title {
+      font-family: var(--font-display);
+      font-size: 1.4rem;
+      font-weight: 700;
+      line-height: 1.2;
+      margin-bottom: 0.75rem;
+      letter-spacing: -0.02em;
+    }
+
+    .project-desc {
+      font-size: 0.9rem;
+      color: var(--text-muted);
+      margin-bottom: 1.5rem;
+      font-weight: 300;
+    }
+
+    .project-meta {
+      margin-top: auto;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      border-top: 1px solid var(--border-color);
+      padding-top: 1.25rem;
+      font-size: 0.85rem;
+    }
+
+    .meta-tech {
+      color: var(--text-muted);
+      display: flex;
+      gap: 0.4rem;
+      align-items: center;
+    }
+
+    .meta-tech-badge {
+      font-family: monospace;
+      background: rgba(0,0,0,0.04);
+      padding: 0.1rem 0.3rem;
+      border-radius: 4px;
+    }
+
+    @media (prefers-color-scheme: dark) {
+      .meta-tech-badge {
+        background: rgba(255,255,255,0.04);
+      }
+    }
+
+    .view-arrow {
+      color: var(--text-main);
+      font-weight: 600;
+      display: inline-flex;
+      align-items: center;
+      gap: 0.25rem;
+    }
+
+    .view-arrow svg {
+      width: 14px;
+      height: 14px;
+      transition: transform 0.25s ease;
+    }
+
+    .project-card:hover .view-arrow svg {
+      transform: translateX(4px);
+    }
+
+    /* Footer */
+    footer {
+      border-top: 1px solid var(--border-color);
+      padding-top: 3rem;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 1rem;
+      color: var(--text-muted);
+      font-size: 0.9rem;
+    }
+
+    @media (max-width: 640px) {
+      .container {
+        padding: 4rem 1.5rem 3rem 1.5rem;
+      }
+      header {
+        margin-bottom: 3rem;
+      }
+      .portfolio-grid {
+        gap: 2rem;
+      }
+    }
+  </style>
+</head>
+<body class="page-ready">
+  <div class="grid-overlay"></div>
+  
+  <div class="container">
+    <header>
+      <a href="/posts/AI设计学习笔记/" class="back-link">
+        <svg fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+          <path stroke-linecap="round" stroke-linejoin="round" d="M10.5 19.5L3 12m0 0l7.5-7.5M3 12h18"></path>
+        </svg>
+        返回学习笔记
+      </a>
+      <h1>Figma & AI Showcase</h1>
+      <p class="subtitle">展示在日常排版宣发中，使用 Figma 并结合 GPT 图像/文案模型、Gemini 1.5 Pro 与 Nano 侧边栏/端侧模型、以及豆包等技术产出的内容设计版式草图。</p>
+    </header>
+
+    <main class="portfolio-grid">
+      
+      <!-- 作品一 -->
+      <div class="project-card">
+        <div class="image-wrapper">
+          <!-- 纯 CSS Figma 线框图 -->
+          <div class="figma-wireframe wf-minimalist">
+            <div style="height: 4px; background: linear-gradient(90deg, #ff4d4d, #f98e22, #f5d300, #2ebd59, #00b0ff, #aa00ff); width: 100%; position: absolute; top: 0; left: 0;"></div>
+            <div style="border: 1px dashed var(--border-color); flex-grow: 1; margin-top: 1rem; border-radius: 8px; display: flex; flex-direction: column; padding: 1rem; justify-content: space-between; position: relative;">
+              <span style="position: absolute; top: -8px; left: 8px; background: var(--card-bg); padding: 0 4px; font-size: 0.65rem; color: var(--text-muted); transition: background 0.3s;">Frame: VaporSL (4:3)</span>
+              <div style="display: flex; flex-direction: column; gap: 0.5rem; width: 80%;">
+                <div style="height: 1.2rem; background: var(--border-color); border-radius: 4px; width: 90%;"></div>
+                <div style="height: 1.2rem; background: var(--border-color); border-radius: 4px; width: 60%;"></div>
+              </div>
+              <div style="border: 1px dashed var(--border-color); height: 50%; border-radius: 6px; display: flex; align-items: center; justify-content: center; background: rgba(0,0,0,0.01);">
+                [Figma Image Layer: VaporSL]
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="project-info">
+          <div class="project-tag-container">
+            <span class="project-tag">极简白底</span>
+            <span class="project-tag">网式排版</span>
+          </div>
+          <h2 class="project-title">VaporSL 极简白底彩虹条封面</h2>
+          <p class="project-desc">参考小红书白底图文风格，在顶部预设 10 色彩虹条框架。使用 Gemini 1.5 辅助排版对齐，并以 Figma 完成特大字距的标题排版，形成货架识别感。</p>
+          <div class="project-meta">
+            <div class="meta-tech">
+              <span>技术:</span>
+              <span class="meta-tech-badge">Figma</span>
+              <span class="meta-tech-badge">Gemini 1.5</span>
+            </div>
+            <span class="view-arrow">
+              查看详情
+              <svg fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M13.5 4.5L21 12m0 0l-7.5 7.5M21 12H3"></path>
+              </svg>
+            </span>
+          </div>
+        </div>
+      </div>
+
+      <!-- 作品二 -->
+      <div class="project-card">
+        <div class="image-wrapper">
+          <!-- 纯 CSS Figma 线框图 -->
+          <div class="figma-wireframe wf-commute">
+            <div style="border: 1px dashed var(--border-color); flex-grow: 1; border-radius: 8px; display: flex; flex-direction: column; padding: 1rem; justify-content: space-between; position: relative;">
+              <span style="position: absolute; top: -8px; left: 8px; background: var(--card-bg); padding: 0 4px; font-size: 0.65rem; color: var(--text-muted); transition: background 0.3s;">Auto-Layout Group</span>
+              <div style="display: flex; gap: 0.4rem;">
+                <div style="height: 14px; width: 50px; background: var(--border-color); border-radius: 100px;"></div>
+                <div style="height: 14px; width: 40px; background: var(--border-color); border-radius: 100px;"></div>
+              </div>
+              <div style="background: rgba(0,0,0,0.02); border: 1px solid var(--border-color); padding: 0.8rem; border-radius: 12px; margin: 0.5rem 0;">
+                <div style="font-weight: bold; color: var(--text-main); margin-bottom: 0.4rem;">Figma Text Frame</div>
+                <div style="height: 8px; background: var(--border-color); width: 85%; margin-bottom: 6px;"></div>
+                <div style="height: 8px; background: var(--border-color); width: 70%; margin-bottom: 6px;"></div>
+                <div style="height: 8px; background: var(--border-color); width: 50%;"></div>
+              </div>
+              <div style="display: flex; justify-content: space-between; align-items: center;">
+                <div style="display: flex; gap: 0.3rem;">
+                  <div style="height: 12px; width: 30px; background: var(--border-color); border-radius: 4px;"></div>
+                  <div style="height: 12px; width: 30px; background: var(--border-color); border-radius: 4px;"></div>
+                </div>
+                <span style="font-size: 0.65rem;">@Daily_Commute</span>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="project-info">
+          <div class="project-tag-container">
+            <span class="project-tag">痛点共鸣</span>
+            <span class="project-tag">Auto Layout</span>
+          </div>
+          <h2 class="project-title">“8公里通勤”情绪痛点封面</h2>
+          <p class="project-desc">根据 GPT 对通勤痛点的洞察，设计出情绪痛点封面。利用 Figma 的 Auto Layout 对对话气泡和徽章进行排版，使页面层级分明，更易于手机端快读。</p>
+          <div class="project-meta">
+            <div class="meta-tech">
+              <span>技术:</span>
+              <span class="meta-tech-badge">Figma</span>
+              <span class="meta-tech-badge">GPT-4o</span>
+            </div>
+            <span class="view-arrow">
+              查看详情
+              <svg fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M13.5 4.5L21 12m0 0l-7.5 7.5M21 12H3"></path>
+              </svg>
+            </span>
+          </div>
+        </div>
+      </div>
+
+      <!-- 作品三 -->
+      <div class="project-card">
+        <div class="image-wrapper">
+          <!-- 纯 CSS Figma 线框图 -->
+          <div class="figma-wireframe wf-technical">
+            <div style="border: 1px dashed var(--border-color); flex-grow: 1; border-radius: 8px; display: flex; flex-direction: column; padding: 1rem; justify-content: space-between; position: relative;">
+              <span style="position: absolute; top: -8px; left: 8px; background: var(--card-bg); padding: 0 4px; font-size: 0.65rem; color: var(--text-muted); transition: background 0.3s;">Frame: Technical Guide</span>
+              <div style="border: 1px solid var(--border-color); padding: 0.5rem; text-align: center; font-weight: bold; transform: rotate(-2deg); background: var(--border-color); border-radius: 4px;">
+                [Huge Headline Frame]
+              </div>
+              <div style="position: relative; height: 55%; border: 1px dashed var(--border-color); border-radius: 6px; display: flex; align-items: center; justify-content: center; background: rgba(0,0,0,0.01);">
+                <span style="font-size: 0.65rem;">[E-Bike Diagram Layer]</span>
+                <svg style="position: absolute; top: 0; left: 0; width: 100%; height: 100%; pointer-events: none;">
+                  <circle cx="40" cy="30" r="3" fill="var(--text-muted)"></circle>
+                  <line x1="40" y1="30" x2="80" y2="15" stroke="var(--text-muted)" stroke-width="1" stroke-dasharray="2,2"></line>
+                  <circle cx="160" cy="60" r="3" fill="var(--text-muted)"></circle>
+                  <line x1="160" y1="60" x2="110" y2="70" stroke="var(--text-muted)" stroke-width="1" stroke-dasharray="2,2"></line>
+                </svg>
+                <div style="position: absolute; top: 5px; right: 5px; background: var(--card-bg); border: 1px solid var(--border-color); border-radius: 4px; padding: 2px 6px; font-size: 0.55rem; transition: background 0.3s;">750W Motor</div>
+                <div style="position: absolute; bottom: 5px; left: 5px; background: var(--card-bg); border: 1px solid var(--border-color); border-radius: 4px; padding: 2px 6px; font-size: 0.55rem; transition: background 0.3s;">Battery</div>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="project-info">
+          <div class="project-tag-container">
+            <span class="project-tag">大字报型</span>
+            <span class="project-tag">技术拆解</span>
+          </div>
+          <h2 class="project-title">“老外服了”越野技术拆解封面</h2>
+          <p class="project-desc">结合豆包整理海外测评语料，在 Figma 中应用具有张力的斜体标题。配合局部技术拆解指向线与参数标注，实现参数规格与强视觉的排版融合。</p>
+          <div class="project-meta">
+            <div class="meta-tech">
+              <span>技术:</span>
+              <span class="meta-tech-badge">Figma</span>
+              <span class="meta-tech-badge">豆包</span>
+            </div>
+            <span class="view-arrow">
+              查看详情
+              <svg fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M13.5 4.5L21 12m0 0l-7.5 7.5M21 12H3"></path>
+              </svg>
+            </span>
+          </div>
+        </div>
+      </div>
+
+    </main>
+
+    <footer>
+      <p>© 2026 宇宙 E-Bike 运营作品集. Powered by Figma & AI Coding.</p>
+    </footer>
+  </div>
+  
+  <script>
+    document.addEventListener("DOMContentLoaded", function() {
+      document.body.classList.add("page-ready");
+    });
+  </script>
+</body>
+</html>

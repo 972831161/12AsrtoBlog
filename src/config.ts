@@ -234,7 +234,7 @@ export const siteConfig: SiteConfig = {
 	},
 	showLastModified: true, // 控制“上次编辑”卡片显示的开关
 	maintenance: {
-		enable: false, // 设为 true 即可开启维护上锁模式
+		enable: true, // 设为 true 即可开启维护上锁模式
 		password: "121212", // 访问密码
 	},
 };

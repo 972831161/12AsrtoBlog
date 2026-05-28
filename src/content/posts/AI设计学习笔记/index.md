@@ -1,6 +1,6 @@
 ---
 title: 宇宙ebike实习产出
-published: 2026-04-15
+published: 2026-02-15
 description: 记录在宇宙e-bike的vibe coding 经历与成果
 image: "./sd_concept.webp"
 tags: [Vibe, Stable Diffusion, 工程思维, 小红书, LoRA]
@@ -137,6 +137,7 @@ pinned: true
 
 ![萨拉赫_二次元雪地实验](./salah_anime_snow.webp)
 
+
 ### 📝 阶段总结&&未来计划
 
 前期训练集准备是至关重要的，决定了最后输出模型的基本质量。其中LoRA模型训练时的提示词一定要小心设置，尽量设计成没有实际意义的，比如说将提示词设计为salah，其大模型里很有可能已经学习了萨拉赫的有关先验知识，这就让LoRA模型的实际作用很难评估。未来我计划继续探索不同模型和参数的组合，尝试训练更多不同类型的LoRA模型，并探索如何将AI生成的内容与实际工作流更紧密地结合起来。设计出能应用于e-bike上的一套完整自动化工作流。
@@ -189,11 +190,75 @@ pinned: true
     - **A (Action)**：对 100+ 条历史视频进行深度标签化拆解，分析用户互动分布，提取核心爆款逻辑。
     - **R (Result)**：输出了系统的品牌内容升级方案，助力官方号在保持品牌感的同时实现了流量的稳定增长。
 
+- <a href="/figma-portfolio/index.html" data-astro-reload target="_blank">🎨 宇宙电动：Figma × AI 小红书排版与内容设计作品集</a>
+    - **S (Situation)**：小红书日常宣发中，如何高效高质地将视觉元素与文案排版融合成爆款图文是一大痛点。
+    - **T (Task)**：利用 Figma 对接 AI 生成的素材和文本，快速产出结构清晰、层级分明且契合品牌调性的小红书封面和内页正文卡片。
+    - **A (Action)**：在 Figma 中规范搭建了包括“极简白底彩虹条 (VaporSL)”、“情绪痛点 Auto-Layout”和“越野技术大字报”在内的多种视觉版式，并与 GPT 图像/文案模型、Gemini 1.5 Pro/Nano 及豆包等进行排版协作与测试。
+    - **R (Result)**：构建了一套高度契合小红书双列 Feed 流特性的极简网格排版系统，支持在浏览器中直接点击打开作品集，展示具体的排版设计稿。
+
+- **[🤖 宇宙电动：小红书一站式内容生成工作流 AI Agent Skill]**
+    - **S (Situation)**：小红书运营中急需一套全流程的生成方案，涵盖从封面构思、标题拟定、正文撰写到图片布局。
+    - **T (Task)**：融合优秀小红书运营手册的心法，统计分析账号发表数据并运用 OCR 技术标注爆款典型案例，开发出整合“封面、标题、文案、tag 及图片排版”的一站式生成工作流。
+    - **A (Action)**：
+        1. **数据建库与本土化**：运用 OCR 技术文字化简述历史封面，人工标注典型案例，将运营课心法进行本土化转化。
+        2. **全流程工作流封装**：用代码封装工作流，以“群众画像 + 已有素材 + 运营目标”为输入，一键比对并产出高点击的封面范式、花字、15-20字标题、呼吸感分段正文及 tag，并输出相匹配的图片排版规范建议。
+    - **R (Result)**：实现了运营需求与已有素材的双向对接，不仅输出满意的封标，还包含正文排版和标签，极大提升了内容在小红书双列 Feed 流中的生产与宣发效率。
+
+    ```typescript
+    // 🤖 小红书一站式内容生成工作流核心接口定义
+    interface XHSContentWorkflowGenerator {
+      input: {
+        audiencePortrait: string[];   // 群众画像 (如: 城市白领, 公路车新手)
+        rawMaterial: string;          // 骑行日记/新车参数/评测等已有素材
+        marketingGoal: "种草" | "咨询" | "品牌曝光"; // 目标定位
+      };
+      
+      process: {
+        // 利用 OCR 提取并分析历史封面版式与文案，结合典型案例库进行匹配
+        analyseHistoryData: (ocrText: string, category: string) => TargetTemplate;
+        // 融入王梦珂 2026 最新品牌派心法，进行公司化模型调优
+        applyBrandMethodology: (input: string) => OptimizedCorePrompt;
+      };
+      
+      output: {
+        coverDesign: {
+          paradigm: "留白排版型" | "大字报型" | "泥石流型" | "经典图文"; // 9种封面成熟范式
+          visualAnchor: string;    // 固定识别符号/视觉锚点建议
+          flowerText: string;      // 封面花字 (网感/调皮/悬念句式)
+        };
+        titleOptions: string[];    // 5-10个正式标题 (控制在15-20字, 融入地标/功效关键词)
+        bodyContent: {
+          text: string;            // 呼吸感分段的正文文案
+          tags: string[];          // 精准推荐的话题标签 (如 #Ebike)
+        };
+        layoutGuide: string;       // 图片多图拼贴或切片排版规范建议
+      }
+    }
+    ```
+
 - [🛠️ 宇宙电动：用户反馈统计工具 (U&I Ops Intelligence)](/ops-tool/index.html)
     - **S (Situation)**：售后与销售过程中的用户真实反馈（Leads）分布在各种聊天记录中，难以形成系统性洞察。
     - **T (Task)**：开发一套具备云端同步能力的实时反馈统计看板，支持多维度趋势分析。
     - **A (Action)**：利用 Supabase 建立后端数据库，前端实现实时数据流更新、动态图表展示及多表关联筛选。
     - **R (Result)**：实现了用户痛点的分钟级响应，为产品快速迭代提供了最前线的真实数据闭环。
+
+- [🚲 宇宙电动：校园单车与电助力车调研录入系统](/bike-survey/index.html)
+    - **S (Situation)**：进行电助力车（ebike）产品定位时，需要收集和分析青年群体在高校等封闭场景下的真实用车习惯、品牌偏好及电助力渗透现状。
+    - **T (Task)**：设计并实现一个高可用、轻量化的移动端数据录入与分析工具，方便调研人员在实地快速记录样本并实现实时大盘可视化。
+    - **A (Action)**：基于 Vue 3、Tailwind CSS 及 Chart.js 构建了单页面应用，包含录入面板、大盘图表以及电助力深度洞察库，支持 LocalStorage 本地存储与 SheetJS 导出 Excel 报表。
+    - **R (Result)**：在实地调研中快速标记多组有效样本，成功帮助团队提取出低端电助力改装车的核心痛点与特征，为后续 ebike 品牌升级奠定了实证基础。
+
+- <a href="/planet-app/index.html" data-astro-reload target="_blank">📱 宇宙电动：Planet Between 极客骑行小程序与 AR 互动原型</a>
+    - **S (Situation)**：市面上多数骑行 App 偏向传统数据记录，缺乏与 E-Bike 硬件的深度互动，且视觉风格传统，难以形成差异化极客社群体验。
+    - **T (Task)**：为品牌策划并搭建了一套高科技感的数字化应用概念方案，涵盖 VAPOR 全息仪表盘、Pro HUD 竞技座舱以及基于 LBS 的 AR 能量舱（彩蛋）路书社交系统。
+    - **A (Action)**：使用 Uni-app (Vue3 + Vite) 框架，设计 Custom Glassmorphism 拟态玻璃视觉系统，编写 LBS 战术雷达引擎、WebCamera 模拟器组件，并实现了离线路书与 360° 全景传送等多类数字能量舱彩蛋交互。
+    - **R (Result)**：构建了具备强烈赛博科幻感的高交互小程序原型，高度契合品牌硬核极客调性，为品牌后续发力骑行数字化社群运营奠定了扎实的设计底座。
+
+- [🔍 宇宙电动：骑行 App 竞品分析与数字化定位](/posts/planet-between-app/)
+    - **S (Situation)**：市面上现有骑行 App（如黑鸟单车、际刻骑行）多为纯记录工具，缺乏与硬件的深度耦合；而传统车企（如捷安特）专属 App 工业感过重，不契合 E-Bike 年轻极客群体的科技与情感需求。
+    - **T (Task)**：对骑行 App 市场和重点竞品进行多维度解构，寻找品牌数字化突围路径，为 Planet Between 探索硬核、有趣的差异化产品定位。
+    - **A (Action)**：分析黑鸟单车、捷安特等 5+ 款主流与传统骑行软件的交互模式与视觉局限性，提炼出以 "Cyber-Noir 硬核" 与 "AR 能量舱社交" 为主导的数字化体验方案。
+    - **R (Result)**：明确了“不仅是工具，更是品牌交互中枢与极客社群”的数字生态定位，直接推演并输出了 Planet Between 智慧骑行小程序的交互原型。
 
 <style>
 /* 导航栏完整显示：解决文字截断问题 */
@@ -280,6 +345,7 @@ table-of-contents a div:last-child {
     cursor: pointer;
     display: flex;
     align-items: center;
+    justify-content: space-between;
     gap: 0.75rem;
     background: rgba(var(--primary-rgb), 0.03);
     font-size: 1.1rem;
@@ -294,16 +360,22 @@ table-of-contents a div:last-child {
     background: rgba(var(--primary-rgb), 0.08);
 }
 
-.accordion-header::before {
-    content: "→";
-    display: inline-block;
-    transition: transform 0.3s ease;
-    font-family: serif;
-    font-size: 1.2rem;
+/* 三角下拉键样式 */
+.accordion-icon {
+    width: 24px;
+    height: 24px;
+    color: var(--primary);
+    transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    transform: rotate(-90deg); /* 默认折叠，指向右侧 */
+    margin-left: auto;
+    flex-shrink: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
 }
 
-.premium-accordion.is-open .accordion-header::before {
-    transform: rotate(90deg);
+.premium-accordion.is-open .accordion-icon {
+    transform: rotate(0deg); /* 展开状态，旋转指向下方 */
 }
 
 .premium-accordion.is-open .accordion-header {
@@ -411,103 +483,4 @@ table-of-contents a div:last-child {
 }
 </style>
 
-<script>
-document.addEventListener('DOMContentLoaded', () => {
-    // 1. 找到所有以 "板块" 开头的二级标题
-    const headers = Array.from(document.querySelectorAll('h2')).filter(h => h.textContent.includes('板块'));
-    
-    headers.forEach(header => {
-        // 创建折叠容器
-        const accordion = document.createElement('div');
-        accordion.className = 'premium-accordion';
-        // 保留原标题的 ID，使得右侧跳转目录（TOC）对应的主节点不失效
-        if (header.id) {
-            accordion.id = header.id;
-        }
-        
-        // 创建可点击的头部
-        const accordionHeader = document.createElement('div');
-        accordionHeader.className = 'accordion-header';
-        accordionHeader.textContent = header.textContent;
-        
-        // 创建内容容器
-        const accordionContent = document.createElement('div');
-        accordionContent.className = 'accordion-content';
-        
-        // 收集跟在这个标题后面的所有内容，直到遇到下一个“板块”标题
-        let currentElement = header.nextElementSibling;
-        const elementsToMove = [];
-        
-        while (currentElement) {
-            // 如果遇到下一个 H2 且包含“板块”字样，停止收集
-            if (currentElement.tagName === 'H2' && currentElement.textContent.includes('板块')) {
-                break;
-            }
-            // 如果遇到 style 或 script 标签，也停止收集（避免把脚本抽走）
-            if (currentElement.tagName === 'STYLE' || currentElement.tagName === 'SCRIPT') {
-                break;
-            }
-            elementsToMove.push(currentElement);
-            currentElement = currentElement.nextElementSibling;
-        }
-        
-        // 构建 DOM 结构
-        header.parentNode.insertBefore(accordion, header);
-        accordion.appendChild(accordionHeader);
-        accordion.appendChild(accordionContent);
-        
-        // 默认打开所有板块
-        accordion.classList.add('is-open');
-        
-        // 移除原始标题
-        header.remove();
-        
-        // 将内容移入折叠容器
-        elementsToMove.forEach(el => accordionContent.appendChild(el));
-        
-        // 添加点击事件
-        accordionHeader.addEventListener('click', () => {
-            accordion.classList.toggle('is-open');
-        });
-    });
 
-    // 2. 强制侧边导航栏（TOC）在初始状态也保持可见
-    const forceShowTOC = () => {
-        document.querySelectorAll('#toc-wrapper, .toc-wrapper, #toc-container').forEach(el => {
-            el.classList.remove('toc-hide');
-            el.style.opacity = '1';
-            el.style.visibility = 'visible';
-        });
-    };
-    forceShowTOC();
-    setTimeout(forceShowTOC, 500); // 确保在某些动态主题加载后再次执行
-
-    // 3. 监听 TOC 导航点击，自动展开被折叠的面板 (保持原有逻辑兼容性)
-    const checkAndExpandHash = () => {
-        if (window.location.hash) {
-            try {
-                // 转义 hash 避免非法字符导致 querySelector 报错
-                const targetId = decodeURIComponent(window.location.hash);
-                const target = document.querySelector(targetId) || document.getElementById(targetId.substring(1));
-                if (target) {
-                    // 如果目标是大板块自身或者子级被包裹的内容
-                    const accordion = target.closest('.premium-accordion') || (target.classList.contains('premium-accordion') ? target : null);
-                    if (accordion && !accordion.classList.contains('is-open')) {
-                        accordion.classList.add('is-open');
-                    }
-                    // 给予面板展开动画的缓冲时间后完成平滑滚动
-                    setTimeout(() => {
-                        target.scrollIntoView({ behavior: 'smooth', block: 'start' });
-                    }, 50);
-                }
-            } catch (e) {
-                console.warn("Invalid hash targeting: ", e);
-            }
-        }
-    };
-    
-    // 初始化检查与挂载监听
-    checkAndExpandHash();
-    window.addEventListener('hashchange', checkAndExpandHash);
-});
-</script>

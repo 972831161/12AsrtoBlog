@@ -4,7 +4,7 @@ published: 2026-03-30
 description: 对宇宙说你好。
 tags: [宇宙ebike]
 category: 思考
-draft: false
+draft: true
 pinned: true
 priority: 1
 image: "./cover.png"

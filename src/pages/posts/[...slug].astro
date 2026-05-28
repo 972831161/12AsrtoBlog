@@ -504,3 +504,152 @@ const jsonLd = {
         </a>
     </div>
 </MainGridLayout>
+
+<script>
+function initPostAccordion() {
+    // 1. 找到所有以 "板块" 开头的二级标题
+    const headers = Array.from(document.querySelectorAll('.markdown-content h2')).filter(h => h.textContent.includes('板块'));
+    if (headers.length === 0) return;
+
+    headers.forEach(header => {
+        // 防止重复处理
+        if (header.dataset.accordionProcessed) return;
+        header.dataset.accordionProcessed = "true";
+
+        // 创建折叠容器
+        const accordion = document.createElement('div');
+        accordion.className = 'premium-accordion';
+        if (header.id) {
+            accordion.id = header.id;
+        }
+        
+        // 创建可点击的头部
+        const accordionHeader = document.createElement('div');
+        accordionHeader.className = 'accordion-header';
+        
+        // 创建标题文本
+        const titleSpan = document.createElement('span');
+        titleSpan.className = 'accordion-title';
+        titleSpan.textContent = header.textContent;
+        accordionHeader.appendChild(titleSpan);
+        
+        // 创建三角下拉图标（SVG）
+        const iconSvg = document.createElementNS("http://www.w3.org/2000/svg", "svg");
+        iconSvg.setAttribute("class", "accordion-icon");
+        iconSvg.setAttribute("viewBox", "0 0 24 24");
+        iconSvg.setAttribute("fill", "none");
+        iconSvg.setAttribute("stroke", "currentColor");
+        iconSvg.setAttribute("stroke-width", "2.5");
+        iconSvg.setAttribute("stroke-linecap", "round");
+        iconSvg.setAttribute("stroke-linejoin", "round");
+        
+        const polyline = document.createElementNS("http://www.w3.org/2000/svg", "polyline");
+        polyline.setAttribute("points", "6 9 12 15 18 9");
+        iconSvg.appendChild(polyline);
+        accordionHeader.appendChild(iconSvg);
+        
+        // 创建内容容器
+        const accordionContent = document.createElement('div');
+        accordionContent.className = 'accordion-content';
+        
+        // 收集跟在这个标题后面的所有内容，直到遇到下一个“板块”标题
+        let currentElement = header.nextElementSibling;
+        const elementsToMove = [];
+        
+        while (currentElement) {
+            if (currentElement.tagName === 'H2' && currentElement.textContent.includes('板块')) {
+                break;
+            }
+            if (currentElement.tagName === 'STYLE' || currentElement.tagName === 'SCRIPT') {
+                break;
+            }
+            elementsToMove.push(currentElement);
+            currentElement = currentElement.nextElementSibling;
+        }
+        
+        // 构建 DOM 结构
+        header.parentNode.insertBefore(accordion, header);
+        accordion.appendChild(accordionHeader);
+        accordion.appendChild(accordionContent);
+        
+        // 默认打开所有板块
+        accordion.classList.add('is-open');
+        
+        // 移除原始标题
+        header.remove();
+        
+        // 将内容移入折叠容器
+        elementsToMove.forEach(el => accordionContent.appendChild(el));
+        
+        // 点击整个 header 时直接切换 is-open 状态
+        accordionHeader.addEventListener('click', () => {
+            accordion.classList.toggle('is-open');
+        });
+    });
+
+    // 2. 强制侧边导航栏（TOC）在初始状态也保持可见
+    const forceShowTOC = () => {
+        document.querySelectorAll('#toc-wrapper, .toc-wrapper, #toc-container').forEach(el => {
+            el.classList.remove('toc-hide');
+            el.style.opacity = '1';
+            el.style.visibility = 'visible';
+        });
+    };
+    forceShowTOC();
+    setTimeout(forceShowTOC, 500);
+
+    // 3. 监听 TOC 导航点击，自动展开被折叠的面板
+    const checkAndExpandHash = () => {
+        if (window.location.hash) {
+            try {
+                const targetId = decodeURIComponent(window.location.hash);
+                const target = document.querySelector(targetId) || document.getElementById(targetId.substring(1));
+                if (target) {
+                    const accordion = target.closest('.premium-accordion') || (target.classList.contains('premium-accordion') ? target : null);
+                    if (accordion && !accordion.classList.contains('is-open')) {
+                        accordion.classList.add('is-open');
+                    }
+                    setTimeout(() => {
+                        target.scrollIntoView({ behavior: 'smooth', block: 'start' });
+                    }, 50);
+                }
+            } catch (e) {
+                console.warn("Invalid hash targeting: ", e);
+            }
+        }
+    };
+    
+    checkAndExpandHash();
+    window.removeEventListener('hashchange', checkAndExpandHash);
+    window.addEventListener('hashchange', checkAndExpandHash);
+}
+
+// 首次加载和 Swup 单页路由兼容
+if (document.readyState === "loading") {
+    document.addEventListener("DOMContentLoaded", initPostAccordion);
+} else {
+    initPostAccordion();
+}
+
+if (window.swup) {
+    window.swup.hooks.on("page:view", () => {
+        setTimeout(initPostAccordion, 100);
+    });
+} else {
+    document.addEventListener("swup:enable", () => {
+        window.swup.hooks.on("page:view", () => {
+            setTimeout(initPostAccordion, 100);
+        });
+    });
+    // 兼容退化，定时器轮询检测 Swup 是否可用并注册事件
+    const swupCheck = setInterval(() => {
+        if (window.swup) {
+            window.swup.hooks.on("page:view", () => {
+                setTimeout(initPostAccordion, 100);
+            });
+            clearInterval(swupCheck);
+        }
+    }, 200);
+    setTimeout(() => clearInterval(swupCheck), 2000);
+}
+</script>

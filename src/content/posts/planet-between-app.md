@@ -1,10 +1,10 @@
 ---
 title: 宇宙 Planet Between · 极客骑行小程序设计
-published: 2026-03-29
+published: 2026-01-29
 description: 基于 Uni-app + Vue3 构建的 E-Bike 智慧骑行app，包含仪表盘、AR彩蛋、社区路书。
 tags: [Uni-app, 极客体验, AR, 智慧骑行]
 category: 项目
-draft: false
+draft: true
 pinned: true
 ---
 
