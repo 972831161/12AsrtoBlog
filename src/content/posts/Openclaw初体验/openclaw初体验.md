@@ -4,7 +4,7 @@ published: 2026-03-16
 description: 对Openclaw的尝试和理解。
 tags: [AI, Openclaw]
 category: AI
-draft: false
+draft: true
 author: 十二
 image: ./cover.webp
 ---
