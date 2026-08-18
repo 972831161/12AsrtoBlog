@@ -1,0 +1,476 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>2027四川紧缺选调生 · 智能备考全栈系统</title>
+  <link rel="stylesheet" href="style.css">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=Noto+Sans+SC:wght@300;400;500;700;900&display=swap" rel="stylesheet">
+</head>
+<body class="theme-light">
+  <div id="app" class="app-layout">
+    
+    <!-- 顶部导航栏 -->
+    <header class="navbar">
+      <div class="nav-left">
+        <div class="logo-badge">川选2027</div>
+        <div class="nav-title-group">
+          <h1 class="nav-title">四川紧缺选调生 · 智能备考全栈系统</h1>
+          <span class="nav-subtitle">中山大学 · 085704 测绘工程 | 目标：成都 ➔ 绵阳 ➔ 环蓉</span>
+        </div>
+      </div>
+
+      <div class="nav-center">
+        <div class="countdown-badge">
+          <span class="cd-label">距10.25笔试决战</span>
+          <span class="cd-number" id="nav-days-left">68</span>
+          <span class="cd-unit">天</span>
+        </div>
+      </div>
+
+      <div class="nav-right">
+        <div class="current-real-date" id="nav-real-date">2026年8月18日</div>
+        <button id="btn-theme-toggle" class="btn-icon" title="切换深色/浅色模式">
+          <span id="theme-icon">🌙</span>
+        </button>
+      </div>
+    </header>
+
+    <!-- 主导航 Tabs -->
+    <nav class="main-tabs">
+      <button class="tab-btn active" data-tab="dashboard">
+        <span class="tab-icon">📊</span> 备考驾驶舱
+      </button>
+      <button class="tab-btn" data-tab="calendar">
+        <span class="tab-icon">📅</span> 冲刺日历 & 打卡
+      </button>
+      <button class="tab-btn" data-tab="knowledge">
+        <span class="tab-icon">📚</span> 备考全景知识库
+      </button>
+      <button class="tab-btn" data-tab="ai-quiz">
+        <span class="tab-icon">🤖</span> 智能助考 & 抽测
+      </button>
+      <button class="tab-btn" data-tab="mistakes">
+        <span class="tab-icon">📝</span> 错题本 & 笔记
+      </button>
+    </nav>
+
+    <!-- 主体内容容器 -->
+    <main class="main-content">
+
+      <!-- 1. 备考驾驶舱 -->
+      <section id="tab-dashboard" class="tab-pane active">
+        <!-- 统计核心卡片 -->
+        <div class="stats-grid">
+          <div class="stat-card gradient-red">
+            <div class="stat-info">
+              <span class="stat-label">距离 10.25 笔试决战</span>
+              <div class="stat-value"><span id="stat-days-left">68</span> <small>天</small></div>
+              <span class="stat-desc" id="stat-current-date-desc">当前日期实时同步</span>
+            </div>
+            <div class="stat-deco">⏳</div>
+          </div>
+
+          <div class="stat-card gradient-blue">
+            <div class="stat-info">
+              <span class="stat-label">全周期打卡完成率</span>
+              <div class="stat-value"><span id="stat-comp-rate">0.0</span> <small>%</small></div>
+              <span class="stat-desc">已完成 <span id="stat-comp-days">0</span> / 69 天计划</span>
+            </div>
+            <div class="stat-deco">📈</div>
+          </div>
+
+          <div class="stat-card gradient-amber">
+            <div class="stat-info">
+              <span class="stat-label">累计有效学习时长</span>
+              <div class="stat-value"><span id="stat-hours">0.0</span> <small>小时</small></div>
+              <span class="stat-desc">支持自定义分类统计</span>
+            </div>
+            <div class="stat-deco">⏱️</div>
+          </div>
+
+          <div class="stat-card gradient-purple">
+            <div class="stat-info">
+              <span class="stat-label">待巩固错题 & 盲点</span>
+              <div class="stat-value"><span id="stat-mistakes">0</span> <small>道</small></div>
+              <span class="stat-desc">重点攻克：行政法 / 习思想</span>
+            </div>
+            <div class="stat-deco">🎯</div>
+          </div>
+        </div>
+
+        <!-- 阶段时间线进度条 -->
+        <div class="card timeline-card">
+          <div class="card-header">
+            <h3 class="card-title">🚀 备考三阶段全景时间线 (8.18 - 10.25)</h3>
+            <span class="badge badge-primary" id="current-stage-badge">当前处于：第一阶段·夯基强化</span>
+          </div>
+          <div class="timeline-bar-container">
+            <div class="stage-block stage-1" id="stage-block-1">
+              <div class="stage-title">阶段一：公基筑基 & 理论强记</div>
+              <div class="stage-date">08.18 ~ 09.10 (24天)</div>
+              <div class="stage-tasks">习思想胶带背诵 · 法律行政法刷题 · 行测保持数感</div>
+            </div>
+            <div class="stage-block stage-2" id="stage-block-2">
+              <div class="stage-title">阶段二：公文实战 & 真题演练</div>
+              <div class="stage-date">09.11 ~ 10.05 (25天)</div>
+              <div class="stage-tasks">15种公文手写20-30篇 · 四川近5年真题 · 报名推荐盖章</div>
+            </div>
+            <div class="stage-block stage-3" id="stage-block-3">
+              <div class="stage-title">阶段三：全真模考 & 终极冲刺</div>
+              <div class="stage-date">10.06 ~ 10.24 (19天)</div>
+              <div class="stage-tasks">全真闭卷机考模拟 · 2026重大时政极速突击 · 错题过筛</div>
+            </div>
+          </div>
+        </div>
+
+        <!-- 驾驶舱下部双栏 -->
+        <div class="dashboard-columns">
+          <!-- 左栏：动态可编辑打卡工作台 -->
+          <div class="card today-checkin-card">
+            <div class="card-header">
+              <div>
+                <h3 class="card-title">📌 <span id="today-plan-title">今日复习打卡 (动态可编辑)</span></h3>
+                <p class="card-subtitle">可自由编辑分类、修改任务内容与学习时长，后台自动汇总统计</p>
+              </div>
+              <span class="badge badge-primary" id="today-status-badge">进行中</span>
+            </div>
+
+            <!-- 分类时长动态汇总条 -->
+            <div class="category-summary-bar" id="category-summary-bar">
+              <!-- 动态渲染各分类时长小徽章 -->
+            </div>
+
+            <!-- 动态任务列表编辑区 -->
+            <div class="dynamic-task-list" id="dynamic-task-list">
+              <!-- 动态插入任务行 -->
+            </div>
+
+            <div class="add-task-row">
+              <button class="btn btn-outline btn-sm" onclick="addNewTaskRow()">➕ 添加自定义任务项</button>
+            </div>
+
+            <div class="quick-input-row" style="margin-top: 16px;">
+              <div class="input-field flex-grow">
+                <label>今日复盘心得 / 难点疑惑记录</label>
+                <input type="text" id="today-notes-input" placeholder="记录今天错题、薄弱知识点或备考心得..." class="form-control">
+              </div>
+            </div>
+
+            <div class="card-footer-actions">
+              <button id="btn-save-today" class="btn btn-primary">💾 保存并同步今日打卡数据</button>
+            </div>
+          </div>
+
+          <!-- 右栏：志愿策略与累计科目时长分布 -->
+          <div class="card-right-group">
+            <!-- 各科目累计复习时长分布看板 -->
+            <div class="card">
+              <div class="card-header">
+                <h3 class="card-title">📊 各科目累计有效复习时长</h3>
+              </div>
+              <div class="category-progress-list" id="global-category-progress">
+                <!-- 动态渲染 -->
+              </div>
+            </div>
+
+            <!-- 志愿策略卡片 -->
+            <div class="card strategy-card">
+              <div class="card-header">
+                <h3 class="card-title">🎯 志愿填报政策红利 & 提分锦囊</h3>
+              </div>
+              <div class="strategy-list">
+                <div class="strategy-item">
+                  <div class="strat-icon">🥇</div>
+                  <div class="strat-content">
+                    <h4>第一志愿：成都市直 / 省直 (冲击梯队)</h4>
+                    <p>执行 1:3 进面。测绘工程专硕优先匹配自然资源、应急管理及区县优质综合岗。</p>
+                  </div>
+                </div>
+                <div class="strategy-item">
+                  <div class="strat-icon">🥈</div>
+                  <div class="strat-content">
+                    <h4>第二志愿：绵阳市 (保底升级红利)</h4>
+                    <p>若第一志愿未进面，自动升级为第一志愿。<strong>只要过全省合格线，全员进面</strong>！</p>
+                  </div>
+                </div>
+                <div class="strategy-item">
+                  <div class="strat-icon">🥉</div>
+                  <div class="strat-content">
+                    <h4>第三志愿：德阳 / 眉山 (环蓉备选)</h4>
+                    <p>四川选调具备极高频的多轮递补与按性别统筹调剂红利，上岸率极高。</p>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- 2. 冲刺日历 & 打卡 -->
+      <section id="tab-calendar" class="tab-pane">
+        <div class="card">
+          <div class="card-header">
+            <div>
+              <h3 class="card-title">📅 备考打卡日历全景 (实时动态)</h3>
+              <p class="card-subtitle">点击任意日期卡片，可直接编辑该日的自定义分类任务、有效时长及复习笔记</p>
+            </div>
+            <div class="calendar-filters">
+              <span class="legend-item"><span class="legend-dot stage-1-dot"></span> 阶段一：夯基</span>
+              <span class="legend-item"><span class="legend-dot stage-2-dot"></span> 阶段二：公文真题</span>
+              <span class="legend-item"><span class="legend-dot stage-3-dot"></span> 阶段三：冲刺模考</span>
+              <span class="legend-item"><span class="legend-dot done-dot"></span> 已打卡完成</span>
+            </div>
+          </div>
+
+          <div class="calendar-grid" id="calendar-container">
+            <!-- 动态生成日历卡片 -->
+          </div>
+        </div>
+      </section>
+
+      <!-- 3. 备考全景知识库 -->
+      <section id="tab-knowledge" class="tab-pane">
+        <div class="knowledge-layout">
+          <!-- 左侧目录 -->
+          <div class="card knowledge-sidebar">
+            <div class="kb-search-box">
+              <input type="text" id="kb-search-input" placeholder="🔍 快速搜索考点/公文/政策..." class="form-control">
+            </div>
+            <div class="kb-menu">
+              <div class="kb-menu-group">四川政策与考情</div>
+              <button class="kb-menu-item active" data-target="kb-policy">四川定向选调百科与规则</button>
+              <button class="kb-menu-item" data-target="kb-score">综合卷题型与分值揭秘</button>
+              <button class="kb-menu-item" data-target="kb-majors">测绘工程岗位去向表</button>
+
+              <div class="kb-menu-group">公文写作与模版 (30分必考)</div>
+              <button class="kb-menu-item" data-target="kb-doc-notice">“通知”标准范本 (下行文)</button>
+              <button class="kb-menu-item" data-target="kb-doc-request">“请示”标准范本 (上行文)</button>
+              <button class="kb-menu-item" data-target="kb-doc-report">“报告”标准范本 (上行文)</button>
+              <button class="kb-menu-item" data-target="kb-doc-letter">“函”标准范本 (平行文)</button>
+              <button class="kb-menu-item" data-target="kb-doc-bulletin">“通报”标准范本 (下行文)</button>
+              <button class="kb-menu-item" data-target="kb-doc-mistakes">公文改错 10 大高频雷区</button>
+
+              <div class="kb-menu-group">公基与理论常考点</div>
+              <button class="kb-menu-item" data-target="kb-xi">习思想理论体系与帽子词</button>
+              <button class="kb-menu-item" data-target="kb-law">宪法与行政法核心要点</button>
+              <button class="kb-menu-item" data-target="kb-economy">宏观经济与政治常识</button>
+              <button class="kb-menu-item" data-target="kb-teachers">上岸嘉宾名师与资源推荐</button>
+            </div>
+          </div>
+
+          <!-- 右侧内容展示 -->
+          <div class="card knowledge-content" id="kb-content-display">
+            <!-- 动态渲染内容 -->
+          </div>
+        </div>
+      </section>
+
+      <!-- 4. 智能助考 & 抽测 -->
+      <section id="tab-ai-quiz" class="tab-pane">
+        <div class="ai-hub-layout">
+          <!-- 顶部子导航 -->
+          <div class="sub-nav">
+            <button class="sub-nav-btn active" data-sub="ai-chat">🤖 备考智能助教</button>
+            <button class="sub-nav-btn" data-sub="ai-quiz-view">🎯 考点随机抽测</button>
+            <button class="sub-nav-btn" data-sub="ai-grader-view">📝 公文 AI 智能批改</button>
+          </div>
+
+          <!-- 子模块 1: 智能助教对话 -->
+          <div id="sub-ai-chat" class="sub-pane active">
+            <div class="card chat-card">
+              <div class="chat-header">
+                <div class="chat-avatar">🤖</div>
+                <div class="chat-title-group">
+                  <h4>四川紧缺选调智能备考助教</h4>
+                  <p>基于项目内全部政策、真题、公文模板与金标尺资料训练</p>
+                </div>
+              </div>
+
+              <div class="chat-messages" id="chat-messages-box">
+                <div class="chat-msg bot-msg">
+                  <div class="msg-bubble">
+                    同学你好！我是您的四川紧缺选调专属备考助教。您可以向我咨询任何关于<strong>政策志愿、考情分值、行政法常考点、15种公文格式</strong>或<strong>复习节奏</strong>的问题。请问今天想了解什么？
+                  </div>
+                </div>
+              </div>
+
+              <div class="quick-prompts">
+                <button class="chip-btn" onclick="sendPrompt('四川选调第二志愿绵阳的流转规则是什么？')">第二志愿流转规则</button>
+                <button class="chip-btn" onclick="sendPrompt('四川紧缺综合卷的单选、多选和公文分值是多少？')">考情分值结构</button>
+                <button class="chip-btn" onclick="sendPrompt('请示和报告在格式和规则上有什么区别？')">请示与报告区别</button>
+                <button class="chip-btn" onclick="sendPrompt('测绘工程专硕能报考成都市哪些部门？')">测绘工程岗位推荐</button>
+              </div>
+
+              <div class="chat-input-bar">
+                <input type="text" id="chat-input-text" placeholder="输入您想咨询的备考问题..." class="form-control" onkeypress="handleChatKey(event)">
+                <button id="btn-send-chat" class="btn btn-primary" onclick="submitChat()">发送咨询</button>
+              </div>
+            </div>
+          </div>
+
+          <!-- 子模块 2: 考点随机抽测 -->
+          <div id="sub-ai-quiz-view" class="sub-pane">
+            <div class="card quiz-card">
+              <div class="card-header">
+                <div>
+                  <h3 class="card-title">🎯 考点专项随机抽测</h3>
+                  <p class="card-subtitle">精选公基、习思想、行政法与公文改错高频母题，支持即答即判</p>
+                </div>
+                <button id="btn-refresh-quiz" class="btn btn-outline" onclick="loadRandomQuiz()">🔄 换一批试题</button>
+              </div>
+
+              <div id="quiz-container" class="quiz-list">
+                <!-- 动态生成试题 -->
+              </div>
+            </div>
+          </div>
+
+          <!-- 子模块 3: 公文 AI 智能批改 -->
+          <div id="sub-ai-grader-view" class="sub-pane">
+            <div class="card grader-card">
+              <div class="card-header">
+                <div>
+                  <h3 class="card-title">📝 公文写作 AI 智能批改与润色 (30分大题)</h3>
+                  <p class="card-subtitle">粘贴您手写或练习的公文文本，系统将对标题、字号、主送、结构、落款及用词进行全方位诊断</p>
+                </div>
+              </div>
+
+              <div class="grader-input-row">
+                <div class="doc-input-box">
+                  <label>公文作答文本框</label>
+                  <textarea id="doc-text-input" rows="12" class="form-control" placeholder="在此粘贴您的公文内容，例如：
+关于开展防范地质灾害专项安全检查的通知
+成委办发〔2026〕12号
+各区（市）县人民政府，市级各部门：
+……
+成都市人民政府
+2026年9月10日"></textarea>
+                  <div class="grader-actions">
+                    <button class="btn btn-outline" onclick="fillDocSample()">📥 载入标准范文测试</button>
+                    <button class="btn btn-primary" onclick="submitGradeDoc()">🚀 开始 AI 智能评分诊断</button>
+                  </div>
+                </div>
+
+                <div class="doc-result-box" id="doc-grade-result">
+                  <div class="result-placeholder">
+                    <span class="placeholder-icon">📋</span>
+                    <p>提交公文后，此处将展示 30 分量化评分、格式扣分项、亮点及提分润色建议</p>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- 5. 错题本 & 笔记 -->
+      <section id="tab-mistakes" class="tab-pane">
+        <div class="card">
+          <div class="card-header">
+            <div>
+              <h3 class="card-title">📝 备考错题本 & 重点盲点台账</h3>
+              <p class="card-subtitle">记录平时刷题碰到的难题、易混法条与知识盲区，支持反复温习与掌握标记</p>
+            </div>
+            <button class="btn btn-primary" onclick="openAddMistakeModal()">➕ 添加新错题</button>
+          </div>
+
+          <div class="mistakes-filter-bar">
+            <button class="filter-chip active" data-filter="all">全部错题</button>
+            <button class="filter-chip" data-filter="unmastered">待巩固 (需温习)</button>
+            <button class="filter-chip" data-filter="mastered">已掌握</button>
+          </div>
+
+          <div class="mistakes-list" id="mistakes-container">
+            <!-- 动态生成错题卡片 -->
+          </div>
+        </div>
+      </section>
+
+    </main>
+
+    <!-- 弹窗：日期详情编辑 Modal (支持动态编辑任务与分类) -->
+    <div id="modal-date-detail" class="modal-overlay hidden">
+      <div class="modal-card modal-lg">
+        <div class="modal-header">
+          <h3 id="modal-date-title">日期复习计划与打卡编辑</h3>
+          <button class="btn-close" onclick="closeDateModal()">✕</button>
+        </div>
+        <div class="modal-body">
+          <div class="stage-tag" id="modal-stage-tag">自主规划阶段</div>
+          
+          <div class="modal-tasks-container" id="modal-tasks-list">
+            <!-- 动态任务列表 -->
+          </div>
+
+          <button class="btn btn-outline btn-sm" onclick="addModalTaskRow()">➕ 在该日添加任务项</button>
+
+          <div class="modal-fields" style="margin-top: 14px;">
+            <div class="field-item">
+              <label>复盘心得与疑问</label>
+              <textarea id="modal-notes-input" rows="3" class="form-control" placeholder="记录当天的复习心得..."></textarea>
+            </div>
+          </div>
+        </div>
+        <div class="modal-footer">
+          <button class="btn btn-outline" onclick="closeDateModal()">取消</button>
+          <button class="btn btn-primary" onclick="saveDateModal()">保存该日打卡与修改</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- 弹窗：添加错题 Modal -->
+    <div id="modal-add-mistake" class="modal-overlay hidden">
+      <div class="modal-card">
+        <div class="modal-header">
+          <h3>➕ 录入新错题 / 易混考点</h3>
+          <button class="btn-close" onclick="closeAddMistakeModal()">✕</button>
+        </div>
+        <div class="modal-body">
+          <div class="form-group">
+            <label>科目分类</label>
+            <select id="mistake-cat-input" class="form-control">
+              <option value="法律公基 - 行政法">法律公基 - 行政法</option>
+              <option value="法律公基 - 宪法">法律公基 - 宪法</option>
+              <option value="法律公基 - 刑法/民法">法律公基 - 刑法/民法</option>
+              <option value="习近平新时代中国特色社会主义思想">习近平新时代中国特色社会主义思想</option>
+              <option value="非法律公基 (经济/政治/党史)">非法律公基 (经济/政治/党史)</option>
+              <option value="公文写作与改错">公文写作与改错</option>
+              <option value="行测 (言语/资料/图推)">行测 (言语/资料/图推)</option>
+            </select>
+          </div>
+
+          <div class="form-group">
+            <label>考点标题 / 核心关键词</label>
+            <input type="text" id="mistake-title-input" placeholder="例如：行政处罚设定权限与种类" class="form-control">
+          </div>
+
+          <div class="form-group">
+            <label>题目原题 / 考查内容</label>
+            <textarea id="mistake-q-input" rows="3" placeholder="粘贴题干及选项..." class="form-control"></textarea>
+          </div>
+
+          <div class="form-group">
+            <label>我当时的错选 / 错误认知</label>
+            <input type="text" id="mistake-my-input" placeholder="例如：误将限制人身自由记为行政法规可设定" class="form-control">
+          </div>
+
+          <div class="form-group">
+            <label>正确解析与法条/要点速记</label>
+            <textarea id="mistake-analysis-input" rows="3" placeholder="正确法条或记忆要点..." class="form-control"></textarea>
+          </div>
+        </div>
+        <div class="modal-footer">
+          <button class="btn btn-outline" onclick="closeAddMistakeModal()">取消</button>
+          <button class="btn btn-primary" onclick="submitNewMistake()">保存到错题集</button>
+        </div>
+      </div>
+    </div>
+
+  </div>
+
+  <script src="app.js"></script>
+</body>
+</html>
