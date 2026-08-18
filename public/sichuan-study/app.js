@@ -1,6 +1,6 @@
 /**
  * 2027 四川紧缺选调生 · 智能备考全栈与移动端自闭环系统
- * 支持：实时系统日期、全自定义任务分类、防输入中断、LocalStorage离线持久化与在线一键部署
+ * 支持：移动端深度适配卡片布局、实时系统日期、全自定义任务分类、防输入中断、LocalStorage离线持久化与在线一键部署
  */
 
 // 完整内嵌备考知识库与题库（确保在线纯静态部署时 100% 具备全部功能）
@@ -257,7 +257,7 @@ document.addEventListener('DOMContentLoaded', () => {
 });
 
 /* ==========================================================================
-   1. 数据存储引擎 (支持 LocalStorage 离线自闭环与本地 API 无缝通信)
+   1. 数据存储引擎
    ========================================================================== */
 
 function getLocalPlans() {
@@ -265,7 +265,6 @@ function getLocalPlans() {
   if (raw) {
     try { return JSON.parse(raw); } catch (e) {}
   }
-  // 生成初始默认数据
   const defaultPlans = {};
   const start = new Date(2026, 7, 18);
   const end = new Date(2026, 9, 25);
@@ -410,6 +409,7 @@ function initTabs() {
       btn.classList.add('active');
       const target = btn.getAttribute('data-tab');
       document.getElementById(`tab-${target}`).classList.add('active');
+      window.scrollTo({ top: 0, behavior: 'smooth' });
     });
   });
 }
@@ -432,7 +432,6 @@ async function loadData() {
   const plans = getLocalPlans();
   appState.calendarData = Object.values(plans);
 
-  // 尝试从后台 API 同步，如果 API 正常则以 API 为准并持久化
   try {
     const res = await fetch(`/api/summary?date=${appState.currentDateStr}`);
     if (res.ok) {
@@ -441,9 +440,7 @@ async function loadData() {
         saveLocalPlan(data.today_plan.date, data.today_plan.tasks, data.today_plan.notes);
       }
     }
-  } catch (e) {
-    // 纯前端模式无缝运行
-  }
+  } catch (e) {}
 
   calculateAndRenderDashboard();
   renderCalendar();
@@ -472,7 +469,6 @@ function calculateAndRenderDashboard() {
     });
   });
 
-  // 计算倒计时
   const curDt = new Date(appState.currentDateStr);
   const examDt = new Date(EXAM_DATE);
   const diffDays = Math.max(0, Math.ceil((examDt - curDt) / (1000 * 60 * 60 * 24)));
@@ -484,10 +480,8 @@ function calculateAndRenderDashboard() {
   document.getElementById('stat-comp-rate').textContent = compRate;
   document.getElementById('stat-hours').textContent = totalHours.toFixed(1);
 
-  // 阶段高亮
   updateStageHighlight(appState.currentDateStr);
 
-  // 渲染今日任务
   const todayPlan = plans[appState.currentDateStr] || {
     date: appState.currentDateStr,
     tasks: getDefaultTasksForDate(appState.currentDateStr),
@@ -497,7 +491,6 @@ function calculateAndRenderDashboard() {
   document.getElementById('today-notes-input').value = todayPlan.notes || '';
   renderTodayTasksDOM();
 
-  // 渲染全科目累计时长
   renderGlobalCategoryProgress(globalCatHours, totalHours);
 }
 
@@ -530,7 +523,7 @@ function renderGlobalCategoryProgress(catHours, totalHours) {
 
   const entries = Object.entries(catHours);
   if (entries.length === 0) {
-    container.innerHTML = '<div style="font-size:0.85rem; color:var(--text-muted);">暂无打卡时长，勾选完成今日任务后自动生成统计。</div>';
+    container.innerHTML = '<div style="font-size:0.82rem; color:var(--text-muted);">暂无打卡时长，勾选完成今日任务后自动生成统计。</div>';
     return;
   }
 
@@ -554,7 +547,7 @@ function renderGlobalCategoryProgress(catHours, totalHours) {
 }
 
 /* ==========================================================================
-   3. 今日任务编辑器 (防重绘焦点丢失 · 解决连续打字中断 Bug)
+   3. 今日任务编辑器 (上下两层自适应布局 · 彻底适配手机与桌面)
    ========================================================================== */
 
 function renderTodayTasksDOM() {
@@ -572,13 +565,24 @@ function renderTodayTasksDOM() {
     `).join('');
 
     row.innerHTML = `
-      <input type="checkbox" class="task-chk" ${task.is_done ? 'checked' : ''} onchange="onTodayTaskCheck(${index}, this.checked)">
-      <select class="task-cat-select" onchange="onTodayTaskCatChange(${index}, this.value)">
-        ${catOptionsHtml}
-      </select>
-      <input type="text" class="task-content-input" value="${escapeHtml(task.content)}" placeholder="输入任务描述..." oninput="onTodayTaskTextInput(${index}, this.value)">
-      <input type="number" class="task-duration-input" min="0" max="24" step="0.5" value="${dur}" title="有效学习时长(小时)" oninput="onTodayTaskDurationInput(${index}, this.value)">
-      <button class="btn-del-task" title="删除此任务" onclick="removeTodayTask(${index})">🗑️</button>
+      <div class="task-row-top">
+        <div class="task-row-left">
+          <input type="checkbox" class="task-chk" ${task.is_done ? 'checked' : ''} onchange="onTodayTaskCheck(${index}, this.checked)">
+          <select class="task-cat-select" onchange="onTodayTaskCatChange(${index}, this.value)">
+            ${catOptionsHtml}
+          </select>
+        </div>
+        <div class="task-row-right">
+          <div class="task-duration-wrap">
+            <input type="number" class="task-duration-input" min="0" max="24" step="0.5" value="${dur}" title="有效学习时长(小时)" oninput="onTodayTaskDurationInput(${index}, this.value)">
+            <span>h</span>
+          </div>
+          <button class="btn-del-task" title="删除此任务" onclick="removeTodayTask(${index})">🗑️</button>
+        </div>
+      </div>
+      <div class="task-row-bottom">
+        <input type="text" class="task-content-input" value="${escapeHtml(task.content)}" placeholder="输入任务具体内容..." oninput="onTodayTaskTextInput(${index}, this.value)">
+      </div>
     `;
 
     container.appendChild(row);
@@ -587,14 +591,12 @@ function renderTodayTasksDOM() {
   updateTodaySummaryBadges();
 }
 
-// 文本输入时，只更新数据与统计，严禁重新清空和渲染 DOM！彻底避免输入中断
 function onTodayTaskTextInput(index, value) {
   if (appState.todayTasks[index]) {
     appState.todayTasks[index].content = value;
   }
 }
 
-// 时长输入时，只更新数值并刷新顶部小徽章，不重绘 input
 function onTodayTaskDurationInput(index, value) {
   const num = parseFloat(value) || 0.0;
   if (appState.todayTasks[index]) {
@@ -641,7 +643,7 @@ function updateTodaySummaryBadges() {
     bar.innerHTML = '';
     const summaryPill = document.createElement('div');
     summaryPill.className = 'cat-badge';
-    summaryPill.innerHTML = `已完成有效时长: <strong>${totalDoneH.toFixed(1)}h</strong> / 计划 ${totalPlannedH.toFixed(1)}h`;
+    summaryPill.innerHTML = `已完成: <strong>${totalDoneH.toFixed(1)}h</strong> / 计划 ${totalPlannedH.toFixed(1)}h`;
     bar.appendChild(summaryPill);
 
     Object.entries(catHours).forEach(([cat, h]) => {
@@ -682,12 +684,10 @@ function removeTodayTask(index) {
 }
 
 function bindEvents() {
-  // 保存今日打卡
   document.getElementById('btn-save-today').addEventListener('click', async () => {
     const notes = document.getElementById('today-notes-input').value;
     saveLocalPlan(appState.currentDateStr, appState.todayTasks, notes);
 
-    // 尝试同步后端
     try {
       await fetch('/api/checkin', {
         method: 'POST',
@@ -705,7 +705,6 @@ function bindEvents() {
     renderCalendar();
   });
 
-  // 知识库搜索
   document.getElementById('kb-search-input').addEventListener('input', (e) => {
     filterKnowledgeMenu(e.target.value);
   });
@@ -741,15 +740,15 @@ function renderCalendar() {
     const taskCount = tasks.length;
     const dayHours = tasks.reduce((sum, t) => sum + (t.is_done ? (parseFloat(t.duration) || 0) : 0), 0);
 
-    const summaryItems = tasks.slice(0, 3).map(t => `
-      <div>${t.is_done ? '✅' : '⚪'} ${t.category.slice(0, 4)}: ${escapeHtml(t.content.slice(0, 8))}..</div>
+    const summaryItems = tasks.slice(0, 2).map(t => `
+      <div>${t.is_done ? '✅' : '⚪'} ${t.category.slice(0, 4)}: ${escapeHtml(t.content.slice(0, 6))}..</div>
     `).join('');
 
     card.className = `cal-day-card ${isCompleted ? 'completed' : ''} ${isToday ? 'today' : ''}`;
     card.innerHTML = `
       <div>
         <div class="cal-day-top">
-          <span class="cal-date">${day.date.slice(5)} ${isToday ? '(今天)' : ''}</span>
+          <span class="cal-date">${day.date.slice(5)} ${isToday ? '(今)' : ''}</span>
           <span class="cal-stage-badge ${stageBadgeClass}">${stageLabel}</span>
         </div>
         <div class="cal-tasks-summary">
@@ -758,7 +757,7 @@ function renderCalendar() {
       </div>
       <div class="cal-day-bottom">
         <span>⏱️ ${dayHours.toFixed(1)}h</span>
-        <span>${isCompleted ? '🏆 已完成' : `${doneCount}/${taskCount}`}</span>
+        <span>${isCompleted ? '🏆 完成' : `${doneCount}/${taskCount}`}</span>
       </div>
     `;
 
@@ -793,13 +792,24 @@ function renderModalTasksDOM() {
     `).join('');
 
     row.innerHTML = `
-      <input type="checkbox" class="task-chk" ${task.is_done ? 'checked' : ''} onchange="onModalTaskCheck(${index}, this.checked)">
-      <select class="task-cat-select" onchange="onModalTaskCatChange(${index}, this.value)">
-        ${catOptionsHtml}
-      </select>
-      <input type="text" class="task-content-input" value="${escapeHtml(task.content)}" placeholder="输入任务描述..." oninput="onModalTaskTextInput(${index}, this.value)">
-      <input type="number" class="task-duration-input" min="0" max="24" step="0.5" value="${task.duration || 0}" oninput="onModalTaskDurationInput(${index}, this.value)">
-      <button class="btn-del-task" title="删除" onclick="removeModalTask(${index})">🗑️</button>
+      <div class="task-row-top">
+        <div class="task-row-left">
+          <input type="checkbox" class="task-chk" ${task.is_done ? 'checked' : ''} onchange="onModalTaskCheck(${index}, this.checked)">
+          <select class="task-cat-select" onchange="onModalTaskCatChange(${index}, this.value)">
+            ${catOptionsHtml}
+          </select>
+        </div>
+        <div class="task-row-right">
+          <div class="task-duration-wrap">
+            <input type="number" class="task-duration-input" min="0" max="24" step="0.5" value="${task.duration || 0}" oninput="onModalTaskDurationInput(${index}, this.value)">
+            <span>h</span>
+          </div>
+          <button class="btn-del-task" title="删除" onclick="removeModalTask(${index})">🗑️</button>
+        </div>
+      </div>
+      <div class="task-row-bottom">
+        <input type="text" class="task-content-input" value="${escapeHtml(task.content)}" placeholder="输入任务描述..." oninput="onModalTaskTextInput(${index}, this.value)">
+      </div>
     `;
     container.appendChild(row);
   });
@@ -931,39 +941,34 @@ function renderKnowledgeArticle(target) {
           <br>
           <table style="width:100%; border-collapse: collapse; margin-bottom: 20px;">
             <tr style="background:var(--bg-subtle); border-bottom: 2px solid var(--border-subtle); text-align:left;">
-              <th style="padding:10px;">题型</th>
-              <th style="padding:10px;">题量</th>
-              <th style="padding:10px;">每题分值</th>
-              <th style="padding:10px;">总分</th>
-              <th style="padding:10px;">命题特点与得分策略</th>
+              <th style="padding:8px;">题型</th>
+              <th style="padding:8px;">题量</th>
+              <th style="padding:8px;">每题分值</th>
+              <th style="padding:8px;">总分</th>
             </tr>
             <tr style="border-bottom: 1px solid var(--border-subtle);">
-              <td style="padding:10px;"><strong>单选题</strong></td>
-              <td style="padding:10px;">60 题</td>
-              <td style="padding:10px;">0.8 分</td>
-              <td style="padding:10px;">48 分</td>
-              <td style="padding:10px;">习思想、行政法、政治经济常识。秒选率高，争取拿 40+ 分。</td>
+              <td style="padding:8px;"><strong>单选题</strong></td>
+              <td style="padding:8px;">60 题</td>
+              <td style="padding:8px;">0.8 分</td>
+              <td style="padding:8px;">48 分</td>
             </tr>
             <tr style="border-bottom: 1px solid var(--border-subtle);">
-              <td style="padding:10px;"><strong>多选题</strong></td>
-              <td style="padding:10px;">10 题</td>
-              <td style="padding:10px;">1.2 分</td>
-              <td style="padding:10px;">12 分</td>
-              <td style="padding:10px;"><strong>错选、少选、漏选均不得分！</strong> 拉开 70+ 高分的核心阵地。</td>
+              <td style="padding:8px;"><strong>多选题</strong></td>
+              <td style="padding:8px;">10 题</td>
+              <td style="padding:8px;">1.2 分</td>
+              <td style="padding:8px;">12 分</td>
             </tr>
             <tr style="border-bottom: 1px solid var(--border-subtle);">
-              <td style="padding:10px;"><strong>判断题</strong></td>
-              <td style="padding:10px;">10 题</td>
-              <td style="padding:10px;">1.0 分</td>
-              <td style="padding:10px;">10 分</td>
-              <td style="padding:10px;">时政常识与公基定性概念，快选稳拿。</td>
+              <td style="padding:8px;"><strong>判断题</strong></td>
+              <td style="padding:8px;">10 题</td>
+              <td style="padding:8px;">1.0 分</td>
+              <td style="padding:8px;">10 分</td>
             </tr>
             <tr style="border-bottom: 1px solid var(--border-subtle);">
-              <td style="padding:10px;"><strong>公文写作</strong></td>
-              <td style="padding:10px;">1 大题</td>
-              <td style="padding:10px;">30.0 分</td>
-              <td style="padding:10px;">30 分</td>
-              <td style="padding:10px;">实务公文大题（通知/方案/请示/宣讲稿），格式极其严苛，平均分 18-20 分。</td>
+              <td style="padding:8px;"><strong>公文写作</strong></td>
+              <td style="padding:8px;">1 大题</td>
+              <td style="padding:8px;">30.0 分</td>
+              <td style="padding:8px;">30 分</td>
             </tr>
           </table>
         </div>
@@ -976,17 +981,17 @@ function renderKnowledgeArticle(target) {
         <div class="kb-article-body">
           <p>测绘工程专硕在四川定向选调中对应 <strong>测绘地理信息类 / 计算机与电子信息类</strong>：</p>
           <br>
-          <div style="background:var(--bg-subtle); padding:16px; border-radius:8px; margin-bottom:14px;">
-            <h4>1. 自然资源与规划系统 (最专业对口)</h4>
-            <p>- 四川省自然资源厅、成都市规划和自然资源局及区县分局<br>- 职责：国土空间规划、耕地保护动态监测、遥感卫星测绘。</p>
+          <div style="background:var(--bg-subtle); padding:12px; border-radius:6px; margin-bottom:10px;">
+            <h4>1. 自然资源与规划系统 (最对口)</h4>
+            <p>四川省自然资源厅、成都市规划和自然资源局及区县分局。</p>
           </div>
-          <div style="background:var(--bg-subtle); padding:16px; border-radius:8px; margin-bottom:14px;">
+          <div style="background:var(--bg-subtle); padding:12px; border-radius:6px; margin-bottom:10px;">
             <h4>2. 应急管理系统</h4>
-            <p>- 四川省应急管理厅、成都市应急管理局<br>- 职责：防灾减灾应急遥感监测、森林防火及地质灾害遥感排查。</p>
+            <p>四川省应急管理厅、成都市应急管理局。</p>
           </div>
-          <div style="background:var(--bg-subtle); padding:16px; border-radius:8px; margin-bottom:14px;">
-            <h4>3. 区县综合行政与不限专业岗位</h4>
-            <p>- 中山大学硕士可直接报考天府新区、高新区等优质党政综合机关岗位。</p>
+          <div style="background:var(--bg-subtle); padding:12px; border-radius:6px; margin-bottom:10px;">
+            <h4>3. 区县综合行政岗</h4>
+            <p>天府新区、高新区等优质党政综合机关岗位。</p>
           </div>
         </div>
       `;
@@ -1009,10 +1014,9 @@ function renderKnowledgeArticle(target) {
         html = `
           <h2 class="kb-article-title">📜 ${foundDoc.type} 标准范本与核心考点</h2>
           <div class="kb-article-body">
-            <p><strong>【适用场景】：</strong> ${foundDoc.usage}</p>
-            <p><strong>【核心要点】：</strong> ${foundDoc.key_points}</p>
+            <p><strong>【适用】：</strong> ${foundDoc.usage}</p>
+            <p><strong>【要点】：</strong> ${foundDoc.key_points}</p>
             <br>
-            <h4>📋 权威公文排版范文：</h4>
             <pre><code>${foundDoc.template}</code></pre>
           </div>
         `;
@@ -1021,19 +1025,19 @@ function renderKnowledgeArticle(target) {
 
     case 'kb-doc-mistakes':
       html = `
-        <h2 class="kb-article-title">⚠️ 公文改错 10 大高频扣分雷区 (拿满15分改错)</h2>
+        <h2 class="kb-article-title">⚠️ 公文改错 10 大高频扣分雷区</h2>
         <div class="kb-article-body">
-          <ol style="padding-left:20px; line-height:2;">
-            <li><strong>发文字号括号错误</strong>：将六角括号 <code>〔2026〕</code> 错写为 <code>【2026】</code> 或 <code>(2026)</code>。</li>
-            <li><strong>发文字号带‘第’字</strong>：错写为 <code>成府发〔2026〕第18号</code>（正确：不带‘第’字）。</li>
-            <li><strong>成文日期用汉字</strong>：错写为 <code>二〇二六年</code>（正确：必须用全阿拉伯数字 <code>2026年10月25日</code>）。</li>
-            <li><strong>请示多头主送</strong>：请示同时主送两个上级机关（正确：请示原则上只能主送一个上级）。</li>
-            <li><strong>请示抄送下级</strong>：请示抄送了下级机关（正确：请示原则上不得抄送下级机关）。</li>
-            <li><strong>标题文种混用</strong>：错写为 <code>关于……的请示报告</code>（请示和报告不可混用）。</li>
-            <li><strong>主送机关后缺少冒号</strong>：主送机关顶格书写后漏标冒号。</li>
-            <li><strong>一文多事</strong>：在请示中同时申请资金和编制（正确：请示必须一文一事）。</li>
-            <li><strong>报告中夹带请示</strong>：在工作报告末尾写‘请予批准’（正确：报告不得夹带请示事项）。</li>
-            <li><strong>标题用‘关于……关于……’</strong>：介词‘关于’重复使用。</li>
+          <ol style="padding-left:18px; line-height:1.8;">
+            <li><strong>发文字号括号错误</strong>：六角括号 <code>〔2026〕</code>。</li>
+            <li><strong>发文字号带‘第’字</strong>：错写为 <code>成府发〔2026〕第18号</code>。</li>
+            <li><strong>成文日期用汉字</strong>：必须用全阿拉伯数字 <code>2026年10月25日</code>。</li>
+            <li><strong>请示多头主送</strong>：请示原则上只能主送一个上级。</li>
+            <li><strong>请示抄送下级</strong>：请示原则上不得抄送下级机关。</li>
+            <li><strong>标题文种混用</strong>：错写为 <code>请示报告</code>。</li>
+            <li><strong>主送机关后缺少冒号</strong>。</li>
+            <li><strong>一文多事</strong>：请示必须一文一事。</li>
+            <li><strong>报告中夹带请示</strong>。</li>
+            <li><strong>标题重复‘关于’</strong>。</li>
           </ol>
         </div>
       `;
@@ -1041,64 +1045,48 @@ function renderKnowledgeArticle(target) {
 
     case 'kb-xi':
       html = `
-        <h2 class="kb-article-title">📖 习近平新时代中国特色社会主义思想 体系速记</h2>
+        <h2 class="kb-article-title">📖 习近平新时代中国特色社会主义思想 速记</h2>
         <div class="kb-article-body">
-          <div style="background:var(--bg-subtle); padding:16px; border-radius:8px; margin-bottom:14px;">
+          <div style="background:var(--bg-subtle); padding:12px; border-radius:6px; margin-bottom:10px;">
             <h4>🌟 核心四大支柱（必考帽子题）：</h4>
             <ul>
-              <li><strong>十个明确</strong>：系统回答了新时代坚持和发展什么样的中国特色社会主义（核心内容）。</li>
-              <li><strong>十四个坚持</strong>：新时代坚持和发展中国特色社会主义的基本方略（行动纲领）。</li>
-              <li><strong>十三个方面成就</strong>：新时代党和国家事业取得的历史性成就、发生的历史性变革。</li>
-              <li><strong>六个必须坚持</strong>：必须坚持人民至上、必须坚持自信自立、必须坚持守正创新、必须坚持问题导向、必须坚持系统观念、必须坚持胸怀天下。</li>
+              <li><strong>十个明确</strong>：系统回答核心内容。</li>
+              <li><strong>十四个坚持</strong>：基本方略（行动纲领）。</li>
+              <li><strong>十三个方面成就</strong>：历史性成就与变革。</li>
+              <li><strong>六个必须坚持</strong>：人民至上、自信自立、守正创新、问题导向、系统观念、胸怀天下。</li>
             </ul>
           </div>
-          <p>💡 <strong>提分神技</strong>：使用 iPad 笔记软件将关键词挖空，每天早晚进行‘胶带挖空强背’，形成条件反射！</p>
         </div>
       `;
       break;
 
     case 'kb-law':
       html = `
-        <h2 class="kb-article-title">⚖️ 宪法与行政法核心考点 (四川笔试最爱)</h2>
+        <h2 class="kb-article-title">⚖️ 宪法与行政法核心考点</h2>
         <div class="kb-article-body">
-          <div style="background:var(--bg-subtle); padding:16px; border-radius:8px; margin-bottom:14px;">
-            <h4>1. 宪法核心：修改程序与机构职权</h4>
-            <p>- <strong>修改提议</strong>：全国人大常委会 <strong>或者</strong> 五分之一以上全国人大代表提议。<br>- <strong>通过比例</strong>：全国人民代表大会以 <strong>全体代表的三分之二以上</strong> 多数通过。<br>- <strong>机构职权</strong>：全国人大（修改宪法、制定基本法律） vs 全国人大常委会（解释宪法、制定非基本法律）。</p>
-          </div>
-          <div style="background:var(--bg-subtle); padding:16px; border-radius:8px; margin-bottom:14px;">
-            <h4>2. 行政法与处罚法</h4>
-            <p>- <strong>限制人身自由的行政处罚</strong>：<strong>只能由法律设定</strong>。<br>- <strong>公务员处分期限</strong>：警告（6个月）、记过（12个月）、记大过（18个月）、降级/撤职（24个月）。</p>
-          </div>
+          <p>- <strong>宪法修改</strong>：全国人大常委会或 1/5 以上代表提议；全体代表 2/3 以上多数通过。<br>- <strong>限制人身自由处罚</strong>：只能由法律设定。<br>- <strong>处分期限</strong>：警告6个月、记过12个月、记大过18个月、降级/撤职24个月。</p>
         </div>
       `;
       break;
 
     case 'kb-economy':
       html = `
-        <h2 class="kb-article-title">📈 宏观经济政策与唯物辩证法常考点</h2>
+        <h2 class="kb-article-title">📈 宏观经济政策与常考点</h2>
         <div class="kb-article-body">
-          <div style="background:var(--bg-subtle); padding:16px; border-radius:8px; margin-bottom:14px;">
-            <h4>1. 通货膨胀 vs 宏观调控</h4>
-            <p>- <strong>通胀（物价涨、货币贬值）</strong>：采取‘双紧’政策（紧缩性财政：减支出增税收；紧缩性货币：提准备金率、提利率、央行卖出债券）。<br>- <strong>通缩（需求不足）</strong>：采取‘双松’政策。</p>
-          </div>
-          <div style="background:var(--bg-subtle); padding:16px; border-radius:8px; margin-bottom:14px;">
-            <h4>2. 辩证法三大规律</h4>
-            <p>- 对立统一规律（实质与核心）、质量互变规律、否定之否定规律。</p>
-          </div>
+          <p>- <strong>通胀</strong>：双紧政策（紧缩财政 + 紧缩货币）。<br>- <strong>通缩</strong>：双松政策。</p>
         </div>
       `;
       break;
 
     case 'kb-teachers':
       html = `
-        <h2 class="kb-article-title">👨‍🏫 26届78.X高分上岸名师与备考资源推荐</h2>
+        <h2 class="kb-article-title">👨‍🏫 26届78.X高分上岸名师推荐</h2>
         <div class="kb-article-body">
           <ul>
-            <li><strong>习思想与时政</strong>：马克公基（打底） + <strong>金标尺于玉老师</strong>（强化冲刺，命题直击）。</li>
-            <li><strong>法律常识</strong>：<strong>B站吴飞</strong>（刑法幽默） + 金标尺陈志（行政法与法条题海，目标1万题）。</li>
-            <li><strong>非法律公基</strong>：马克《经济1200题》 + 考公青年杰瑞（党史故事化）。</li>
-            <li><strong>公文写作</strong>：<strong>金标尺白杨老师</strong>（9月启动，手写20-30篇，结合AI批改）。</li>
-            <li><strong>行测</strong>：<strong>花生13</strong>（言语20题与资料技巧） + 高照（零基础资料）。</li>
+            <li><strong>习思想与时政</strong>：金标尺于玉老师</li>
+            <li><strong>法律常识</strong>：B站吴飞 + 金标尺陈志</li>
+            <li><strong>公文写作</strong>：金标尺白杨老师（手写20篇）</li>
+            <li><strong>行测</strong>：花生13</li>
           </ul>
         </div>
       `;
@@ -1121,7 +1109,7 @@ function filterKnowledgeMenu(query) {
 }
 
 /* ==========================================================================
-   6. 智能助教、随机抽测与公文批改 (本地离线逻辑 + 远程API双模)
+   6. 智能助教、随机抽测与公文批改
    ========================================================================== */
 
 async function submitChat() {
@@ -1144,7 +1132,6 @@ async function submitChat() {
   box.appendChild(botMsg);
   box.scrollTop = box.scrollHeight;
 
-  // 尝试远程 API，若失败则使用本地离线问答引擎
   try {
     const res = await fetch('/api/chat', {
       method: 'POST',
@@ -1155,7 +1142,7 @@ async function submitChat() {
       const data = await res.json();
       botMsg.innerHTML = `
         <div class="msg-bubble">
-          <h4 style="color:var(--primary); margin-bottom:6px;">${data.title}</h4>
+          <h4 style="color:var(--primary); margin-bottom:4px;">${data.title}</h4>
           <div style="white-space: pre-wrap;">${data.content}</div>
         </div>
       `;
@@ -1164,11 +1151,10 @@ async function submitChat() {
     }
   } catch (err) {}
 
-  // 离线问答逻辑
   const reply = localChatAnswer(text);
   botMsg.innerHTML = `
     <div class="msg-bubble">
-      <h4 style="color:var(--primary); margin-bottom:6px;">${reply.title}</h4>
+      <h4 style="color:var(--primary); margin-bottom:4px;">${reply.title}</h4>
       <div style="white-space: pre-wrap;">${reply.content}</div>
     </div>
   `;
@@ -1213,8 +1199,7 @@ function handleChatKey(e) {
 }
 
 function loadRandomQuiz() {
-  const bank = EMBEDDED_KNOWLEDGE.quiz_bank;
-  renderQuiz(bank);
+  renderQuiz(EMBEDDED_KNOWLEDGE.quiz_bank);
 }
 
 function renderQuiz(questions) {
@@ -1301,17 +1286,16 @@ async function submitGradeDoc() {
   const resultBox = document.getElementById('doc-grade-result');
   resultBox.innerHTML = '<div class="result-placeholder"><p>🚀 AI 助教正在逐项诊断公文要素与格式规范...</p></div>';
 
-  // 本地离线评分算法
   setTimeout(() => {
     const r = localGradeDocument(content);
     resultBox.innerHTML = `
       <div class="score-display-card">
         <div>
-          <span style="font-size:0.85rem; opacity:0.9;">综合诊断得分</span>
-          <div class="score-num">${r.score} <small style="font-size:1rem;">/ 30.0分</small></div>
-          <span style="font-size:0.8rem; background:rgba(255,255,255,0.2); padding:2px 8px; border-radius:4px;">${r.level}</span>
+          <span style="font-size:0.8rem; opacity:0.9;">综合诊断得分</span>
+          <div class="score-num">${r.score} <small style="font-size:0.9rem;">/ 30分</small></div>
+          <span style="font-size:0.75rem; background:rgba(255,255,255,0.2); padding:2px 6px; border-radius:4px;">${r.level}</span>
         </div>
-        <div style="text-align:right; font-size:0.85rem;">
+        <div style="text-align:right; font-size:0.8rem;">
           <div>字数：${r.char_count} 字</div>
           <div>格式达标率：${Math.round(r.score / 30 * 100)}%</div>
         </div>
@@ -1319,26 +1303,26 @@ async function submitGradeDoc() {
 
       <div class="result-section">
         <h5>✨ 亮点要素</h5>
-        <ul style="padding-left:18px; font-size:0.85rem; color:var(--accent-green);">
+        <ul style="padding-left:16px; font-size:0.82rem; color:var(--accent-green);">
           ${r.highlights.length ? r.highlights.map(h => `<li>${h}</li>`).join('') : '<li>暂无突出亮点</li>'}
         </ul>
       </div>
 
       <div class="result-section">
-        <h5>⚠️ 扣分与诊断项</h5>
-        <ul style="padding-left:18px; font-size:0.85rem; color:var(--accent-red);">
-          ${r.deductions.length ? r.deductions.map(d => `<li>${d}</li>`).join('') : '<li>🎉 格式完美，无扣分项！</li>'}
+        <h5>⚠️ 扣分诊断</h5>
+        <ul style="padding-left:16px; font-size:0.82rem; color:var(--accent-red);">
+          ${r.deductions.length ? r.deductions.map(d => `<li>${d}</li>`).join('') : '<li>🎉 格式完美，无扣分！</li>'}
         </ul>
       </div>
 
       <div class="result-section">
-        <h5>💡 提分与润色建议</h5>
-        <ul style="padding-left:18px; font-size:0.85rem; color:var(--text-secondary);">
+        <h5>💡 提分建议</h5>
+        <ul style="padding-left:16px; font-size:0.82rem; color:var(--text-secondary);">
           ${r.suggestions.map(s => `<li>${s}</li>`).join('')}
         </ul>
       </div>
     `;
-  }, 300);
+  }, 250);
 }
 
 function localGradeDocument(content) {
@@ -1347,10 +1331,10 @@ function localGradeDocument(content) {
   const highlights = [];
   const char_count = content.replace(/\s+/g, '').length;
 
-  if ("关于" in content || content.includes("关于")) {
+  if (content.includes("关于")) {
     highlights.push("✅ 包含规范的事由与文种要素");
   } else {
-    score -= 4; deductions.push("❌ 标题缺少‘发文机关+关于+事由+文种’ (-4分)");
+    score -= 4; deductions.push("❌ 标题缺少‘关于+事由+文种’ (-4分)");
   }
 
   if (content.includes("〔") && content.includes("〕")) {
@@ -1372,7 +1356,7 @@ function localGradeDocument(content) {
   if (/\d{4}年\d{1,2}月\d{1,2}日/.test(content)) {
     highlights.push("✅ 成文日期使用标准全阿拉伯数字");
   } else {
-    score -= 3; deductions.push("❌ 成文日期格式不规范或缺失 (-3分)");
+    score -= 3; deductions.push("❌ 成文日期格式不规范 (-3分)");
   }
 
   if (char_count < 200) {
@@ -1388,8 +1372,8 @@ function localGradeDocument(content) {
     highlights: highlights,
     deductions: deductions,
     suggestions: [
-      "牢记公文四部曲：背景依据 + 工作目标 + 重点举措 + 落实保障与期复结语。",
-      "多使用党政规范词（高质高效推进、压紧压实责任、强化底线思维）。"
+      "牢记公文四部曲：背景依据 + 工作目标 + 重点举措 + 落实保障。",
+      "多使用党政规范词（高质高效推进、压紧压实责任）。"
     ]
   };
 }
@@ -1417,7 +1401,7 @@ function renderMistakes() {
   }
 
   if (filtered.length === 0) {
-    container.innerHTML = '<div style="text-align:center; padding:40px; color:var(--text-muted);">暂无错题记录，点击右上角录入日常刷题错题吧！</div>';
+    container.innerHTML = '<div style="text-align:center; padding:30px; color:var(--text-muted); font-size:0.85rem;">暂无错题记录，点击右上角录入日常刷题错题吧！</div>';
     return;
   }
 
@@ -1428,21 +1412,21 @@ function renderMistakes() {
       <div class="mistake-top">
         <span class="quiz-cat">【${m.category}】</span>
         <div>
-          <button class="btn btn-outline" style="padding:4px 10px; font-size:0.75rem;" onclick="toggleMistake(${m.id})">
+          <button class="btn btn-outline" style="padding:3px 8px; font-size:0.72rem;" onclick="toggleMistake(${m.id})">
             ${m.is_mastered ? '✅ 已掌握' : '⏳ 标记已掌握'}
           </button>
-          <button class="btn btn-outline" style="padding:4px 8px; font-size:0.75rem; color:var(--accent-red);" onclick="deleteMistake(${m.id})">
+          <button class="btn btn-outline" style="padding:3px 6px; font-size:0.72rem; color:var(--accent-red);" onclick="deleteMistake(${m.id})">
             🗑️
           </button>
         </div>
       </div>
-      <h4 style="font-size:0.95rem; font-weight:700; margin-bottom:6px;">${escapeHtml(m.title)}</h4>
-      <p style="font-size:0.85rem; color:var(--text-secondary); margin-bottom:8px;"><strong>原题：</strong>${escapeHtml(m.question)}</p>
-      <div style="background:var(--bg-surface); padding:10px; border-radius:6px; font-size:0.82rem; margin-bottom:6px;">
+      <h4 style="font-size:0.9rem; font-weight:700; margin-bottom:4px;">${escapeHtml(m.title)}</h4>
+      <p style="font-size:0.82rem; color:var(--text-secondary); margin-bottom:6px;"><strong>原题：</strong>${escapeHtml(m.question)}</p>
+      <div style="background:var(--bg-surface); padding:8px; border-radius:4px; font-size:0.78rem; margin-bottom:4px;">
         <span style="color:var(--accent-red);">❌ 我的错因：${escapeHtml(m.my_mistake)}</span>
       </div>
-      <div style="background:var(--bg-surface); padding:10px; border-radius:6px; font-size:0.82rem; border-left:3px solid var(--accent-green);">
-        <span style="color:var(--accent-green);">💡 正确解析与记忆：${escapeHtml(m.correct_analysis)}</span>
+      <div style="background:var(--bg-surface); padding:8px; border-radius:4px; font-size:0.78rem; border-left:3px solid var(--accent-green);">
+        <span style="color:var(--accent-green);">💡 解析要点：${escapeHtml(m.correct_analysis)}</span>
       </div>
     `;
     container.appendChild(card);
