@@ -1,6 +1,6 @@
 /**
  * 2027 四川紧缺选调生 · 智能备考全栈与移动端自闭环系统
- * 核心特性：明确展示数据与解答来源（本地千问2.5-3B大模型 / 本地精准知识库 / 内置引擎）
+ * 核心升级：艾宾浩斯遗忘曲线抗遗忘连续答对机制（连对3次方可科学归入“已掌握”，做错1次立即清零打回“待复习”）
  */
 
 const EMBEDDED_KNOWLEDGE = {
@@ -202,7 +202,7 @@ function saveLocalPlan(dateStr, tasks, notes) {
 }
 
 function getLocalMistakes() {
-  const raw = localStorage.getItem('sc_study_mistakes_v2');
+  const raw = localStorage.getItem('sc_study_mistakes_v3');
   if (raw) {
     try { return JSON.parse(raw); } catch (e) {}
   }
@@ -220,13 +220,15 @@ function getLocalMistakes() {
       key_point: "行政处罚设定权",
       attempt_count: 1,
       correct_count: 0,
+      correct_streak: 0,
+      mastery_threshold: 3,
       is_mastered: 0
     }
   ];
 }
 
 function saveLocalMistakes(mistakes) {
-  localStorage.setItem('sc_study_mistakes_v2', JSON.stringify(mistakes));
+  localStorage.setItem('sc_study_mistakes_v3', JSON.stringify(mistakes));
 }
 
 function getAiSettings() {
@@ -475,30 +477,18 @@ function renderTodayTasksDOM() {
 }
 
 function onTodayTaskTextInput(index, value) {
-  if (appState.todayTasks[index]) {
-    appState.todayTasks[index].content = value;
-  }
+  if (appState.todayTasks[index]) appState.todayTasks[index].content = value;
 }
-
 function onTodayTaskDurationInput(index, value) {
-  const num = parseFloat(value) || 0.0;
-  if (appState.todayTasks[index]) {
-    appState.todayTasks[index].duration = num;
-  }
+  if (appState.todayTasks[index]) appState.todayTasks[index].duration = parseFloat(value) || 0.0;
   updateTodaySummaryBadges();
 }
-
 function onTodayTaskCatChange(index, newCat) {
-  if (appState.todayTasks[index]) {
-    appState.todayTasks[index].category = newCat;
-  }
+  if (appState.todayTasks[index]) appState.todayTasks[index].category = newCat;
   updateTodaySummaryBadges();
 }
-
 function onTodayTaskCheck(index, isDone) {
-  if (appState.todayTasks[index]) {
-    appState.todayTasks[index].is_done = isDone;
-  }
+  if (appState.todayTasks[index]) appState.todayTasks[index].is_done = isDone;
   const row = document.getElementById(`today-task-row-${index}`);
   if (row) {
     if (isDone) row.classList.add('is-done');
@@ -551,16 +541,9 @@ function updateTodaySummaryBadges() {
 }
 
 function addNewTaskRow() {
-  appState.todayTasks.push({
-    id: `task-${Date.now()}`,
-    category: "公基与法律",
-    content: "新复习任务",
-    duration: 1.0,
-    is_done: false
-  });
+  appState.todayTasks.push({ id: `task-${Date.now()}`, category: "公基与法律", content: "新复习任务", duration: 1.0, is_done: false });
   renderTodayTasksDOM();
 }
-
 function removeTodayTask(index) {
   appState.todayTasks.splice(index, 1);
   renderTodayTasksDOM();
@@ -570,19 +553,13 @@ function bindEvents() {
   document.getElementById('btn-save-today').addEventListener('click', async () => {
     const notes = document.getElementById('today-notes-input').value;
     saveLocalPlan(appState.currentDateStr, appState.todayTasks, notes);
-
     try {
       await fetch('/api/checkin', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          date: appState.currentDateStr,
-          tasks: appState.todayTasks,
-          notes: notes
-        })
+        body: JSON.stringify({ date: appState.currentDateStr, tasks: appState.todayTasks, notes: notes })
       });
     } catch (e) {}
-
     alert('🎉 打卡数据已成功保存！');
     calculateAndRenderDashboard();
     renderCalendar();
@@ -774,10 +751,6 @@ function filterKnowledgeMenu(query) {
   });
 }
 
-/* ==========================================================================
-   6. 智能助考对话（明确展示大模型与知识库来源标签）
-   ========================================================================== */
-
 async function submitChat() {
   const input = document.getElementById('chat-input-text');
   const text = input.value.trim();
@@ -949,7 +922,7 @@ async function submitGradeDoc() {
 }
 
 /* ==========================================================================
-   7. 错题集与重做
+   7. 艾宾浩斯抗遗忘连续答对掌握度核心
    ========================================================================== */
 
 function loadMistakes() {
@@ -960,8 +933,8 @@ function loadMistakes() {
 
 function updateMistakeCounters() {
   const allCount = appState.mistakes.length;
-  const unmasteredCount = appState.mistakes.filter(m => m.is_mastered === 0).length;
-  const masteredCount = appState.mistakes.filter(m => m.is_mastered === 1).length;
+  const unmasteredCount = appState.mistakes.filter(m => (m.is_mastered || 0) === 0).length;
+  const masteredCount = appState.mistakes.filter(m => (m.is_mastered || 0) === 1).length;
 
   const elAll = document.getElementById('count-all');
   const elUn = document.getElementById('count-unmastered');
@@ -982,9 +955,9 @@ function renderMistakes() {
   let filtered = appState.mistakes;
 
   if (appState.activeMistakeFilter === 'unmastered') {
-    filtered = filtered.filter(m => m.is_mastered === 0);
+    filtered = filtered.filter(m => (m.is_mastered || 0) === 0);
   } else if (appState.activeMistakeFilter === 'mastered') {
-    filtered = filtered.filter(m => m.is_mastered === 1);
+    filtered = filtered.filter(m => (m.is_mastered || 0) === 1);
   }
 
   if (appState.activeMistakeCategory !== 'all') {
@@ -998,7 +971,10 @@ function renderMistakes() {
 
   filtered.forEach(m => {
     const card = document.createElement('div');
-    const isMastered = m.is_mastered === 1;
+    const isMastered = (m.is_mastered || 0) === 1;
+    const streak = m.correct_streak || 0;
+    const threshold = m.mastery_threshold || 3;
+
     card.className = `interactive-mistake-card ${isMastered ? 'is-mastered-card' : ''}`;
     card.id = `mistake-card-${m.id}`;
 
@@ -1007,25 +983,56 @@ function renderMistakes() {
       : ["A. 选项A", "B. 选项B", "C. 选项C", "D. 选项D"];
 
     const attempts = m.attempt_count || 0;
-    const corrects = m.correct_count || 0;
-    const accuracy = attempts > 0 ? Math.round((corrects / attempts) * 100) : 0;
+
+    // 艾宾浩斯掌握阶梯状态
+    let levelBadge = `<span class="badge badge-primary">🔴 盲点 (连对 0/${threshold})</span>`;
+    let levelTip = "初始错题，请进行复练";
+    if (isMastered || streak >= threshold) {
+      levelBadge = `<span class="badge badge-success">🏆 艾宾浩斯抗遗忘认证 · 已掌握</span>`;
+      levelTip = `已连续答对 ${streak} 次，达成长期记忆！`;
+    } else if (streak === 2) {
+      levelBadge = `<span class="badge badge-amber">🟠 巩固期 (连对 2/${threshold})</span>`;
+      levelTip = `再连对 1 次即可达成科学已掌握！`;
+    } else if (streak === 1) {
+      levelBadge = `<span class="badge badge-amber">🟡 强化期 (连对 1/${threshold})</span>`;
+      levelTip = `短期记忆建立，需继续连对 2 次巩固`;
+    }
+
+    // 3 槽式刻度条
+    const slot1Active = streak >= 1 ? 'active-1' : '';
+    const slot2Active = streak >= 2 ? 'active-2' : '';
+    const slot3Active = streak >= 3 ? 'active-3' : '';
 
     card.innerHTML = `
       <div class="mistake-card-top">
         <div class="mistake-badges-group">
-          <span class="badge ${isMastered ? 'badge-success' : 'badge-primary'}">${isMastered ? '✅ 已掌握' : '⏳ 待复习'}</span>
+          ${levelBadge}
           <span class="kp-tag">【${m.category}】</span>
           ${m.key_point ? `<span class="kp-tag" style="background:rgba(217,119,6,0.1); color:var(--accent-amber);">🏷️ ${m.key_point}</span>` : ''}
-          <span class="stats-tag">已练: ${attempts}次 (正确率: ${accuracy}%)</span>
+          <span class="stats-tag">已练: ${attempts}次</span>
         </div>
         <div>
           <button class="btn btn-outline" style="padding:3px 8px; font-size:0.72rem;" onclick="toggleMistakeMasterStatus(${m.id})">
-            ${isMastered ? '标记为待复习' : '直接标记已掌握'}
+            ${isMastered ? '标记为待复习' : '直接手动掌握'}
           </button>
           <button class="btn btn-outline" style="padding:3px 6px; font-size:0.72rem; color:var(--accent-red);" onclick="deleteMistake(${m.id})">
             🗑️
           </button>
         </div>
+      </div>
+
+      <!-- 艾宾浩斯连续掌握度进度条卡片 -->
+      <div class="ebbinghaus-streak-card" id="streak-card-${m.id}">
+        <div class="streak-left-info">
+          <span>🧠 艾宾浩斯掌握阶梯:</span>
+          <div class="streak-progress-grid">
+            <div class="streak-slot ${slot1Active}" title="第1次答对：强化期"></div>
+            <div class="streak-slot ${slot2Active}" title="第2次答对：巩固期"></div>
+            <div class="streak-slot ${slot3Active}" title="第3次答对：科学已掌握"></div>
+          </div>
+          <span style="color:var(--primary); font-size:0.75rem;">(${streak}/${threshold} 连对)</span>
+        </div>
+        <div class="streak-tip-text" id="streak-tip-${m.id}">${levelTip}</div>
       </div>
 
       <div class="mistake-q-title">${escapeHtml(m.question)}</div>
@@ -1057,6 +1064,7 @@ function renderMistakes() {
   });
 }
 
+// 核心作答判定：艾宾浩斯抗遗忘连续答对流转
 async function attemptMistakeChoice(mistakeId, choiceChar, btnEl) {
   const item = appState.mistakes.find(m => m.id === mistakeId);
   if (!item) return;
@@ -1064,6 +1072,7 @@ async function attemptMistakeChoice(mistakeId, choiceChar, btnEl) {
   const correctAns = (item.correct_answer || "A").trim().toUpperCase();
   const userChoice = choiceChar.trim().toUpperCase();
   const isCorrect = (userChoice === correctAns);
+  const threshold = item.mastery_threshold || 3;
 
   const container = document.getElementById(`practice-opts-${mistakeId}`);
   const allBtns = container.querySelectorAll('.practice-opt-btn');
@@ -1082,16 +1091,30 @@ async function attemptMistakeChoice(mistakeId, choiceChar, btnEl) {
   if (drawer) drawer.style.display = 'block';
 
   item.attempt_count = (item.attempt_count || 0) + 1;
+
   if (isCorrect) {
     item.correct_count = (item.correct_count || 0) + 1;
-    item.is_mastered = 1;
-    card.classList.add('is-mastered-card');
+    item.correct_streak = (item.correct_streak || 0) + 1;
+
+    if (item.correct_streak >= threshold) {
+      item.is_mastered = 1;
+      card.classList.add('is-mastered-card');
+      alert(`🎉 恭喜！此题已连续答对 ${item.correct_streak} 次，达成【艾宾浩斯抗遗忘认证 · 科学已掌握】！`);
+    } else {
+      item.is_mastered = 0;
+      card.classList.remove('is-mastered-card');
+      alert(`✨ 答对了！当前连续答对 ${item.correct_streak}/${threshold} 次。再连对 ${threshold - item.correct_streak} 次即可真正掌握！`);
+    }
   } else {
+    // 答错惩罚：立即清零，坚决打回“待复习”
+    item.correct_streak = 0;
     item.is_mastered = 0;
     card.classList.remove('is-mastered-card');
+    alert(`❌ 遗憾做错！根据抗遗忘曲线，连对进度已清零重置为【待复习】。请认真查看下方深度解析！`);
   }
 
   saveLocalMistakes(appState.mistakes);
+  renderMistakes();
   updateMistakeCounters();
 
   try {
@@ -1124,7 +1147,9 @@ function toggleAnalysisDrawer(mistakeId) {
 function toggleMistakeMasterStatus(id) {
   const item = appState.mistakes.find(m => m.id === id);
   if (item) {
-    item.is_mastered = item.is_mastered === 1 ? 0 : 1;
+    const isM = (item.is_mastered || 0) === 1;
+    item.is_mastered = isM ? 0 : 1;
+    item.correct_streak = isM ? 0 : (item.mastery_threshold || 3);
     saveLocalMistakes(appState.mistakes);
     renderMistakes();
     updateMistakeCounters();
@@ -1179,10 +1204,7 @@ async function executeAiParseMistake() {
     const res = await fetch('/api/ai/parse-mistake', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({
-        raw_text: rawText,
-        engine_config: settings
-      })
+      body: JSON.stringify({ raw_text: rawText, engine_config: settings })
     });
     if (res.ok) {
       const data = await res.json();
@@ -1308,6 +1330,8 @@ function confirmSaveParsedMistake() {
     key_point: kp,
     attempt_count: 0,
     correct_count: 0,
+    correct_streak: 0,
+    mastery_threshold: 3,
     is_mastered: 0
   };
 
@@ -1325,7 +1349,7 @@ function confirmSaveParsedMistake() {
   closeAiAddMistakeModal();
   renderMistakes();
   updateMistakeCounters();
-  alert('🎉 错题已成功智能入库！现在可以直接在卡片上重新练习。');
+  alert('🎉 错题已成功智能入库！需连续答对 3 次方可达成【艾宾浩斯抗遗忘认证】。');
 }
 
 function openAiSettingsModal() {
