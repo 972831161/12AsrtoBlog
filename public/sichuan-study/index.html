@@ -53,7 +53,7 @@
         <span class="tab-icon">🤖</span> 智能助考 & 抽测
       </button>
       <button class="tab-btn" data-tab="mistakes">
-        <span class="tab-icon">📝</span> 错题本 & 笔记
+        <span class="tab-icon">📝</span> 智能错题 & 重做
       </button>
     </nav>
 
@@ -93,9 +93,9 @@
 
           <div class="stat-card gradient-purple">
             <div class="stat-info">
-              <span class="stat-label">待巩固错题 & 盲点</span>
+              <span class="stat-label">待复习错题 & 盲点</span>
               <div class="stat-value"><span id="stat-mistakes">0</span> <small>道</small></div>
-              <span class="stat-desc">重点攻克：行政法 / 习思想</span>
+              <span class="stat-desc">支持交互重做刷题</span>
             </div>
             <div class="stat-deco">🎯</div>
           </div>
@@ -139,20 +139,16 @@
             </div>
 
             <!-- 分类时长动态汇总条 -->
-            <div class="category-summary-bar" id="category-summary-bar">
-              <!-- 动态渲染各分类时长小徽章 -->
-            </div>
+            <div class="category-summary-bar" id="category-summary-bar"></div>
 
             <!-- 动态任务列表编辑区 -->
-            <div class="dynamic-task-list" id="dynamic-task-list">
-              <!-- 动态插入任务行 -->
-            </div>
+            <div class="dynamic-task-list" id="dynamic-task-list"></div>
 
             <div class="add-task-row">
               <button class="btn btn-outline btn-sm" onclick="addNewTaskRow()">➕ 添加自定义任务项</button>
             </div>
 
-            <div class="quick-input-row" style="margin-top: 16px;">
+            <div class="quick-input-row" style="margin-top: 14px;">
               <div class="input-field flex-grow">
                 <label>今日复盘心得 / 难点疑惑记录</label>
                 <input type="text" id="today-notes-input" placeholder="记录今天错题、薄弱知识点或备考心得..." class="form-control">
@@ -164,16 +160,13 @@
             </div>
           </div>
 
-          <!-- 右栏：志愿策略与累计科目时长分布 -->
+          <!-- 右栏：各科目累计复习时长分布看板 -->
           <div class="card-right-group">
-            <!-- 各科目累计复习时长分布看板 -->
             <div class="card">
               <div class="card-header">
                 <h3 class="card-title">📊 各科目累计有效复习时长</h3>
               </div>
-              <div class="category-progress-list" id="global-category-progress">
-                <!-- 动态渲染 -->
-              </div>
+              <div class="category-progress-list" id="global-category-progress"></div>
             </div>
 
             <!-- 志愿策略卡片 -->
@@ -225,16 +218,13 @@
             </div>
           </div>
 
-          <div class="calendar-grid" id="calendar-container">
-            <!-- 动态生成日历卡片 -->
-          </div>
+          <div class="calendar-grid" id="calendar-container"></div>
         </div>
       </section>
 
       <!-- 3. 备考全景知识库 -->
       <section id="tab-knowledge" class="tab-pane">
         <div class="knowledge-layout">
-          <!-- 左侧目录 -->
           <div class="card knowledge-sidebar">
             <div class="kb-search-box">
               <input type="text" id="kb-search-input" placeholder="🔍 快速搜索考点/公文/政策..." class="form-control">
@@ -261,17 +251,13 @@
             </div>
           </div>
 
-          <!-- 右侧内容展示 -->
-          <div class="card knowledge-content" id="kb-content-display">
-            <!-- 动态渲染内容 -->
-          </div>
+          <div class="card knowledge-content" id="kb-content-display"></div>
         </div>
       </section>
 
       <!-- 4. 智能助考 & 抽测 -->
       <section id="tab-ai-quiz" class="tab-pane">
         <div class="ai-hub-layout">
-          <!-- 顶部子导航 -->
           <div class="sub-nav">
             <button class="sub-nav-btn active" data-sub="ai-chat">🤖 备考智能助教</button>
             <button class="sub-nav-btn" data-sub="ai-quiz-view">🎯 考点随机抽测</button>
@@ -322,9 +308,7 @@
                 <button id="btn-refresh-quiz" class="btn btn-outline" onclick="loadRandomQuiz()">🔄 换一批试题</button>
               </div>
 
-              <div id="quiz-container" class="quiz-list">
-                <!-- 动态生成试题 -->
-              </div>
+              <div id="quiz-container" class="quiz-list"></div>
             </div>
           </div>
 
@@ -341,13 +325,7 @@
               <div class="grader-input-row">
                 <div class="doc-input-box">
                   <label>公文作答文本框</label>
-                  <textarea id="doc-text-input" rows="12" class="form-control" placeholder="在此粘贴您的公文内容，例如：
-关于开展防范地质灾害专项安全检查的通知
-成委办发〔2026〕12号
-各区（市）县人民政府，市级各部门：
-……
-成都市人民政府
-2026年9月10日"></textarea>
+                  <textarea id="doc-text-input" rows="12" class="form-control" placeholder="在此粘贴您的公文内容..."></textarea>
                   <div class="grader-actions">
                     <button class="btn btn-outline" onclick="fillDocSample()">📥 载入标准范文测试</button>
                     <button class="btn btn-primary" onclick="submitGradeDoc()">🚀 开始 AI 智能评分诊断</button>
@@ -366,32 +344,173 @@
         </div>
       </section>
 
-      <!-- 5. 错题本 & 笔记 -->
+      <!-- 5. 智能错题 & 交互重做 -->
       <section id="tab-mistakes" class="tab-pane">
         <div class="card">
           <div class="card-header">
             <div>
-              <h3 class="card-title">📝 备考错题本 & 重点盲点台账</h3>
-              <p class="card-subtitle">记录平时刷题碰到的难题、易混法条与知识盲区，支持反复温习与掌握标记</p>
+              <h3 class="card-title">📝 智能错题本 · AI 一键解析与复现重练</h3>
+              <p class="card-subtitle">直接粘贴做题软件/真题文本即可 AI 自动归类录入；支持在卡片上重新作答，答对自动标记“已掌握”！</p>
             </div>
-            <button class="btn btn-primary" onclick="openAddMistakeModal()">➕ 添加新错题</button>
+            <div style="display:flex; gap:8px; flex-wrap:wrap;">
+              <button class="btn btn-outline btn-sm" onclick="openAiSettingsModal()">⚙️ AI 模型设置</button>
+              <button class="btn btn-primary btn-sm" onclick="openAiAddMistakeModal()">✨ AI 一键录入错题</button>
+            </div>
           </div>
 
+          <!-- 分类筛选与状态筛选 -->
           <div class="mistakes-filter-bar">
-            <button class="filter-chip active" data-filter="all">全部错题</button>
-            <button class="filter-chip" data-filter="unmastered">待巩固 (需温习)</button>
-            <button class="filter-chip" data-filter="mastered">已掌握</button>
+            <button class="filter-chip active" data-filter="all">全部错题 (<span id="count-all">0</span>)</button>
+            <button class="filter-chip" data-filter="unmastered">⏳ 待复习 (<span id="count-unmastered">0</span>)</button>
+            <button class="filter-chip" data-filter="mastered">✅ 已掌握 (<span id="count-mastered">0</span>)</button>
           </div>
 
-          <div class="mistakes-list" id="mistakes-container">
-            <!-- 动态生成错题卡片 -->
+          <div class="mistakes-cat-tabs" id="mistakes-cat-tabs">
+            <button class="cat-filter-chip active" data-cat="all">全部板块</button>
+            <button class="cat-filter-chip" data-cat="习近平新时代中国特色社会主义思想与时政">🚩 习思想与时政</button>
+            <button class="cat-filter-chip" data-cat="法律常识">⚖️ 法律常识</button>
+            <button class="cat-filter-chip" data-cat="非法律公基">📈 非法律公基</button>
+            <button class="cat-filter-chip" data-cat="公文写作与改错">📝 公文写作</button>
+            <button class="cat-filter-chip" data-cat="行测专项">📊 行测专项</button>
           </div>
+
+          <div class="mistakes-list" id="mistakes-container"></div>
         </div>
       </section>
 
     </main>
 
-    <!-- 弹窗：日期详情编辑 Modal (支持动态编辑任务与分类) -->
+    <!-- 弹窗 1：AI 一键智能错题录入 Modal -->
+    <div id="modal-ai-add-mistake" class="modal-overlay hidden">
+      <div class="modal-card modal-lg">
+        <div class="modal-header">
+          <h3>✨ AI 一键智能录入错题</h3>
+          <button class="btn-close" onclick="closeAiAddMistakeModal()">✕</button>
+        </div>
+        <div class="modal-body">
+          <div class="form-group">
+            <label style="display:flex; justify-content:space-between;">
+              <span>原始题目文本 (直接粘贴完整题干+选项+答案+解析)</span>
+              <a href="javascript:void(0)" style="font-size:0.8rem; color:var(--primary);" onclick="fillSampleMistakeText()">📥 载入示例错题测试</a>
+            </label>
+            <textarea id="raw-mistake-input" rows="6" class="form-control" placeholder="在此粘贴复制的错题，例如：
+下列哪一类行政处罚只能由法律设定？
+A. 限制人身自由的行政处罚
+B. 责令停产停业
+C. 没收违法所得
+D. 较大数额罚款
+正确答案：A
+我的答案：B
+解析：《行政处罚法》明确规定，限制人身自由的行政处罚只能由法律设定……"></textarea>
+          </div>
+
+          <button class="btn btn-primary" id="btn-parse-mistake" onclick="executeAiParseMistake()">🚀 AI 智能提取并结构化</button>
+
+          <!-- 提取回显预览区 -->
+          <div id="ai-parsed-preview" class="ai-preview-box hidden">
+            <h4 style="font-size:0.9rem; color:var(--primary); margin-bottom:10px;">📋 结构化提取结果（可直接修改微调）</h4>
+            
+            <div class="form-group">
+              <label>自动归类板块</label>
+              <select id="parsed-cat-select" class="form-control">
+                <option value="习近平新时代中国特色社会主义思想与时政">习近平新时代中国特色社会主义思想与时政</option>
+                <option value="法律常识">法律常识 (行政法/宪法/刑法/民法)</option>
+                <option value="非法律公基">非法律公基 (经济/政治/党史/省情)</option>
+                <option value="公文写作与改错">公文写作与改错</option>
+                <option value="行测专项">行测专项 (言语/资料/图推)</option>
+              </select>
+            </div>
+
+            <div class="form-group">
+              <label>题干</label>
+              <textarea id="parsed-q-input" rows="2" class="form-control"></textarea>
+            </div>
+
+            <div class="form-group">
+              <label>选项列表 (每行一个)</label>
+              <textarea id="parsed-opts-input" rows="4" class="form-control"></textarea>
+            </div>
+
+            <div style="display:grid; grid-template-columns:1fr 1fr 1fr; gap:10px;">
+              <div class="form-group">
+                <label>正确答案</label>
+                <input type="text" id="parsed-ans-input" class="form-control" placeholder="如 A 或 ABC">
+              </div>
+              <div class="form-group">
+                <label>当时错选</label>
+                <input type="text" id="parsed-my-input" class="form-control" placeholder="如 B">
+              </div>
+              <div class="form-group">
+                <label>核心考点关键词</label>
+                <input type="text" id="parsed-kp-input" class="form-control" placeholder="如 行政处罚设定权">
+              </div>
+            </div>
+
+            <div class="form-group">
+              <label>解析与速记口诀</label>
+              <textarea id="parsed-exp-input" rows="2" class="form-control"></textarea>
+            </div>
+          </div>
+        </div>
+        <div class="modal-footer">
+          <button class="btn btn-outline" onclick="closeAiAddMistakeModal()">取消</button>
+          <button class="btn btn-primary" id="btn-save-parsed-mistake" onclick="confirmSaveParsedMistake()" disabled>💾 确认入库</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- 弹窗 2：AI 模型与引擎设置 Modal -->
+    <div id="modal-ai-settings" class="modal-overlay hidden">
+      <div class="modal-card">
+        <div class="modal-header">
+          <h3>⚙️ AI 提取模型与引擎设置</h3>
+          <button class="btn-close" onclick="closeAiSettingsModal()">✕</button>
+        </div>
+        <div class="modal-body">
+          <div class="form-group">
+            <label>解析引擎模式</label>
+            <select id="setting-engine-type" class="form-control" onchange="toggleEngineSettings()">
+              <option value="builtin">🛡️ 内置极速智能引擎 (推荐 · 0内存 · 免配置)</option>
+              <option value="ollama">🏆 本地 Ollama 轻量模型 (推荐 Qwen2.5:1.5b)</option>
+              <option value="openai">🥉 云端 API (DeepSeek / OpenAI 兼容)</option>
+            </select>
+          </div>
+
+          <div id="ollama-config-group" class="hidden">
+            <div class="form-group">
+              <label>Ollama API 地址</label>
+              <input type="text" id="setting-ollama-url" class="form-control" value="http://localhost:11434/api/generate">
+            </div>
+            <div class="form-group">
+              <label>模型名称 (轻量推荐：qwen2.5:1.5b 或 qwen2.5:3b)</label>
+              <input type="text" id="setting-ollama-model" class="form-control" value="qwen2.5:1.5b">
+              <small style="color:var(--text-muted);">终端运行 <code>ollama run qwen2.5:1.5b</code> 即可启动 (仅占 1.2GB 内存)</small>
+            </div>
+          </div>
+
+          <div id="openai-config-group" class="hidden">
+            <div class="form-group">
+              <label>API Base URL</label>
+              <input type="text" id="setting-api-url" class="form-control" value="https://api.deepseek.com/v1/chat/completions">
+            </div>
+            <div class="form-group">
+              <label>API Key</label>
+              <input type="password" id="setting-api-key" class="form-control" placeholder="sk-...">
+            </div>
+            <div class="form-group">
+              <label>Model</label>
+              <input type="text" id="setting-api-model" class="form-control" value="deepseek-chat">
+            </div>
+          </div>
+        </div>
+        <div class="modal-footer">
+          <button class="btn btn-outline" onclick="closeAiSettingsModal()">取消</button>
+          <button class="btn btn-primary" onclick="saveAiSettings()">保存配置</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- 弹窗 3：日期详情编辑 Modal -->
     <div id="modal-date-detail" class="modal-overlay hidden">
       <div class="modal-card modal-lg">
         <div class="modal-header">
@@ -400,13 +519,8 @@
         </div>
         <div class="modal-body">
           <div class="stage-tag" id="modal-stage-tag">自主规划阶段</div>
-          
-          <div class="modal-tasks-container" id="modal-tasks-list">
-            <!-- 动态任务列表 -->
-          </div>
-
+          <div class="modal-tasks-container" id="modal-tasks-list"></div>
           <button class="btn btn-outline btn-sm" onclick="addModalTaskRow()">➕ 在该日添加任务项</button>
-
           <div class="modal-fields" style="margin-top: 14px;">
             <div class="field-item">
               <label>复盘心得与疑问</label>
@@ -417,54 +531,6 @@
         <div class="modal-footer">
           <button class="btn btn-outline" onclick="closeDateModal()">取消</button>
           <button class="btn btn-primary" onclick="saveDateModal()">保存该日打卡与修改</button>
-        </div>
-      </div>
-    </div>
-
-    <!-- 弹窗：添加错题 Modal -->
-    <div id="modal-add-mistake" class="modal-overlay hidden">
-      <div class="modal-card">
-        <div class="modal-header">
-          <h3>➕ 录入新错题 / 易混考点</h3>
-          <button class="btn-close" onclick="closeAddMistakeModal()">✕</button>
-        </div>
-        <div class="modal-body">
-          <div class="form-group">
-            <label>科目分类</label>
-            <select id="mistake-cat-input" class="form-control">
-              <option value="法律公基 - 行政法">法律公基 - 行政法</option>
-              <option value="法律公基 - 宪法">法律公基 - 宪法</option>
-              <option value="法律公基 - 刑法/民法">法律公基 - 刑法/民法</option>
-              <option value="习近平新时代中国特色社会主义思想">习近平新时代中国特色社会主义思想</option>
-              <option value="非法律公基 (经济/政治/党史)">非法律公基 (经济/政治/党史)</option>
-              <option value="公文写作与改错">公文写作与改错</option>
-              <option value="行测 (言语/资料/图推)">行测 (言语/资料/图推)</option>
-            </select>
-          </div>
-
-          <div class="form-group">
-            <label>考点标题 / 核心关键词</label>
-            <input type="text" id="mistake-title-input" placeholder="例如：行政处罚设定权限与种类" class="form-control">
-          </div>
-
-          <div class="form-group">
-            <label>题目原题 / 考查内容</label>
-            <textarea id="mistake-q-input" rows="3" placeholder="粘贴题干及选项..." class="form-control"></textarea>
-          </div>
-
-          <div class="form-group">
-            <label>我当时的错选 / 错误认知</label>
-            <input type="text" id="mistake-my-input" placeholder="例如：误将限制人身自由记为行政法规可设定" class="form-control">
-          </div>
-
-          <div class="form-group">
-            <label>正确解析与法条/要点速记</label>
-            <textarea id="mistake-analysis-input" rows="3" placeholder="正确法条或记忆要点..." class="form-control"></textarea>
-          </div>
-        </div>
-        <div class="modal-footer">
-          <button class="btn btn-outline" onclick="closeAddMistakeModal()">取消</button>
-          <button class="btn btn-primary" onclick="submitNewMistake()">保存到错题集</button>
         </div>
       </div>
     </div>

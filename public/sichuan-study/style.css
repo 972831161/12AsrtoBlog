@@ -44,7 +44,6 @@
   --transition-normal: 0.25s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
-/* 深色模式 */
 body.theme-dark {
   --bg-app: #0b0f19;
   --bg-surface: #131b2e;
@@ -64,7 +63,6 @@ body.theme-dark {
   --shadow-lg: 0 10px 20px -3px rgba(0, 0, 0, 0.4);
 }
 
-/* 全局重置与 iOS 防缩放 */
 *, *::before, *::after {
   box-sizing: border-box;
   margin: 0;
@@ -142,10 +140,6 @@ body {
   max-width: 280px;
 }
 
-.nav-center {
-  flex-shrink: 0;
-}
-
 .countdown-badge {
   display: flex;
   align-items: baseline;
@@ -156,22 +150,9 @@ body {
   border-radius: var(--radius-full);
 }
 
-.cd-label {
-  font-size: 0.75rem;
-  font-weight: 600;
-  color: var(--accent-red);
-}
-
-.cd-number {
-  font-size: 1.3rem;
-  font-weight: 900;
-  color: var(--accent-red);
-}
-
-.cd-unit {
-  font-size: 0.75rem;
-  color: var(--text-secondary);
-}
+.cd-label { font-size: 0.75rem; font-weight: 600; color: var(--accent-red); }
+.cd-number { font-size: 1.3rem; font-weight: 900; color: var(--accent-red); }
+.cd-unit { font-size: 0.75rem; color: var(--text-secondary); }
 
 .nav-right {
   display: flex;
@@ -203,7 +184,7 @@ body {
   font-size: 1rem;
 }
 
-/* 主导航选项卡 (支持水平平滑滑动) */
+/* 主导航选项卡 */
 .main-tabs {
   display: flex;
   gap: 6px;
@@ -215,9 +196,7 @@ body {
   scrollbar-width: none;
 }
 
-.main-tabs::-webkit-scrollbar {
-  display: none;
-}
+.main-tabs::-webkit-scrollbar { display: none; }
 
 .tab-btn {
   display: inline-flex;
@@ -241,7 +220,6 @@ body {
   box-shadow: inset 0 0 0 1.5px var(--primary);
 }
 
-/* 主体容器 */
 .main-content {
   max-width: 1380px;
   margin: 16px auto;
@@ -262,7 +240,6 @@ body {
   to { opacity: 1; transform: translateY(0); }
 }
 
-/* 卡片 */
 .card {
   background: var(--bg-surface);
   border: 1px solid var(--border-subtle);
@@ -296,7 +273,6 @@ body {
   margin-top: 2px;
 }
 
-/* 徽章 */
 .badge {
   display: inline-flex;
   align-items: center;
@@ -318,7 +294,6 @@ body {
   border: 1px solid rgba(16, 185, 129, 0.2);
 }
 
-/* 驾驶舱统计卡片 Grid */
 .stats-grid {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
@@ -349,7 +324,6 @@ body {
 .stat-desc { font-size: 0.72rem; opacity: 0.85; }
 .stat-deco { font-size: 2.4rem; opacity: 0.25; }
 
-/* 备考三阶段时间线 */
 .timeline-bar-container {
   display: grid;
   grid-template-columns: repeat(3, 1fr);
@@ -368,11 +342,10 @@ body {
   background: var(--primary-light);
 }
 
-.stage-title { font-size: 0.88rem; font-weight: 700; color: var(--text-main); }
+.stage-title { font-size: 0.88rem; font-weight: 700; }
 .stage-date { font-size: 0.75rem; color: var(--primary); font-weight: 600; margin: 2px 0 6px; }
 .stage-tasks { font-size: 0.78rem; color: var(--text-secondary); line-height: 1.35; }
 
-/* 驾驶舱左右布局 */
 .dashboard-columns {
   display: grid;
   grid-template-columns: 1.3fr 0.9fr;
@@ -384,7 +357,6 @@ body {
   flex-direction: column;
 }
 
-/* 分类时长汇总条 */
 .category-summary-bar {
   display: flex;
   flex-wrap: wrap;
@@ -410,7 +382,6 @@ body {
 
 .cat-badge strong { color: var(--primary); }
 
-/* 动态任务列表 (桌面与移动端完美卡片化) */
 .dynamic-task-list {
   display: flex;
   flex-direction: column;
@@ -426,7 +397,6 @@ body {
   background: var(--bg-subtle);
   border: 1px solid var(--border-subtle);
   border-radius: var(--radius-sm);
-  transition: border-color var(--transition-fast);
 }
 
 .task-edit-row.is-done {
@@ -506,10 +476,6 @@ body {
   font-family: inherit;
 }
 
-.task-content-input:focus {
-  border-color: var(--border-focus);
-}
-
 .btn-del-task {
   background: transparent;
   border: none;
@@ -531,7 +497,6 @@ body {
   font-size: 0.82rem;
 }
 
-/* 各科目累计进度列表 */
 .category-progress-list {
   display: flex;
   flex-direction: column;
@@ -564,7 +529,6 @@ body {
   border-radius: var(--radius-full);
 }
 
-/* 输入与按钮 */
 .quick-input-row {
   display: flex;
   gap: 12px;
@@ -620,13 +584,16 @@ body {
   color: #ffffff;
 }
 
+.btn-primary:hover {
+  background: var(--primary-hover);
+}
+
 .btn-outline {
   background: transparent;
   color: var(--text-main);
   border: 1px solid var(--border-subtle);
 }
 
-/* 志愿策略 */
 .strategy-list {
   display: flex;
   flex-direction: column;
@@ -644,10 +611,9 @@ body {
 }
 
 .strat-icon { font-size: 1.3rem; }
-.strat-content h4 { font-size: 0.88rem; font-weight: 700; color: var(--text-main); }
+.strat-content h4 { font-size: 0.88rem; font-weight: 700; }
 .strat-content p { font-size: 0.78rem; color: var(--text-secondary); }
 
-/* 日历 */
 .calendar-filters {
   display: flex;
   gap: 12px;
@@ -701,9 +667,6 @@ body {
 
 .cal-date { font-size: 0.85rem; font-weight: 700; }
 .cal-stage-badge { font-size: 0.65rem; font-weight: 600; padding: 1px 4px; border-radius: 3px; color: #fff; }
-.stage-1-bg { background: #3b82f6; }
-.stage-2-bg { background: #d97706; }
-.stage-3-bg { background: #dc2626; }
 
 .cal-tasks-summary {
   font-size: 0.72rem;
@@ -720,7 +683,6 @@ body {
   color: var(--text-muted);
 }
 
-/* 知识库两栏布局 */
 .knowledge-layout {
   display: grid;
   grid-template-columns: 280px 1fr;
@@ -774,7 +736,6 @@ body {
 
 .chat-input-bar { display: flex; gap: 8px; padding-top: 10px; }
 
-/* 试题与公文 */
 .quiz-list { display: flex; flex-direction: column; gap: 14px; }
 .quiz-item-card { padding: 14px; border-radius: var(--radius-sm); background: var(--bg-subtle); border: 1px solid var(--border-subtle); }
 .quiz-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px; }
@@ -792,16 +753,170 @@ body {
 .score-display-card { display: flex; align-items: center; justify-content: space-between; padding: 12px 16px; background: linear-gradient(135deg, var(--primary), #1e3a8a); color: #fff; border-radius: var(--radius-sm); margin-bottom: 12px; }
 .score-num { font-size: 1.8rem; font-weight: 900; }
 
-/* 错题集 */
-.mistakes-filter-bar { display: flex; gap: 8px; margin-bottom: 14px; overflow-x: auto; scrollbar-width: none; }
-.filter-chip { padding: 4px 12px; border-radius: var(--radius-full); border: 1px solid var(--border-subtle); background: var(--bg-surface); color: var(--text-secondary); font-size: 0.78rem; font-weight: 600; cursor: pointer; white-space: nowrap; flex-shrink: 0; }
-.filter-chip.active { background: var(--primary-light); color: var(--primary); border-color: var(--primary); }
+/* ================= 错题集与交互式重做组件 ================= */
 
-.mistakes-list { display: flex; flex-direction: column; gap: 12px; }
-.mistake-card { padding: 14px; border-radius: var(--radius-sm); background: var(--bg-subtle); border: 1px solid var(--border-subtle); }
-.mistake-top { display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px; }
+.mistakes-filter-bar {
+  display: flex;
+  gap: 8px;
+  margin-bottom: 10px;
+  overflow-x: auto;
+  scrollbar-width: none;
+}
 
-/* Modal 模态框 (自适应移动端 Bottom Sheet) */
+.mistakes-cat-tabs {
+  display: flex;
+  gap: 6px;
+  margin-bottom: 16px;
+  overflow-x: auto;
+  scrollbar-width: none;
+}
+
+.filter-chip, .cat-filter-chip {
+  padding: 4px 12px;
+  border-radius: var(--radius-full);
+  border: 1px solid var(--border-subtle);
+  background: var(--bg-surface);
+  color: var(--text-secondary);
+  font-size: 0.78rem;
+  font-weight: 600;
+  cursor: pointer;
+  white-space: nowrap;
+  flex-shrink: 0;
+}
+
+.filter-chip.active, .cat-filter-chip.active {
+  background: var(--primary-light);
+  color: var(--primary);
+  border-color: var(--primary);
+}
+
+.mistakes-list {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+
+.interactive-mistake-card {
+  padding: 16px;
+  border-radius: var(--radius-md);
+  background: var(--bg-subtle);
+  border: 1px solid var(--border-subtle);
+  position: relative;
+  transition: all var(--transition-fast);
+}
+
+.interactive-mistake-card.is-mastered-card {
+  border-color: rgba(16, 185, 129, 0.4);
+  background: rgba(16, 185, 129, 0.03);
+}
+
+.mistake-card-top {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 8px;
+}
+
+.mistake-badges-group {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  flex-wrap: wrap;
+}
+
+.kp-tag {
+  font-size: 0.7rem;
+  background: rgba(37, 99, 235, 0.1);
+  color: var(--primary);
+  padding: 2px 6px;
+  border-radius: 4px;
+  font-weight: 600;
+}
+
+.stats-tag {
+  font-size: 0.7rem;
+  color: var(--text-muted);
+}
+
+.mistake-q-title {
+  font-size: 0.92rem;
+  font-weight: 700;
+  color: var(--text-main);
+  margin-bottom: 12px;
+  line-height: 1.5;
+}
+
+/* 错题重做选项按钮 */
+.practice-options-grid {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  margin-bottom: 12px;
+}
+
+.practice-opt-btn {
+  text-align: left;
+  padding: 10px 14px;
+  border-radius: var(--radius-sm);
+  background: var(--bg-surface);
+  border: 1px solid var(--border-subtle);
+  font-size: 0.85rem;
+  color: var(--text-main);
+  cursor: pointer;
+  transition: all var(--transition-fast);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.practice-opt-btn:hover {
+  border-color: var(--primary);
+  background: var(--primary-light);
+}
+
+.practice-opt-btn.correct-choice {
+  background: rgba(16, 185, 129, 0.15);
+  border-color: var(--accent-green);
+  color: var(--accent-green);
+  font-weight: 700;
+}
+
+.practice-opt-btn.wrong-choice {
+  background: rgba(220, 38, 38, 0.15);
+  border-color: var(--accent-red);
+  color: var(--accent-red);
+  font-weight: 700;
+}
+
+/* 答案与解析折叠区 */
+.mistake-analysis-drawer {
+  background: var(--bg-surface);
+  border-radius: var(--radius-sm);
+  padding: 12px 14px;
+  border-left: 3px solid var(--primary);
+  font-size: 0.82rem;
+  line-height: 1.6;
+  margin-top: 10px;
+}
+
+.mistake-actions-bar {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-top: 12px;
+  padding-top: 10px;
+  border-top: 1px dashed var(--border-subtle);
+}
+
+.ai-preview-box {
+  background: var(--bg-subtle);
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--radius-sm);
+  padding: 14px;
+  margin-top: 14px;
+}
+
+/* Modal */
 .modal-overlay {
   position: fixed;
   inset: 0;
@@ -833,137 +948,30 @@ body {
 .btn-close { background: transparent; border: none; font-size: 1.2rem; color: var(--text-muted); cursor: pointer; }
 .modal-body { padding: 18px; overflow-y: auto; display: flex; flex-direction: column; gap: 12px; }
 .modal-footer { padding: 12px 18px; border-top: 1px solid var(--border-subtle); display: flex; justify-content: flex-end; gap: 10px; }
-
 .modal-tasks-container { display: flex; flex-direction: column; gap: 8px; }
 
-/* ==========================================================================
-   📱 移动端针对性深度适配 (Media Queries for Screen Width <= 768px)
-   ========================================================================== */
-
+/* 移动端媒体查询 */
 @media (max-width: 768px) {
-  .navbar {
-    padding: 10px 14px;
-  }
-
-  .nav-subtitle {
-    display: none; /* 移动端顶部空间小，隐藏超长副标题 */
-  }
-
-  .current-real-date {
-    display: none; /* 移动端隐藏顶部冗余长日期，保留驾驶舱卡片显示 */
-  }
-
-  .countdown-badge {
-    padding: 3px 8px;
-  }
-  
-  .cd-label {
-    font-size: 0.7rem;
-  }
-
-  .cd-number {
-    font-size: 1.15rem;
-  }
-
-  .main-tabs {
-    padding: 6px 12px;
-  }
-
-  .tab-btn {
-    padding: 6px 10px;
-    font-size: 0.82rem;
-  }
-
-  .main-content {
-    padding: 0 12px 30px;
-    margin: 12px auto;
-  }
-
-  .card {
-    padding: 14px;
-    border-radius: var(--radius-sm);
-    margin-bottom: 14px;
-  }
-
-  /* 驾驶舱统计卡片 2x2 网格 */
-  .stats-grid {
-    grid-template-columns: 1fr 1fr;
-    gap: 10px;
-  }
-
-  .stat-card {
-    padding: 12px;
-  }
-
-  .stat-label {
-    font-size: 0.72rem;
-  }
-
-  .stat-value {
-    font-size: 1.45rem;
-  }
-
-  .stat-deco {
-    display: none;
-  }
-
-  /* 备考三阶段在移动端变为垂直排列 */
-  .timeline-bar-container {
-    grid-template-columns: 1fr;
-    gap: 8px;
-  }
-
-  .stage-block {
-    padding: 10px 12px;
-  }
-
-  /* 驾驶舱单列布局 */
-  .dashboard-columns {
-    grid-template-columns: 1fr;
-    gap: 14px;
-  }
-
-  /* 知识库在移动端单列 */
-  .knowledge-layout {
-    grid-template-columns: 1fr;
-    gap: 14px;
-  }
-
-  .knowledge-sidebar {
-    max-height: 220px;
-    overflow-y: auto;
-  }
-
-  /* 公文批改单列 */
-  .grader-input-row {
-    grid-template-columns: 1fr;
-    gap: 14px;
-  }
-
-  /* 日历网格在移动端适应为 3 列 */
-  .calendar-grid {
-    grid-template-columns: repeat(auto-fill, minmax(100px, 1fr));
-    gap: 8px;
-  }
-
-  .cal-day-card {
-    padding: 8px;
-    min-height: 95px;
-  }
-
-  .cal-date {
-    font-size: 0.78rem;
-  }
-
-  /* 移动端弹窗 Bottom Sheet 风格 */
-  .modal-overlay {
-    padding: 0;
-    align-items: flex-end;
-  }
-
-  .modal-card {
-    border-bottom-left-radius: 0;
-    border-bottom-right-radius: 0;
-    max-height: 85vh;
-  }
+  .navbar { padding: 10px 14px; }
+  .nav-subtitle, .current-real-date, .stat-deco { display: none; }
+  .countdown-badge { padding: 3px 8px; }
+  .cd-label { font-size: 0.7rem; }
+  .cd-number { font-size: 1.15rem; }
+  .main-tabs { padding: 6px 12px; }
+  .tab-btn { padding: 6px 10px; font-size: 0.82rem; }
+  .main-content { padding: 0 12px 30px; margin: 12px auto; }
+  .card { padding: 14px; border-radius: var(--radius-sm); margin-bottom: 14px; }
+  .stats-grid { grid-template-columns: 1fr 1fr; gap: 10px; }
+  .stat-card { padding: 12px; }
+  .stat-label { font-size: 0.72rem; }
+  .stat-value { font-size: 1.45rem; }
+  .timeline-bar-container { grid-template-columns: 1fr; gap: 8px; }
+  .stage-block { padding: 10px 12px; }
+  .dashboard-columns, .knowledge-layout, .grader-input-row { grid-template-columns: 1fr; gap: 14px; }
+  .knowledge-sidebar { max-height: 220px; overflow-y: auto; }
+  .calendar-grid { grid-template-columns: repeat(auto-fill, minmax(100px, 1fr)); gap: 8px; }
+  .cal-day-card { padding: 8px; min-height: 95px; }
+  .cal-date { font-size: 0.78rem; }
+  .modal-overlay { padding: 0; align-items: flex-end; }
+  .modal-card { border-bottom-left-radius: 0; border-bottom-right-radius: 0; max-height: 85vh; }
 }
