@@ -1,6 +1,6 @@
 /**
  * 2027 四川紧缺选调生 · 智能备考全栈与移动端自闭环系统
- * 核心升级：AI 一键错题智能抽取、交互式重做刷题、自动状态流转（做错待复习/做对已掌握）
+ * 核心特性：明确展示数据与解答来源（本地千问2.5-3B大模型 / 本地精准知识库 / 内置引擎）
  */
 
 const EMBEDDED_KNOWLEDGE = {
@@ -58,7 +58,8 @@ let appState = {
   mistakes: [],
   activeMistakeFilter: 'all',
   activeMistakeCategory: 'all',
-  parsedMistakeData: null
+  parsedMistakeData: null,
+  ollamaRunning: false
 };
 
 function getRealCurrentDateStr() {
@@ -84,14 +85,46 @@ document.addEventListener('DOMContentLoaded', () => {
   initRealDateDisplay();
   initTabs();
   initSubTabs();
+  detectOllamaStatus();
   loadData();
   renderKnowledgeArticle('kb-policy');
   loadRandomQuiz();
   bindEvents();
 });
 
+// 检查本地大模型运行状态
+async function detectOllamaStatus() {
+  const badgeText = document.getElementById('status-badge-text');
+  const dot = document.querySelector('#global-ai-status-badge .status-dot');
+  const chatTag = document.getElementById('chat-engine-status-tag');
+
+  try {
+    const res = await fetch('http://localhost:11434/api/tags');
+    if (res.ok) {
+      const data = await res.json();
+      const hasQwen = data.models && data.models.some(m => m.name.includes('qwen2.5'));
+      appState.ollamaRunning = true;
+      if (badgeText) badgeText.textContent = hasQwen ? '千问 2.5-3B 本地在线' : 'Ollama 本地就绪';
+      if (dot) { dot.className = 'status-dot green-dot'; }
+      if (chatTag) {
+        chatTag.textContent = '🟢 本地千问 2.5-3B (Ollama 实时推理)';
+        chatTag.className = 'engine-tag-pill source-llm';
+      }
+      return;
+    }
+  } catch (e) {}
+
+  appState.ollamaRunning = false;
+  if (badgeText) badgeText.textContent = '本地精准知识库模式';
+  if (dot) { dot.className = 'status-dot blue-dot'; }
+  if (chatTag) {
+    chatTag.textContent = '🔵 本地精准考情知识库模式';
+    chatTag.className = 'engine-tag-pill source-kb';
+  }
+}
+
 /* ==========================================================================
-   1. 数据存储引擎
+   1. 数据存储与加载
    ========================================================================== */
 
 function getLocalPlans() {
@@ -188,21 +221,6 @@ function getLocalMistakes() {
       attempt_count: 1,
       correct_count: 0,
       is_mastered: 0
-    },
-    {
-      id: 2,
-      category: "习近平新时代中国特色社会主义思想与时政",
-      title: "六个必须坚持核心内涵",
-      question_type: "single",
-      question: "习近平新时代中国特色社会主义思想的世界观和方法论集中体现为“六个必须坚持”。下列哪一项不属于“六个必须坚持”？",
-      options: ["A. 必须坚持人民至上", "B. 必须坚持自信自立", "C. 必须坚持深化改革", "D. 必须坚持系统观念"],
-      correct_answer: "C",
-      user_answer: "D",
-      correct_analysis: "六个必须坚持是：人民至上、自信自立、守正创新、问题导向、系统观念、胸怀天下。C选项不属于六个必须坚持。",
-      key_point: "六个必须坚持",
-      attempt_count: 1,
-      correct_count: 0,
-      is_mastered: 0
     }
   ];
 }
@@ -217,9 +235,9 @@ function getAiSettings() {
     try { return JSON.parse(raw); } catch (e) {}
   }
   return {
-    engine_type: "builtin",
+    engine_type: "ollama",
     ollama_url: "http://localhost:11434/api/generate",
-    ollama_model: "qwen2.5:1.5b",
+    ollama_model: "qwen2.5:3b",
     api_url: "https://api.deepseek.com/v1/chat/completions",
     api_key: "",
     api_model: "deepseek-chat"
@@ -229,10 +247,6 @@ function getAiSettings() {
 function saveAiSettingsData(data) {
   localStorage.setItem('sc_ai_settings', JSON.stringify(data));
 }
-
-/* ==========================================================================
-   2. 界面初始化与数据加载
-   ========================================================================== */
 
 function initRealDateDisplay() {
   const realDateText = formatChineseDate(appState.currentDateStr);
@@ -419,10 +433,6 @@ function renderGlobalCategoryProgress(catHours, totalHours) {
   });
 }
 
-/* ==========================================================================
-   3. 今日任务编辑器
-   ========================================================================== */
-
 function renderTodayTasksDOM() {
   const container = document.getElementById('dynamic-task-list');
   container.innerHTML = '';
@@ -583,10 +593,6 @@ function bindEvents() {
   });
 }
 
-/* ==========================================================================
-   4. 冲刺日历与弹窗
-   ========================================================================== */
-
 function renderCalendar() {
   const container = document.getElementById('calendar-container');
   container.innerHTML = '';
@@ -689,86 +695,53 @@ function renderModalTasksDOM() {
 }
 
 function onModalTaskTextInput(index, value) {
-  if (appState.modalTasks[index]) {
-    appState.modalTasks[index].content = value;
-  }
+  if (appState.modalTasks[index]) appState.modalTasks[index].content = value;
 }
-
 function onModalTaskDurationInput(index, value) {
-  if (appState.modalTasks[index]) {
-    appState.modalTasks[index].duration = parseFloat(value) || 0.0;
-  }
+  if (appState.modalTasks[index]) appState.modalTasks[index].duration = parseFloat(value) || 0.0;
 }
-
 function onModalTaskCatChange(index, newCat) {
-  if (appState.modalTasks[index]) {
-    appState.modalTasks[index].category = newCat;
-  }
+  if (appState.modalTasks[index]) appState.modalTasks[index].category = newCat;
 }
-
 function onModalTaskCheck(index, isDone) {
-  if (appState.modalTasks[index]) {
-    appState.modalTasks[index].is_done = isDone;
-  }
+  if (appState.modalTasks[index]) appState.modalTasks[index].is_done = isDone;
   const row = document.getElementById(`modal-task-row-${index}`);
   if (row) {
     if (isDone) row.classList.add('is-done');
     else row.classList.remove('is-done');
   }
 }
-
 function addModalTaskRow() {
-  appState.modalTasks.push({
-    id: `task-${Date.now()}`,
-    category: "公基与法律",
-    content: "新任务项",
-    duration: 1.0,
-    is_done: false
-  });
+  appState.modalTasks.push({ id: `task-${Date.now()}`, category: "公基与法律", content: "新任务项", duration: 1.0, is_done: false });
   renderModalTasksDOM();
 }
-
 function removeModalTask(index) {
   appState.modalTasks.splice(index, 1);
   renderModalTasksDOM();
 }
-
 function closeDateModal() {
   document.getElementById('modal-date-detail').classList.add('hidden');
 }
-
 async function saveDateModal() {
   if (!appState.activeDateDetail) return;
   const date = appState.activeDateDetail.date;
   const notes = document.getElementById('modal-notes-input').value;
-
   saveLocalPlan(date, appState.modalTasks, notes);
-
   try {
     await fetch('/api/checkin', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({
-        date: date,
-        tasks: appState.modalTasks,
-        notes: notes
-      })
+      body: JSON.stringify({ date: date, tasks: appState.modalTasks, notes: notes })
     });
   } catch (e) {}
-
   closeDateModal();
   calculateAndRenderDashboard();
   renderCalendar();
 }
 
-/* ==========================================================================
-   5. 知识库渲染
-   ========================================================================== */
-
 function renderKnowledgeArticle(target) {
   const display = document.getElementById('kb-content-display');
   if (!display) return;
-
   const docData = {
     'kb-policy': `
       <h2 class="kb-article-title">🏛️ 四川定向选调百科与核心报考规则</h2>
@@ -791,7 +764,6 @@ function renderKnowledgeArticle(target) {
         - <strong>公文写作</strong>：1大题，共30分（实务公文大题，格式极其严苛）</p>
       </div>`
   };
-
   display.innerHTML = docData[target] || `<div class="kb-article-body"><p>请在左侧菜单点击对应条目进行查阅。</p></div>`;
 }
 
@@ -803,7 +775,7 @@ function filterKnowledgeMenu(query) {
 }
 
 /* ==========================================================================
-   6. 智能助考、随机抽测与公文批改
+   6. 智能助考对话（明确展示大模型与知识库来源标签）
    ========================================================================== */
 
 async function submitChat() {
@@ -821,7 +793,7 @@ async function submitChat() {
 
   const botMsg = document.createElement('div');
   botMsg.className = 'chat-msg bot-msg';
-  botMsg.innerHTML = `<div class="msg-bubble">🤖 正在检索知识库思考中...</div>`;
+  botMsg.innerHTML = `<div class="msg-bubble">🤖 助教正在分析中...</div>`;
   box.appendChild(botMsg);
   box.scrollTop = box.scrollHeight;
 
@@ -833,13 +805,27 @@ async function submitChat() {
     });
     if (res.ok) {
       const data = await res.json();
-      botMsg.innerHTML = `<div class="msg-bubble"><h4 style="color:var(--primary); margin-bottom:4px;">${data.title}</h4><div style="white-space: pre-wrap;">${data.content}</div></div>`;
+      const isLlm = data.engine_source === 'ollama_qwen';
+      const sourceBadgeHtml = `<div class="msg-source-tag ${isLlm ? 'source-llm' : 'source-kb'}">${data.engine_label || '🔵 来源：本地知识库'}</div>`;
+
+      botMsg.innerHTML = `
+        <div class="msg-bubble">
+          ${sourceBadgeHtml}
+          <h4 style="color:var(--primary); margin-bottom:4px;">${data.title}</h4>
+          <div style="white-space: pre-wrap;">${data.content}</div>
+        </div>
+      `;
       box.scrollTop = box.scrollHeight;
       return;
     }
   } catch (err) {}
 
-  botMsg.innerHTML = `<div class="msg-bubble">💡 针对“${escapeHtml(text)}”：四川定向选调核心是公基（习思想+行政法）与公文手写。坚持每日作息，必能上岸！</div>`;
+  botMsg.innerHTML = `
+    <div class="msg-bubble">
+      <div class="msg-source-tag source-kb">🔵 来源：本地离线备考速记库</div>
+      💡 针对“${escapeHtml(text)}”：四川选调核心在公基习思想、行政法与公文手写。坚持每日作息，必能上岸！
+    </div>
+  `;
   box.scrollTop = box.scrollHeight;
 }
 
@@ -922,34 +908,48 @@ async function submitGradeDoc() {
     return;
   }
   const resultBox = document.getElementById('doc-grade-result');
-  resultBox.innerHTML = '<div class="result-placeholder"><p>🚀 AI 助教正在逐项诊断公文要素与格式规范...</p></div>';
+  resultBox.innerHTML = '<div class="result-placeholder"><p>🚀 正在调用本地公文诊断模型全面评估...</p></div>';
 
-  setTimeout(() => {
-    resultBox.innerHTML = `
-      <div class="score-display-card">
-        <div>
-          <span style="font-size:0.8rem;">综合诊断得分</span>
-          <div class="score-num">27.0 <small style="font-size:0.9rem;">/ 30分</small></div>
-          <span style="font-size:0.75rem; background:rgba(255,255,255,0.2); padding:2px 6px; border-radius:4px;">优秀（一类文）</span>
+  try {
+    const res = await fetch('/api/document/grade', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ content: content })
+    });
+    if (res.ok) {
+      const data = await res.json();
+      const r = data.result;
+      resultBox.innerHTML = `
+        <div class="score-display-card">
+          <div>
+            <span style="font-size:0.8rem;">综合诊断得分</span>
+            <div class="score-num">${r.score} <small style="font-size:0.9rem;">/ 30分</small></div>
+            <span style="font-size:0.75rem; background:rgba(255,255,255,0.2); padding:2px 6px; border-radius:4px;">${r.level}</span>
+          </div>
+          <div style="text-align:right; font-size:0.8rem;">
+            <div>字数：${r.char_count} 字</div>
+          </div>
         </div>
-        <div style="text-align:right; font-size:0.8rem;">
-          <div>格式达标率：90%</div>
+        <div class="result-section">
+          <h5>✨ 亮点要素</h5>
+          <ul style="padding-left:16px; font-size:0.82rem; color:var(--accent-green);">
+            ${r.highlights.map(h => `<li>${h}</li>`).join('')}
+          </ul>
         </div>
-      </div>
-      <div class="result-section">
-        <h5>✨ 亮点要素</h5>
-        <ul style="padding-left:16px; font-size:0.82rem; color:var(--accent-green);">
-          <li>✅ 包含发文字号六角括号〔〕</li>
-          <li>✅ 包含标准主送机关及冒号</li>
-          <li>✅ 正文一级标题序号规范</li>
-        </ul>
-      </div>
-    `;
-  }, 200);
+        <div class="result-section">
+          <h5>⚠️ 扣分项诊断</h5>
+          <ul style="padding-left:16px; font-size:0.82rem; color:var(--accent-red);">
+            ${r.deductions.length ? r.deductions.map(d => `<li>${d}</li>`).join('') : '<li>🎉 格式规范，无硬伤扣分！</li>'}
+          </ul>
+        </div>
+      `;
+      return;
+    }
+  } catch (e) {}
 }
 
 /* ==========================================================================
-   7. AI 一键智能错题录入、交互重做与状态流转核心
+   7. 错题集与重做
    ========================================================================== */
 
 function loadMistakes() {
@@ -1158,7 +1158,7 @@ C. 没收违法所得、没收非法财物
 D. 暂扣许可证件
 【正确答案】：A
 【我的答案】：B
-【解析】：本题考查行政处罚的设定权限。《行政处罚法》明确规定：限制人身自由的行政处罚，只能由法律设定。行政法规可以设定除限制人身自由以外的行政处罚。因此本题选A。`;
+【解析】：本题考查行政处罚的设定权限。《行政处罚法》第十条明确规定：限制人身自由的行政处罚，只能由法律设定。行政法规可以设定除限制人身自由以外的行政处罚。因此本题选A。`;
 }
 
 async function executeAiParseMistake() {
@@ -1206,6 +1206,11 @@ async function executeAiParseMistake() {
   document.getElementById('parsed-kp-input').value = parsed.key_point || "";
   document.getElementById('parsed-exp-input').value = parsed.correct_analysis || "";
 
+  const pill = document.getElementById('parsed-engine-source-pill');
+  if (pill) {
+    pill.textContent = parsed.engine_label || (appState.ollamaRunning ? '🟢 本地千问 2.5-3B 大模型' : '🔵 本地规则引擎');
+  }
+
   document.getElementById('ai-parsed-preview').classList.remove('hidden');
   document.getElementById('btn-save-parsed-mistake').disabled = false;
 }
@@ -1243,7 +1248,6 @@ function localRuleBasedParseMistake(raw) {
   const expMatch = text.match(/(?:解析|深度解析|【解析】|答案解析)[：:\s]*([\s\S]+)/);
   if (expMatch) exp = expMatch[1].trim();
 
-  // 切除答案和解析之后的部分，保留干净题干与选项
   const cleanParts = text.split(/(?:正确答案|参考答案|答案|【答案】|我的答案|我的选择|【解析】|解析|答案解析)/);
   const clean = cleanParts[0].trim();
 
@@ -1270,7 +1274,8 @@ function localRuleBasedParseMistake(raw) {
     correct_answer: ans,
     user_answer: myAns,
     correct_analysis: exp,
-    key_point: category.split(' - ')[0]
+    key_point: category.split(' - ')[0],
+    engine_label: "🛡️ 内置极速智能规则引擎"
   };
 }
 
@@ -1325,9 +1330,9 @@ function confirmSaveParsedMistake() {
 
 function openAiSettingsModal() {
   const s = getAiSettings();
-  document.getElementById('setting-engine-type').value = s.engine_type || "builtin";
+  document.getElementById('setting-engine-type').value = s.engine_type || "ollama";
   document.getElementById('setting-ollama-url').value = s.ollama_url || "http://localhost:11434/api/generate";
-  document.getElementById('setting-ollama-model').value = s.ollama_model || "qwen2.5:1.5b";
+  document.getElementById('setting-ollama-model').value = s.ollama_model || "qwen2.5:3b";
   document.getElementById('setting-api-url').value = s.api_url || "https://api.deepseek.com/v1/chat/completions";
   document.getElementById('setting-api-key').value = s.api_key || "";
   document.getElementById('setting-api-model').value = s.api_model || "deepseek-chat";
@@ -1363,6 +1368,7 @@ function saveAiSettings() {
   };
   saveAiSettingsData(data);
   closeAiSettingsModal();
+  detectOllamaStatus();
   alert('⚙️ AI 引擎配置已成功保存！');
 }
 

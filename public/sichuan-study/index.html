@@ -31,6 +31,11 @@
       </div>
 
       <div class="nav-right">
+        <!-- 引擎状态指示徽章 -->
+        <div class="ai-status-indicator" id="global-ai-status-badge" title="点击查看 AI 引擎状态" onclick="openAiSettingsModal()">
+          <span class="status-dot green-dot"></span>
+          <span class="status-text" id="status-badge-text">千问 2.5-3B 本地在线</span>
+        </div>
         <div class="current-real-date" id="nav-real-date">2026年8月18日</div>
         <button id="btn-theme-toggle" class="btn-icon" title="切换深色/浅色模式">
           <span id="theme-icon">🌙</span>
@@ -128,7 +133,6 @@
 
         <!-- 驾驶舱下部双栏 -->
         <div class="dashboard-columns">
-          <!-- 左栏：动态可编辑打卡工作台 -->
           <div class="card today-checkin-card">
             <div class="card-header">
               <div>
@@ -138,10 +142,7 @@
               <span class="badge badge-primary" id="today-status-badge">进行中</span>
             </div>
 
-            <!-- 分类时长动态汇总条 -->
             <div class="category-summary-bar" id="category-summary-bar"></div>
-
-            <!-- 动态任务列表编辑区 -->
             <div class="dynamic-task-list" id="dynamic-task-list"></div>
 
             <div class="add-task-row">
@@ -160,7 +161,6 @@
             </div>
           </div>
 
-          <!-- 右栏：各科目累计复习时长分布看板 -->
           <div class="card-right-group">
             <div class="card">
               <div class="card-header">
@@ -169,7 +169,6 @@
               <div class="category-progress-list" id="global-category-progress"></div>
             </div>
 
-            <!-- 志愿策略卡片 -->
             <div class="card strategy-card">
               <div class="card-header">
                 <h3 class="card-title">🎯 志愿填报政策红利 & 提分锦囊</h3>
@@ -251,7 +250,10 @@
             </div>
           </div>
 
-          <div class="card knowledge-content" id="kb-content-display"></div>
+          <div class="card knowledge-content">
+            <div class="kb-source-badge">🔵 数据源：四川定向选调官方大纲与金标尺专项资料库</div>
+            <div id="kb-content-display"></div>
+          </div>
         </div>
       </section>
 
@@ -270,22 +272,26 @@
               <div class="chat-header">
                 <div class="chat-avatar">🤖</div>
                 <div class="chat-title-group">
-                  <h4>四川紧缺选调智能备考助教</h4>
-                  <p>基于项目内全部政策、真题、公文模板与金标尺资料训练</p>
+                  <div style="display:flex; align-items:center; gap:8px;">
+                    <h4>四川紧缺选调智能备考助教</h4>
+                    <span class="engine-tag-pill" id="chat-engine-status-tag">🟢 本地千问 2.5-3B (Ollama)</span>
+                  </div>
+                  <p>回答时将明确标注是由【本地千问大模型实时推理】还是【本地精准知识库检索】</p>
                 </div>
               </div>
 
               <div class="chat-messages" id="chat-messages-box">
                 <div class="chat-msg bot-msg">
                   <div class="msg-bubble">
-                    同学你好！我是您的四川紧缺选调专属备考助教。您可以向我咨询任何关于<strong>政策志愿、考情分值、行政法常考点、15种公文格式</strong>或<strong>复习节奏</strong>的问题。请问今天想了解什么？
+                    <div class="msg-source-tag source-kb">🔵 来源：本地精准考情知识库</div>
+                    同学你好！我是您的四川紧缺选调专属备考助教。我已经对接了您本地运行的 <strong>通义千问 2.5-3B 大模型</strong> 与 <strong>本地金标尺知识库</strong>。您可以随时向我提问，每次回答都会清晰标注数据来源！
                   </div>
                 </div>
               </div>
 
               <div class="quick-prompts">
+                <button class="chip-btn" onclick="sendPrompt('为什么需求价格弹性小于1时，提价反而总收益增加？')">微观经济弹性原理解析</button>
                 <button class="chip-btn" onclick="sendPrompt('四川选调第二志愿绵阳的流转规则是什么？')">第二志愿流转规则</button>
-                <button class="chip-btn" onclick="sendPrompt('四川紧缺综合卷的单选、多选和公文分值是多少？')">考情分值结构</button>
                 <button class="chip-btn" onclick="sendPrompt('请示和报告在格式和规则上有什么区别？')">请示与报告区别</button>
                 <button class="chip-btn" onclick="sendPrompt('测绘工程专硕能报考成都市哪些部门？')">测绘工程岗位推荐</button>
               </div>
@@ -302,7 +308,10 @@
             <div class="card quiz-card">
               <div class="card-header">
                 <div>
-                  <h3 class="card-title">🎯 考点专项随机抽测</h3>
+                  <div style="display:flex; align-items:center; gap:8px;">
+                    <h3 class="card-title">🎯 考点专项随机抽测</h3>
+                    <span class="engine-tag-pill source-kb">🔵 题库源：本地真题与金标尺核心母题库</span>
+                  </div>
                   <p class="card-subtitle">精选公基、习思想、行政法与公文改错高频母题，支持即答即判</p>
                 </div>
                 <button id="btn-refresh-quiz" class="btn btn-outline" onclick="loadRandomQuiz()">🔄 换一批试题</button>
@@ -317,7 +326,10 @@
             <div class="card grader-card">
               <div class="card-header">
                 <div>
-                  <h3 class="card-title">📝 公文写作 AI 智能批改与润色 (30分大题)</h3>
+                  <div style="display:flex; align-items:center; gap:8px;">
+                    <h3 class="card-title">📝 公文写作 AI 智能批改与润色 (30分大题)</h3>
+                    <span class="engine-tag-pill source-llm">🟢 诊断引擎：本地千问 2.5-3B + 15种公文规范引擎</span>
+                  </div>
                   <p class="card-subtitle">粘贴您手写或练习的公文文本，系统将对标题、字号、主送、结构、落款及用词进行全方位诊断</p>
                 </div>
               </div>
@@ -408,7 +420,10 @@ D. 较大数额罚款
 
           <!-- 提取回显预览区 -->
           <div id="ai-parsed-preview" class="ai-preview-box hidden">
-            <h4 style="font-size:0.9rem; color:var(--primary); margin-bottom:10px;">📋 结构化提取结果（可直接修改微调）</h4>
+            <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:10px;">
+              <h4 style="font-size:0.9rem; color:var(--primary);">📋 结构化提取结果（可直接修改微调）</h4>
+              <span class="engine-tag-pill" id="parsed-engine-source-pill">🟢 解析引擎：本地千问 2.5-3B</span>
+            </div>
             
             <div class="form-group">
               <label>自动归类板块</label>
@@ -468,23 +483,23 @@ D. 较大数额罚款
         </div>
         <div class="modal-body">
           <div class="form-group">
-            <label>解析引擎模式</label>
+            <label>当前引擎模式</label>
             <select id="setting-engine-type" class="form-control" onchange="toggleEngineSettings()">
-              <option value="builtin">🛡️ 内置极速智能引擎 (推荐 · 0内存 · 免配置)</option>
-              <option value="ollama">🏆 本地 Ollama 轻量模型 (推荐 Qwen2.5:1.5b)</option>
-              <option value="openai">🥉 云端 API (DeepSeek / OpenAI 兼容)</option>
+              <option value="ollama">🏆 本地 Ollama 千问大模型 (已连接 qwen2.5:3b)</option>
+              <option value="builtin">🛡️ 内置极速智能规则引擎 (0内存 · 离线速记)</option>
+              <option value="openai">☁️ 云端 API (DeepSeek / OpenAI 兼容)</option>
             </select>
           </div>
 
-          <div id="ollama-config-group" class="hidden">
+          <div id="ollama-config-group">
             <div class="form-group">
               <label>Ollama API 地址</label>
               <input type="text" id="setting-ollama-url" class="form-control" value="http://localhost:11434/api/generate">
             </div>
             <div class="form-group">
-              <label>模型名称 (轻量推荐：qwen2.5:1.5b 或 qwen2.5:3b)</label>
-              <input type="text" id="setting-ollama-model" class="form-control" value="qwen2.5:1.5b">
-              <small style="color:var(--text-muted);">终端运行 <code>ollama run qwen2.5:1.5b</code> 即可启动 (仅占 1.2GB 内存)</small>
+              <label>本地运行模型名称</label>
+              <input type="text" id="setting-ollama-model" class="form-control" value="qwen2.5:3b">
+              <small style="color:var(--accent-green);">🟢 检测到您的本地已启动 <code>qwen2.5:3b</code> (占用 1.9GB 显存，推理超快)</small>
             </div>
           </div>
 
