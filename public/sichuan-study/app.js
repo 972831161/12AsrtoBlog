@@ -3,7 +3,6 @@
  * 核心升级：AI 一键错题智能抽取、交互式重做刷题、自动状态流转（做错待复习/做对已掌握）
  */
 
-// 完整内嵌备考知识库与题库
 const EMBEDDED_KNOWLEDGE = {
   "quiz_bank": [
     {
@@ -218,7 +217,7 @@ function getAiSettings() {
     try { return JSON.parse(raw); } catch (e) {}
   }
   return {
-    engine_type: "builtin", // builtin, ollama, openai
+    engine_type: "builtin",
     ollama_url: "http://localhost:11434/api/generate",
     ollama_model: "qwen2.5:1.5b",
     api_url: "https://api.deepseek.com/v1/chat/completions",
@@ -982,14 +981,12 @@ function renderMistakes() {
 
   let filtered = appState.mistakes;
 
-  // 状态筛选
   if (appState.activeMistakeFilter === 'unmastered') {
     filtered = filtered.filter(m => m.is_mastered === 0);
   } else if (appState.activeMistakeFilter === 'mastered') {
     filtered = filtered.filter(m => m.is_mastered === 1);
   }
 
-  // 板块筛选
   if (appState.activeMistakeCategory !== 'all') {
     filtered = filtered.filter(m => m.category.includes(appState.activeMistakeCategory) || appState.activeMistakeCategory.includes(m.category));
   }
@@ -1033,7 +1030,6 @@ function renderMistakes() {
 
       <div class="mistake-q-title">${escapeHtml(m.question)}</div>
 
-      <!-- 交互式作答区域 -->
       <div class="practice-options-grid" id="practice-opts-${m.id}">
         ${options.map(opt => `
           <button class="practice-opt-btn" onclick="attemptMistakeChoice(${m.id}, '${opt.charAt(0)}', this)">
@@ -1043,7 +1039,6 @@ function renderMistakes() {
         `).join('')}
       </div>
 
-      <!-- 答案与解析折叠区 (作答后自动展开) -->
       <div class="mistake-analysis-drawer" id="analysis-drawer-${m.id}" style="display:none;">
         <div style="margin-bottom:4px;">
           <strong>【参考答案】：</strong><span style="color:var(--accent-green); font-weight:700;">${m.correct_answer || 'A'}</span>
@@ -1062,7 +1057,6 @@ function renderMistakes() {
   });
 }
 
-// 核心功能：用户在错题卡片上点击选项进行交互式重做
 async function attemptMistakeChoice(mistakeId, choiceChar, btnEl) {
   const item = appState.mistakes.find(m => m.id === mistakeId);
   if (!item) return;
@@ -1076,7 +1070,6 @@ async function attemptMistakeChoice(mistakeId, choiceChar, btnEl) {
   const drawer = document.getElementById(`analysis-drawer-${mistakeId}`);
   const card = document.getElementById(`mistake-card-${mistakeId}`);
 
-  // 变色反馈
   allBtns.forEach(b => {
     const c = b.textContent.trim().charAt(0);
     if (c === correctAns) b.classList.add('correct-choice');
@@ -1086,24 +1079,21 @@ async function attemptMistakeChoice(mistakeId, choiceChar, btnEl) {
     btnEl.classList.add('wrong-choice');
   }
 
-  // 展开解析
   if (drawer) drawer.style.display = 'block';
 
-  // 状态自动流转
   item.attempt_count = (item.attempt_count || 0) + 1;
   if (isCorrect) {
     item.correct_count = (item.correct_count || 0) + 1;
-    item.is_mastered = 1; // 做对 -> 升级为已掌握
+    item.is_mastered = 1;
     card.classList.add('is-mastered-card');
   } else {
-    item.is_mastered = 0; // 做错 -> 保持或打回待复习
+    item.is_mastered = 0;
     card.classList.remove('is-mastered-card');
   }
 
   saveLocalMistakes(appState.mistakes);
   updateMistakeCounters();
 
-  // 尝试同步后端
   try {
     await fetch(`/api/mistakes/${mistakeId}/attempt`, {
       method: 'POST',
@@ -1149,8 +1139,6 @@ function deleteMistake(id) {
   updateMistakeCounters();
 }
 
-/* ================= AI 一键错题提取弹窗与引擎 ================= */
-
 function openAiAddMistakeModal() {
   document.getElementById('modal-ai-add-mistake').classList.remove('hidden');
   document.getElementById('raw-mistake-input').value = '';
@@ -1170,10 +1158,9 @@ C. 没收违法所得、没收非法财物
 D. 暂扣许可证件
 【正确答案】：A
 【我的答案】：B
-【解析】：本题考查行政处罚的设定权限。《行政处罚法》第十条明确规定：限制人身自由的行政处罚，只能由法律设定。行政法规可以设定除限制人身自由以外的行政处罚。因此本题选A。`;
+【解析】：本题考查行政处罚的设定权限。《行政处罚法》明确规定：限制人身自由的行政处罚，只能由法律设定。行政法规可以设定除限制人身自由以外的行政处罚。因此本题选A。`;
 }
 
-// 核心：AI 智能解析执行（本地API + 内置离线规则双模）
 async function executeAiParseMistake() {
   const rawText = document.getElementById('raw-mistake-input').value.trim();
   if (!rawText) {
@@ -1188,7 +1175,6 @@ async function executeAiParseMistake() {
   const settings = getAiSettings();
   let parsed = null;
 
-  // 1. 尝试后端 API
   try {
     const res = await fetch('/api/ai/parse-mistake', {
       method: 'POST',
@@ -1204,7 +1190,6 @@ async function executeAiParseMistake() {
     }
   } catch (e) {}
 
-  // 2. 纯前端/离线规则引擎兜底
   if (!parsed) {
     parsed = localRuleBasedParseMistake(rawText);
   }
@@ -1212,7 +1197,6 @@ async function executeAiParseMistake() {
   btn.textContent = '🚀 AI 智能提取并结构化';
   btn.disabled = false;
 
-  // 回显到表单预览区
   appState.parsedMistakeData = parsed;
   document.getElementById('parsed-cat-select').value = parsed.category || "法律常识";
   document.getElementById('parsed-q-input').value = parsed.question || "";
@@ -1226,7 +1210,6 @@ async function executeAiParseMistake() {
   document.getElementById('btn-save-parsed-mistake').disabled = false;
 }
 
-// 本地快速规则解析器
 function localRuleBasedParseMistake(raw) {
   const text = raw.trim();
   let category = "法律常识";
@@ -1260,7 +1243,9 @@ function localRuleBasedParseMistake(raw) {
   const expMatch = text.match(/(?:解析|深度解析|【解析】|答案解析)[：:\s]*([\s\S]+)/);
   if (expMatch) exp = expMatch[1].trim();
 
-  let clean = expMatch ? text.substring(0, expMatch.index).trim() : text;
+  // 切除答案和解析之后的部分，保留干净题干与选项
+  const cleanParts = text.split(/(?:正确答案|参考答案|答案|【答案】|我的答案|我的选择|【解析】|解析|答案解析)/);
+  const clean = cleanParts[0].trim();
 
   const optMatches = clean.match(/([A-D][.、\s]+[^\nA-D]+)/g);
   let options = [];
@@ -1338,8 +1323,6 @@ function confirmSaveParsedMistake() {
   alert('🎉 错题已成功智能入库！现在可以直接在卡片上重新练习。');
 }
 
-/* ================= AI 模型配置设置 ================= */
-
 function openAiSettingsModal() {
   const s = getAiSettings();
   document.getElementById('setting-engine-type').value = s.engine_type || "builtin";
@@ -1388,7 +1371,6 @@ function escapeHtml(str) {
   return String(str).replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;").replace(/'/g, "&#039;");
 }
 
-// 错题筛选事件绑定
 document.querySelectorAll('.filter-chip').forEach(chip => {
   chip.addEventListener('click', () => {
     document.querySelectorAll('.filter-chip').forEach(c => c.classList.remove('active'));
