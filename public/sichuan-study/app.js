@@ -1006,6 +1006,10 @@ function filterKnowledgeMenu(query) {
   });
 }
 
+// ==========================================================================
+// 4. 智能助考对话 (支持本地千问实时算力 / 安全隧道 / 云端LLM / 本地高精知识库)
+// ==========================================================================
+
 async function submitChat() {
   const input = document.getElementById('chat-input-text');
   const text = input.value.trim();
@@ -1021,10 +1025,14 @@ async function submitChat() {
 
   const botMsg = document.createElement('div');
   botMsg.className = 'chat-msg bot-msg';
-  botMsg.innerHTML = `<div class="msg-bubble">🤖 助教正在分析中...</div>`;
+  botMsg.innerHTML = `<div class="msg-bubble">🤖 助教正在深度思考与检索中...</div>`;
   box.appendChild(botMsg);
   box.scrollTop = box.scrollHeight;
 
+  const settings = getAiSettings();
+  let aiAnswer = null;
+
+  // 1. 优先尝试本地后端 /api/chat
   try {
     const res = await fetch('/api/chat', {
       method: 'POST',
@@ -1033,28 +1041,143 @@ async function submitChat() {
     });
     if (res.ok) {
       const data = await res.json();
-      const isLlm = data.engine_source === 'ollama_qwen';
-      const sourceBadgeHtml = `<div class="msg-source-tag ${isLlm ? 'source-llm' : 'source-kb'}">${data.engine_label || '🔵 来源：本地知识库'}</div>`;
-
-      botMsg.innerHTML = `
-        <div class="msg-bubble">
-          ${sourceBadgeHtml}
-          <h4 style="color:var(--primary); margin-bottom:4px;">${data.title}</h4>
-          <div style="white-space: pre-wrap;">${data.content}</div>
-        </div>
-      `;
-      box.scrollTop = box.scrollHeight;
-      return;
+      if (data && data.content) {
+        aiAnswer = {
+          title: data.title || "助教解答",
+          content: data.content,
+          engine_source: data.engine_source || "ollama_qwen",
+          engine_label: data.engine_label || "🟢 本地千问 2.5-3B 大模型 (Ollama 实时推理)"
+        };
+      }
     }
-  } catch (err) {}
+  } catch (e) {}
+
+  // 2. 若处于在线静态端（无后端），尝试前端直连 Ollama 安全隧道或本地端口
+  if (!aiAnswer && (appState.activeTunnelUrl || (settings.engine_type === 'ollama' && settings.ollama_url))) {
+    const targetUrl = appState.activeTunnelUrl || settings.ollama_url || 'http://localhost:11434/api/generate';
+    try {
+      const prompt = `你是一名资深的四川省紧缺专业选调生备考指导名师（精通金标尺、吴飞法律、于玉时政、白杨公文以及四川定向选调100分机考考情，针对中山大学测绘工程专硕考生）。
+请针对考生的问题给出条理清晰、专业有力的解答与备考指导。
+
+考生问题：${text}`;
+
+      const res = await fetch(targetUrl, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          model: settings.ollama_model || 'qwen2.5:3b',
+          prompt: prompt,
+          stream: false
+        })
+      });
+      if (res.ok) {
+        const data = await res.json();
+        if (data.response) {
+          aiAnswer = {
+            title: "通义千问 2.5-3B 实时推理指导",
+            content: data.response.trim(),
+            engine_source: "ollama_qwen",
+            engine_label: `🟢 本地千问 2.5-3B (Mac实时算力)`
+          };
+        }
+      }
+    } catch (e) {}
+  }
+
+  // 3. 若配置了云端大模型 API (DeepSeek/Qwen)
+  if (!aiAnswer && settings.engine_type === 'openai' && settings.api_key) {
+    try {
+      const res = await fetch(settings.api_url || 'https://api.deepseek.com/v1/chat/completions', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${settings.api_key}`
+        },
+        body: JSON.stringify({
+          model: settings.api_model || 'deepseek-chat',
+          messages: [
+            { role: 'system', content: '你是专业的四川定向选调备考指导名师。请回答条理清晰、紧扣四川选调考情。' },
+            { role: 'user', content: text }
+          ]
+        })
+      });
+      if (res.ok) {
+        const data = await res.json();
+        const content = data.choices[0].message.content.trim();
+        aiAnswer = {
+          title: `云端大模型 (${settings.api_model || 'DeepSeek'}) 深度解答`,
+          content: content,
+          engine_source: "cloud_api",
+          engine_label: `☁️ 云端大模型 (${settings.api_model || 'DeepSeek'})`
+        };
+      }
+    } catch (e) {}
+  }
+
+  // 4. 兜底：本地精准考情知识库结构化检索匹配
+  if (!aiAnswer) {
+    aiAnswer = searchLocalKnowledgeBase(text);
+  }
+
+  const isLlm = aiAnswer.engine_source === 'ollama_qwen' || aiAnswer.engine_source === 'cloud_api';
+  const sourceBadgeHtml = `<div class="msg-source-tag ${isLlm ? 'source-llm' : 'source-kb'}">${aiAnswer.engine_label}</div>`;
 
   botMsg.innerHTML = `
     <div class="msg-bubble">
-      <div class="msg-source-tag source-kb">🔵 来源：本地离线备考速记库</div>
-      💡 针对“${escapeHtml(text)}”：四川选调核心在公基习思想、行政法与公文手写。坚持每日作息，必能上岸！
+      ${sourceBadgeHtml}
+      <h4 style="color:var(--primary); margin-bottom:6px;">${aiAnswer.title}</h4>
+      <div style="white-space: pre-wrap; line-height:1.6;">${aiAnswer.content}</div>
     </div>
   `;
   box.scrollTop = box.scrollHeight;
+}
+
+// 本地知识库高精匹配
+function searchLocalKnowledgeBase(query) {
+  const q = query.trim().toLowerCase();
+
+  if (q.includes("弹性") || (q.includes("需求") && q.includes("价格"))) {
+    return {
+      title: "微观经济学 · 需求价格弹性与总收益原理",
+      content: `【核心原理分析】：\n1. 当需求价格弹性 Ed < 1（缺乏弹性，如粮食、生活必需品、自来水等）时：\n   价格变动的百分比 > 需求量变动的百分比。\n2. 总收益 TR = P (价格) × Q (销量)。\n3. 此时提价，虽然销量略微减少，但价格上升的幅度显著大于销量下降的幅度，因此总收益反而【增加】。\n\n💡 备考速记口诀：\n- 缺乏弹性（Ed < 1）➔ “薄利少销，提价增收”（如谷贱伤农原理）；\n- 富有弹性（Ed > 1）➔ “薄利多销，降价增收”。`,
+      engine_source: "knowledge_base",
+      engine_label: "🔵 本地精准考情知识库 (马克经济学讲义)"
+    };
+  }
+
+  if (q.includes("志愿") || q.includes("流转") || q.includes("绵阳") || q.includes("保底") || q.includes("成都")) {
+    return {
+      title: "四川省紧缺专业选调生 · 志愿流转红利深度解读",
+      content: `【志愿填报核心法则】：\n1. 第一志愿必须在【省直机关】或【成都市直】二选一（竞争激烈，严格按 1:3 差额进面）；\n2. 若第一志愿遗憾未进面，第二、三志愿（如绵阳市、德阳市等）将【自动升级为第一志愿】；\n3. 政策最大红利：只要笔试成绩达到全省合格分数线（往年约50-55分），非成都地市【全员进面，不设1:3差额限制】！\n\n🎯 推荐策略：第一志愿大胆冲成都/省直，第二志愿绵阳稳稳保底！`,
+      engine_source: "knowledge_base",
+      engine_label: "🔵 本地精准考情知识库 (四川官方大纲与政策百科)"
+    };
+  }
+
+  if (q.includes("请示") && q.includes("报告")) {
+    return {
+      title: "公文写作专项 · ‘请示’与‘报告’核心区别",
+      content: `【五大核心区别与易考陷阱】：\n1. 行文目的：请示为‘求批复/求指示’；报告为‘知照/汇报工作/反映情况’；\n2. 行文时效：请示必须【事前行文】；报告可事前、事中或事后；\n3. 主送机关：请示【原则上主送一个上级机关】（切忌多头请示），不得抄送下级机关；报告可主送多个上级机关；\n4. 内容要求：请示必须【一文一事，不得夹带报告事项】；报告可综合一文多事，【严禁夹带请示事项】；\n5. 结束语：请示用“妥否，请批示”；报告用“特此报告”。`,
+      engine_source: "knowledge_base",
+      engine_label: "🔵 本地精准考情知识库 (金标尺白杨公文)"
+    };
+  }
+
+  if (q.includes("测绘") || q.includes("专业") || q.includes("岗位")) {
+    return {
+      title: "中山大学 085704 测绘工程专硕 · 四川选调报考岗位推荐",
+      content: `【对口优势部门推荐】：\n1. 四川省自然资源厅 / 成都市规划和自然资源局（国土空间规划、耕地红线卫星遥感监测、不动产测绘）；\n2. 四川省应急管理厅 / 成都市应急管理局（防灾减灾、地质灾害应急遥感遥测、主汛期灾情评估）；\n3. 生态环境厅 / 气象局（生态遥感监测、环境红线核查）；\n4. 各区（市）县委办、政府办（紧缺专业全覆盖选拔）。`,
+      engine_source: "knowledge_base",
+      engine_label: "🔵 本地精准考情知识库 (中山大学专硕考情库)"
+    };
+  }
+
+  return {
+    title: "四川选调考点备考建议",
+    content: `针对您的问题“${query}”：\n四川紧缺选调机考总分100分（48分单选 + 12分多选 + 10分判断 + 30分实务公文）。建议重点抓牢习思想帽子词、行政法高频法条与公文手写规范。坚持每日三段打卡复习，必能成功上岸！`,
+    engine_source: "knowledge_base",
+    engine_label: "🔵 本地精准考情知识库 (通用备考指南)"
+  };
 }
 
 function sendPrompt(text) {
@@ -1066,8 +1189,194 @@ function handleChatKey(e) {
   if (e.key === 'Enter') submitChat();
 }
 
+// ==========================================================================
+// 5. 考点专项随机抽测 & AI 实时考点出题
+// ==========================================================================
+
+const FULL_QUIZ_BANK = [
+  {
+    id: 1,
+    category: "习近平新时代中国特色社会主义思想",
+    type: "single",
+    question: "习近平新时代中国特色社会主义思想的世界观和方法论集中体现为“六个必须坚持”。下列哪一项不属于“六个必须坚持”？",
+    options: ["A. 必须坚持人民至上", "B. 必须坚持自信自立", "C. 必须坚持深化改革", "D. 必须坚持系统观念"],
+    answer: "C",
+    explanation: "‘六个必须坚持’是：必须坚持人民至上、必须坚持自信自立、必须坚持守正创新、必须坚持问题导向、必须坚持系统观念、必须坚持胸怀天下。C选项‘必须坚持深化改革’不属于六个必须坚持。"
+  },
+  {
+    id: 2,
+    category: "法律常识 - 宪法",
+    type: "single",
+    question: "根据我国《宪法》规定，关于宪法修改的提议与表决程序，下列说法正确的是：",
+    options: [
+      "A. 由全国人大常委会或者三分之一以上的全国人大代表提议",
+      "B. 由全国人大常委会或者五分之一以上的全国人大代表提议",
+      "C. 由全国人民代表大会以到会代表的三分之二以上的多数通过",
+      "D. 由全国人大常委会以全体组成人员的三分之二以上的多数通过"
+    ],
+    answer: "B",
+    explanation: "《宪法》第64条规定：宪法的修改，由全国人民代表大会常务委员会或者五分之一以上的全国人民代表大会代表提议，并由全国人民代表大会以全体代表的三分之二以上的多数通过。"
+  },
+  {
+    id: 3,
+    category: "法律常识 - 行政法",
+    type: "single",
+    question: "根据《中华人民共和国行政处罚法》，下列哪一类行政处罚只能由法律设定？",
+    options: ["A. 限制人身自由的行政处罚", "B. 责令停产停业", "C. 没收违法所得、没收非法财物", "D. 较大数额罚款"],
+    answer: "A",
+    explanation: "《行政处罚法》第十条明确规定：限制人身自由的行政处罚，只能由法律设定。行政法规可以设定除限制人身自由以外的行政处罚。"
+  },
+  {
+    id: 4,
+    category: "公文写作规范",
+    type: "single",
+    question: "在党政机关公文格式中，关于‘请示’的规则，下列说法错误的是：",
+    options: [
+      "A. 请示应当一文一事",
+      "B. 请示原则上主送一个上级机关",
+      "C. 请示根据需要可以同时抄送下级机关",
+      "D. 请示不得夹带报告事项"
+    ],
+    answer: "C",
+    explanation: "《党政机关公文处理工作条例》第15条明确规定：向上级机关行文，原则上主送一个上级机关，根据需要同时抄送相关上级机关和同级机关，不抄送下级机关。"
+  },
+  {
+    id: 5,
+    category: "非法律公基 - 经济常识",
+    type: "single",
+    question: "当经济出现严重通货膨胀、物价持续上涨时，政府和央行通常应采取的宏观调控政策组合是：",
+    options: [
+      "A. 扩张性财政政策 + 紧缩性货币政策",
+      "B. 紧缩性财政政策 + 紧缩性货币政策",
+      "C. 扩张性财政政策 + 扩张性货币政策",
+      "D. 紧缩性财政政策 + 扩张性货币政策"
+    ],
+    answer: "B",
+    explanation: "通货膨胀即总需求过旺、货币供给过多，应采取‘双紧’政策：紧缩性财政政策（减少政府支出、增加税收）和紧缩性货币政策（提高利率、提高存款准备金率），以平抑物价。"
+  },
+  {
+    id: 6,
+    category: "公文改错专项",
+    type: "single",
+    question: "下列关于党政机关公文发文字号的编写，格式完全正确的是：",
+    options: [
+      "A. 成府发〔2026〕第18号",
+      "B. 成府发【2026】18号",
+      "C. 成府发〔2026〕18号",
+      "D. 成府发(2026)18号"
+    ],
+    answer: "C",
+    explanation: "发文字号年份必须使用六角括号‘〔 〕’标注，发文顺序号不加‘第’字，不编虚位（即1不编为01）。"
+  },
+  {
+    id: 7,
+    category: "四川省情与政策",
+    type: "single",
+    question: "四川省紧缺专业选调生笔试科目为机考一科《综合能力测试》，满分100分，其中实务公文大题所占分值为：",
+    options: ["A. 20分", "B. 30分", "C. 40分", "D. 50分"],
+    answer: "B",
+    explanation: "四川紧缺选调机考满分100分：单选48分(60题)、多选12分(10题)、判断10分(10题)、公文大题30分(1题)。"
+  },
+  {
+    id: 8,
+    category: "公基常识 - 公务员法",
+    type: "single",
+    question: "根据《中华人民共和国公务员法》，对公务员的处分分为警告、记过、记大过、降级、撤职、开除。其中‘记大过’的受处分期间为：",
+    options: ["A. 6个月", "B. 12个月", "C. 18个月", "D. 24个月"],
+    answer: "C",
+    explanation: "《公务员法》第64条：受处分的期间为：警告（6个月）、记过（12个月）、记大过（18个月）、降级/撤职（24个月）。"
+  }
+];
+
 function loadRandomQuiz() {
-  renderQuiz(EMBEDDED_KNOWLEDGE.quiz_bank);
+  const shuffled = [...FULL_QUIZ_BANK].sort(() => 0.5 - Math.random());
+  const selected = shuffled.slice(0, 5);
+  renderQuiz(selected);
+  const badge = document.getElementById('quiz-source-badge');
+  if (badge) badge.textContent = '🔵 题库源：本地真题母题库 (已随机抽取5题)';
+}
+
+async function generateAiQuiz() {
+  const container = document.getElementById('quiz-container');
+  const badge = document.getElementById('quiz-source-badge');
+  if (badge) badge.textContent = '🟢 题库源：本地千问 2.5-3B 现场智能出题中...';
+
+  const loadingItem = document.createElement('div');
+  loadingItem.className = 'quiz-item-card';
+  loadingItem.innerHTML = `<div style="text-align:center; padding:16px; color:var(--primary); font-size:0.88rem;">✨ 正在调用千问 2.5-3B 模型现场生成 1 道高质量四川选调真题模拟，请稍候约 3~6 秒...</div>`;
+  container.prepend(loadingItem);
+
+  const categories = ["习近平新时代中国特色社会主义思想与时政", "法律常识(行政法/宪法)", "非法律公基(经济/党史)", "公文改错与实务"];
+  const selectedCat = categories[Math.floor(Math.random() * categories.length)];
+
+  const prompt = `你是一个专业的四川省选调生考试命题名师。请围绕【${selectedCat}】板块，现场出一道高质量的单项选择题。
+必须返回合法的单一 JSON 对象，不要输出任何 Markdown 标记或多余文字：
+{
+  "category": "${selectedCat}",
+  "question": "题干内容...",
+  "options": ["A. 选项A", "B. 选项B", "C. 选项C", "D. 选项D"],
+  "answer": "A",
+  "explanation": "题目深度解析与考点总结..."
+}`;
+
+  const settings = getAiSettings();
+  let generatedQuiz = null;
+
+  // 1. 尝试直调本地/隧道 Ollama
+  const targetUrl = appState.activeTunnelUrl || settings.ollama_url || 'http://localhost:11434/api/generate';
+  try {
+    const res = await fetch(targetUrl, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        model: settings.ollama_model || 'qwen2.5:3b',
+        prompt: prompt,
+        stream: false,
+        format: 'json'
+      })
+    });
+    if (res.ok) {
+      const data = await res.json();
+      const clean = (data.response || '').replace(/```json/g, '').replace(/```/g, '').trim();
+      generatedQuiz = JSON.parse(clean);
+    }
+  } catch (e) {}
+
+  // 2. 尝试云端 API
+  if (!generatedQuiz && settings.engine_type === 'openai' && settings.api_key) {
+    try {
+      const res = await fetch(settings.api_url || 'https://api.deepseek.com/v1/chat/completions', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${settings.api_key}`
+        },
+        body: JSON.stringify({
+          model: settings.api_model || 'deepseek-chat',
+          messages: [{ role: 'user', content: prompt }],
+          response_format: { type: "json_object" }
+        })
+      });
+      if (res.ok) {
+        const data = await res.json();
+        const clean = data.choices[0].message.content.replace(/```json/g, '').replace(/```/g, '').trim();
+        generatedQuiz = JSON.parse(clean);
+      }
+    } catch (e) {}
+  }
+
+  container.removeChild(loadingItem);
+
+  if (generatedQuiz && generatedQuiz.question && generatedQuiz.options) {
+    generatedQuiz.id = Date.now();
+    const card = createQuizCardDOM(generatedQuiz, 0, true);
+    container.prepend(card);
+    if (badge) badge.textContent = '🟢 题库源：千问 2.5-3B 现场即时生成试题';
+    alert('✨ 成功为您现场命制 1 道全新考点模拟题！已置顶展示。');
+  } else {
+    loadRandomQuiz();
+    alert('未能连通大模型，已为您从本地核心母题库中随机抽取 5 道精选题！');
+  }
 }
 
 function renderQuiz(questions) {
@@ -1076,25 +1385,30 @@ function renderQuiz(questions) {
   container.innerHTML = '';
 
   questions.forEach((q, qIndex) => {
-    const card = document.createElement('div');
-    card.className = 'quiz-item-card';
-    card.innerHTML = `
-      <div class="quiz-header">
-        <span class="quiz-cat">【${q.category}】</span>
-        <span class="badge badge-primary">第 ${qIndex + 1} 题</span>
-      </div>
-      <div class="quiz-question">${q.question}</div>
-      <div class="quiz-options">
-        ${q.options.map(opt => `
-          <button class="quiz-opt-btn" onclick="selectQuizOption(this, '${q.answer}', '${escapeHtml(q.explanation)}')">
-            ${opt}
-          </button>
-        `).join('')}
-      </div>
-      <div class="quiz-explanation-box" style="display:none;"></div>
-    `;
+    const card = createQuizCardDOM(q, qIndex, false);
     container.appendChild(card);
   });
+}
+
+function createQuizCardDOM(q, qIndex, isAiGenerated) {
+  const card = document.createElement('div');
+  card.className = 'quiz-item-card';
+  card.innerHTML = `
+    <div class="quiz-header">
+      <span class="quiz-cat">【${q.category}】</span>
+      <span class="badge ${isAiGenerated ? 'badge-success' : 'badge-primary'}">${isAiGenerated ? '✨ AI 现场生成题' : `第 ${qIndex + 1} 题`}</span>
+    </div>
+    <div class="quiz-question">${escapeHtml(q.question)}</div>
+    <div class="quiz-options">
+      ${q.options.map(opt => `
+        <button class="quiz-opt-btn" onclick="selectQuizOption(this, '${q.answer}', '${escapeHtml(q.explanation)}')">
+          ${escapeHtml(opt)}
+        </button>
+      `).join('')}
+    </div>
+    <div class="quiz-explanation-box" style="display:none;"></div>
+  `;
+  return card;
 }
 
 function selectQuizOption(btn, correctAns, expText) {
@@ -1129,6 +1443,10 @@ function fillDocSample() {
 2026年9月10日`;
 }
 
+// ==========================================================================
+// 6. 公文 30分制智能评分诊断 (千问深度批改 + 15种法定公文要素引擎)
+// ==========================================================================
+
 async function submitGradeDoc() {
   const content = document.getElementById('doc-text-input').value.trim();
   if (!content) {
@@ -1136,8 +1454,12 @@ async function submitGradeDoc() {
     return;
   }
   const resultBox = document.getElementById('doc-grade-result');
-  resultBox.innerHTML = '<div class="result-placeholder"><p>🚀 正在调用本地公文诊断模型全面评估...</p></div>';
+  resultBox.innerHTML = '<div class="result-placeholder"><p>🚀 正在调用千问公文诊断模型全面评估评分中 (约 4~8 秒)...</p></div>';
 
+  const settings = getAiSettings();
+  let gradeResult = null;
+
+  // 1. 尝试调用本地后端
   try {
     const res = await fetch('/api/document/grade', {
       method: 'POST',
@@ -1146,34 +1468,144 @@ async function submitGradeDoc() {
     });
     if (res.ok) {
       const data = await res.json();
-      const r = data.result;
-      resultBox.innerHTML = `
-        <div class="score-display-card">
-          <div>
-            <span style="font-size:0.8rem;">综合诊断得分</span>
-            <div class="score-num">${r.score} <small style="font-size:0.9rem;">/ 30分</small></div>
-            <span style="font-size:0.75rem; background:rgba(255,255,255,0.2); padding:2px 6px; border-radius:4px;">${r.level}</span>
-          </div>
-          <div style="text-align:right; font-size:0.8rem;">
-            <div>字数：${r.char_count} 字</div>
-          </div>
-        </div>
-        <div class="result-section">
-          <h5>✨ 亮点要素</h5>
-          <ul style="padding-left:16px; font-size:0.82rem; color:var(--accent-green);">
-            ${r.highlights.map(h => `<li>${h}</li>`).join('')}
-          </ul>
-        </div>
-        <div class="result-section">
-          <h5>⚠️ 扣分项诊断</h5>
-          <ul style="padding-left:16px; font-size:0.82rem; color:var(--accent-red);">
-            ${r.deductions.length ? r.deductions.map(d => `<li>${d}</li>`).join('') : '<li>🎉 格式规范，无硬伤扣分！</li>'}
-          </ul>
-        </div>
-      `;
-      return;
+      if (data && data.result) gradeResult = data.result;
     }
   } catch (e) {}
+
+  // 2. 尝试直调本地/隧道 Ollama 进行深度批改
+  if (!gradeResult && (appState.activeTunnelUrl || (settings.engine_type === 'ollama' && settings.ollama_url))) {
+    const targetUrl = appState.activeTunnelUrl || settings.ollama_url || 'http://localhost:11434/api/generate';
+    try {
+      const prompt = `你是一名资深的四川省选调生考试公文大题（30分制）阅卷名师。
+请对考生的公文进行严格评审并返回严格合法的单一 JSON 对象（不要输出任何多余标记）：
+{
+  "score": 26.5,
+  "level": "优秀公文 (A级)",
+  "char_count": ${content.length},
+  "highlights": ["标题准确完整", "发文字号六角括号标准", "结构条理清晰"],
+  "deductions": ["缺少主送机关顶格标注(-2分)"],
+  "polish_advice": "针对该公文的提分润色建议与金句点缀..."
+}
+
+【考生公文作答内容】:
+${content}`;
+
+      const res = await fetch(targetUrl, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          model: settings.ollama_model || 'qwen2.5:3b',
+          prompt: prompt,
+          stream: false,
+          format: 'json'
+        })
+      });
+      if (res.ok) {
+        const data = await res.json();
+        const clean = (data.response || '').replace(/```json/g, '').replace(/```/g, '').trim();
+        gradeResult = JSON.parse(clean);
+      }
+    } catch (e) {}
+  }
+
+  // 3. 兜底内置公文规范诊断引擎
+  if (!gradeResult) {
+    gradeResult = localGradeOfficialDocument(content);
+  }
+
+  renderDocGradeResultDOM(gradeResult);
+}
+
+function localGradeOfficialDocument(content) {
+  let score = 30.0;
+  const deductions = [];
+  const highlights = [];
+  const charCount = content.replace(/\s/g, "").length;
+
+  if (!/(通知|请示|报告|方案|纪要|通报|意见|函)/.test(content.slice(0, 45))) {
+    deductions.push("【标题】缺少明确的法定公文文种（如：通知、请示、报告等）(-3分)");
+    score -= 3.0;
+  } else {
+    highlights.push("公文文种清晰准确 (+3分)");
+  }
+
+  if (/〔202\d〕|\[202\d\]|\(202\d\)|〔\d{4}〕/.test(content)) {
+    highlights.push("包含规范发文字号六角括号要素 (+2分)");
+  } else {
+    deductions.push("【版头/发文字号】未包含规范的发文字号（如：成府发〔2026〕12号）(-2分)");
+    score -= 2.0;
+  }
+
+  if (!/(各区|各市|各县|各部门|各单位|市级各部门)[：:]/.test(content)) {
+    deductions.push("【主送机关】缺少顶格规范的主送机关标注 (-2分)");
+    score -= 2.0;
+  } else {
+    highlights.push("主送机关顶格规范 (+2分)");
+  }
+
+  if (!/特此通知|妥否|请予批复|现将有关事项通知如下|现报告如下/.test(content)) {
+    deductions.push("【结语】缺少规范的公文过渡句或结语词 (-1.5分)");
+    score -= 1.5;
+  }
+
+  if (!/202\d年\d{1,2}月\d{1,2}日|\d{4}年\d{1,2}月\d{1,2}日/.test(content)) {
+    deductions.push("【成文日期】缺少规范的阿拉伯数字全称成文日期 (-2分)");
+    score -= 2.0;
+  } else {
+    highlights.push("成文日期格式标准 (+2分)");
+  }
+
+  if (charCount < 200) {
+    deductions.push(`【字数不足】当前仅 ${charCount} 字，实战公文大题建议 400~600 字 (-4分)`);
+    score -= 4.0;
+  } else if (charCount >= 350) {
+    highlights.push(`篇幅充实（已达 ${charCount} 字）(+3分)`);
+  }
+
+  score = Math.max(5.0, Math.min(30.0, score));
+  const level = score >= 26 ? "优秀公文 (A级)" : (score >= 20 ? "良好规范 (B级)" : "待规范完善 (C级)");
+
+  return {
+    score: score.toFixed(1),
+    level: level,
+    char_count: charCount,
+    highlights: highlights,
+    deductions: deductions,
+    polish_advice: "注意紧密结合四川省自然资源保护、防汛应急等实务，强化‘一、/（一）/1.’三级标题的对仗工整。"
+  };
+}
+
+function renderDocGradeResultDOM(r) {
+  const resultBox = document.getElementById('doc-grade-result');
+  resultBox.innerHTML = `
+    <div class="score-display-card">
+      <div>
+        <span style="font-size:0.8rem;">综合诊断得分</span>
+        <div class="score-num">${r.score} <small style="font-size:0.9rem;">/ 30分</small></div>
+        <span style="font-size:0.75rem; background:rgba(255,255,255,0.2); padding:2px 6px; border-radius:4px;">${r.level}</span>
+      </div>
+      <div style="text-align:right; font-size:0.8rem;">
+        <div>有效字数：${r.char_count} 字</div>
+      </div>
+    </div>
+    <div class="result-section" style="margin-bottom:10px;">
+      <h5 style="color:var(--accent-green); font-size:0.85rem; margin-bottom:4px;">✨ 亮点要素</h5>
+      <ul style="padding-left:18px; font-size:0.82rem; color:var(--accent-green);">
+        ${(r.highlights || []).map(h => `<li>${escapeHtml(h)}</li>`).join('')}
+      </ul>
+    </div>
+    <div class="result-section" style="margin-bottom:10px;">
+      <h5 style="color:var(--accent-red); font-size:0.85rem; margin-bottom:4px;">⚠️ 扣分项诊断</h5>
+      <ul style="padding-left:18px; font-size:0.82rem; color:var(--accent-red);">
+        ${(r.deductions && r.deductions.length) ? r.deductions.map(d => `<li>${escapeHtml(d)}</li>`).join('') : '<li>🎉 格式完全规范，无硬伤扣分！</li>'}
+      </ul>
+    </div>
+    ${r.polish_advice ? `
+    <div class="result-section" style="background:var(--bg-surface); padding:10px; border-radius:var(--radius-sm); border-left:3px solid var(--primary); font-size:0.8rem;">
+      <strong>💡 名师提分润色建议：</strong>
+      <div>${escapeHtml(r.polish_advice)}</div>
+    </div>` : ''}
+  `;
 }
 
 /* ==========================================================================

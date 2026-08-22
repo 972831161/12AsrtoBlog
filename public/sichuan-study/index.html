@@ -309,13 +309,16 @@
             <div class="card quiz-card">
               <div class="card-header">
                 <div>
-                  <div style="display:flex; align-items:center; gap:8px;">
+                  <div style="display:flex; align-items:center; gap:8px; flex-wrap:wrap;">
                     <h3 class="card-title">🎯 考点专项随机抽测</h3>
-                    <span class="engine-tag-pill source-kb">🔵 题库源：本地真题与金标尺核心母题库</span>
+                    <span class="engine-tag-pill source-kb" id="quiz-source-badge">🔵 题库源：本地真题与金标尺核心母题库</span>
                   </div>
                   <p class="card-subtitle">精选公基、习思想、行政法与公文改错高频母题，支持即答即判</p>
                 </div>
-                <button id="btn-refresh-quiz" class="btn btn-outline" onclick="loadRandomQuiz()">🔄 换一批试题</button>
+                <div style="display:flex; gap:8px; flex-wrap:wrap;">
+                  <button id="btn-refresh-quiz" class="btn btn-outline btn-sm" onclick="loadRandomQuiz()">🎲 随机换一批 (5题)</button>
+                  <button class="btn btn-primary btn-sm" onclick="generateAiQuiz()">✨ AI 实时考点出题</button>
+                </div>
               </div>
 
               <div id="quiz-container" class="quiz-list"></div>
