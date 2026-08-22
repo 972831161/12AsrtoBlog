@@ -12,39 +12,60 @@
 <body class="theme-light">
   <div id="app" class="app-layout">
     
-    <!-- 顶部导航栏 -->
+    <!-- 顶部导航栏 (紧凑精炼) -->
     <header class="navbar">
       <div class="nav-left">
         <div class="logo-badge">川选2027</div>
         <div class="nav-title-group">
-          <h1 class="nav-title">四川紧缺选调生 · 智能备考全栈系统</h1>
-          <span class="nav-subtitle">中山大学 · 085704 测绘工程 | 目标：成都 ➔ 绵阳 ➔ 环蓉</span>
-        </div>
-      </div>
-
-      <div class="nav-center">
-        <div class="countdown-badge">
-          <span class="cd-label">距10.25笔试决战</span>
-          <span class="cd-number" id="nav-days-left">68</span>
-          <span class="cd-unit">天</span>
+          <h1 class="nav-title">四川紧缺选调备考系统</h1>
         </div>
       </div>
 
       <div class="nav-right">
-        <button class="btn btn-outline btn-sm" onclick="openBackupSyncModal()" style="padding:4px 10px; font-size:0.75rem;">💾 备份/同步</button>
+        <button class="btn btn-outline btn-sm btn-sync-nav" onclick="openBackupSyncModal()">💾 备份/同步</button>
         <!-- 引擎状态指示徽章 -->
         <div class="ai-status-indicator" id="global-ai-status-badge" title="点击查看 AI 引擎状态" onclick="openAiSettingsModal()">
           <span class="status-dot green-dot"></span>
-          <span class="status-text" id="status-badge-text">千问 2.5-3B 本地在线</span>
+          <span class="status-text" id="status-badge-text">千问 2.5-3B 在线</span>
         </div>
-        <div class="current-real-date" id="nav-real-date">2026年8月18日</div>
         <button id="btn-theme-toggle" class="btn-icon" title="切换深色/浅色模式">
           <span id="theme-icon">🌙</span>
         </button>
       </div>
     </header>
 
-    <!-- 主导航 Tabs -->
+    <!-- 独立备考全景 Hero Banner (手机端彻底舒展设计) -->
+    <section class="hero-banner-container">
+      <div class="hero-banner-card">
+        <div class="hero-cd-box">
+          <div class="hero-cd-pill">🎯 2026年10月25日 机考决战</div>
+          <div class="hero-cd-main">
+            <span class="hero-cd-number" id="nav-days-left">64</span>
+            <span class="hero-cd-unit">天</span>
+          </div>
+          <div class="hero-cd-date" id="nav-real-date">2026年8月22日 · 实时同步</div>
+        </div>
+
+        <div class="hero-profile-box">
+          <div class="hero-profile-top">
+            <span class="hero-school-badge">🎓 中山大学 · 085704 测绘工程专硕</span>
+            <span class="hero-stage-badge" id="hero-stage-badge">🔥 阶段一：夯基强化</span>
+          </div>
+          <div class="hero-volunteers-grid">
+            <div class="vol-item vol-rank-1">
+              <span class="vol-tag">第一志愿</span>
+              <span class="vol-text">成都市直 / 省直机关（1:3 差额冲关）</span>
+            </div>
+            <div class="vol-item vol-rank-2">
+              <span class="vol-tag">第二志愿</span>
+              <span class="vol-text">绵阳市（全省合格线即全员进面 · 稳保底）</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- 主导航 Tabs (支持触摸横向平滑滑动) -->
     <nav class="main-tabs">
       <button class="tab-btn active" data-tab="dashboard">
         <span class="tab-icon">📊</span> 备考驾驶舱
@@ -582,15 +603,25 @@ D. 较大数额罚款
             </div>
           </div>
 
+          <!-- 方式二：扫码与极速同步 -->
           <div style="background:var(--bg-subtle); padding:12px; border-radius:var(--radius-sm); margin-top:12px;">
-            <h4 style="font-size:0.85rem; margin-bottom:6px;">📲 方式二：跨端快捷同步码 (手机 ↔ 电脑秒传)</h4>
-            <p style="font-size:0.75rem; color:var(--text-muted); margin-bottom:6px;">
-              在电脑端点击“复制同步码”，发送到手机上粘贴并点击“导入同步码”，即可实现全量数据无缝合并同步！
+            <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:6px;">
+              <h4 style="font-size:0.85rem; margin:0;">📲 方式二：极速扫码 / 跨端同步码 (手机 ↔ 电脑秒传)</h4>
+              <button class="btn btn-outline btn-sm" onclick="generateQrSyncCode()" style="padding:2px 8px; font-size:0.72rem;">📷 生成同步二维码</button>
+            </div>
+            <p style="font-size:0.75rem; color:var(--text-muted); margin-bottom:8px;">
+              在电脑端点击<b>“生成同步二维码”</b>，用手机微信/相机直接扫一扫，手机端网页将<b>1秒自动加载并保存电脑上的所有打卡和错题</b>！
             </p>
+            
+            <div id="qr-sync-container" style="display:none; text-align:center; padding:12px; background:var(--bg-card); border-radius:var(--radius-sm); margin-bottom:10px; border:1px dashed var(--border-subtle);">
+              <canvas id="qr-sync-canvas" style="max-width:180px; margin:0 auto;"></canvas>
+              <div style="font-size:0.75rem; color:var(--primary); margin-top:6px; font-weight:600;">请使用手机微信 / 相机扫码即可完成全量同步</div>
+            </div>
+
             <div style="display:flex; gap:8px; margin-bottom:8px;">
               <button class="btn btn-outline btn-sm" onclick="copySyncCode()">📋 复制当前全量同步码</button>
             </div>
-            <textarea id="sync-code-input" rows="3" class="form-control" placeholder="在此粘贴另一台设备复制的同步码..."></textarea>
+            <textarea id="sync-code-input" rows="2" class="form-control" placeholder="在此粘贴另一台设备复制的同步码..."></textarea>
             <div style="display:flex; justify-content:flex-end; margin-top:8px;">
               <button class="btn btn-primary btn-sm" onclick="applySyncCode()">📥 应用同步码并合并数据</button>
             </div>
@@ -604,6 +635,7 @@ D. 较大数额罚款
 
   </div>
 
+  <script src="https://cdn.jsdelivr.net/npm/qrcode@1.5.3/build/qrcode.min.js"></script>
   <script src="historical_data.js"></script>
   <script src="app.js"></script>
 </body>

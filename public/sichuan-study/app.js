@@ -93,6 +93,7 @@ function formatChineseDate(dateStr) {
 }
 
 document.addEventListener('DOMContentLoaded', async () => {
+  checkUrlSyncPayload();
   initTheme();
   initRealDateDisplay();
   initTabs();
@@ -103,6 +104,32 @@ document.addEventListener('DOMContentLoaded', async () => {
   loadRandomQuiz();
   bindEvents();
 });
+
+// 检查 URL 中是否有扫码传入的极速同步数据
+function checkUrlSyncPayload() {
+  try {
+    const params = new URLSearchParams(window.location.search);
+    const syncB64 = params.get('sync');
+    if (syncB64) {
+      const jsonStr = decodeURIComponent(atob(syncB64));
+      const data = JSON.parse(jsonStr);
+      if (data.plans) {
+        localStorage.setItem(STORAGE_KEYS.PLANS_MASTER, JSON.stringify(data.plans));
+      }
+      if (data.mistakes) {
+        localStorage.setItem(STORAGE_KEYS.MISTAKES_MASTER, JSON.stringify(data.mistakes));
+      }
+      // 清除 URL 里的长参数，保持地址栏干净
+      const cleanUrl = window.location.origin + window.location.pathname;
+      window.history.replaceState({}, document.title, cleanUrl);
+      setTimeout(() => {
+        alert('🎉 手机端已成功同步电脑上的全部打卡和错题数据！');
+      }, 300);
+    }
+  } catch (e) {
+    console.warn("自动同步参数解析跳过:", e);
+  }
+}
 
 // 检查本地大模型与公网安全隧道运行状态
 async function detectOllamaStatus() {
@@ -536,20 +563,24 @@ function updateStageHighlight(dateStr) {
   const b2 = document.getElementById('stage-block-2');
   const b3 = document.getElementById('stage-block-3');
   const badge = document.getElementById('current-stage-badge');
+  const heroBadge = document.getElementById('hero-stage-badge');
 
-  b1.classList.remove('active');
-  b2.classList.remove('active');
-  b3.classList.remove('active');
+  if (b1) b1.classList.remove('active');
+  if (b2) b2.classList.remove('active');
+  if (b3) b3.classList.remove('active');
 
   if (dateStr < '2026-09-10') {
-    b1.classList.add('active');
+    if (b1) b1.classList.add('active');
     if (badge) badge.textContent = '当前处于：第一阶段·夯基强化';
+    if (heroBadge) heroBadge.textContent = '🔥 阶段一：夯基强化 (8.18-9.10)';
   } else if (dateStr < '2026-10-06') {
-    b2.classList.add('active');
+    if (b2) b2.classList.add('active');
     if (badge) badge.textContent = '当前处于：第二阶段·公文与真题';
+    if (heroBadge) heroBadge.textContent = '📝 阶段二：公文与真题 (9.11-10.5)';
   } else {
-    b3.classList.add('active');
+    if (b3) b3.classList.add('active');
     if (badge) badge.textContent = '当前处于：第三阶段·冲刺模考';
+    if (heroBadge) heroBadge.textContent = '🚀 阶段三：全真模考冲刺 (10.6-10.24)';
   }
 }
 
@@ -924,6 +955,53 @@ function importStudyDataJSON(file) {
     }
   };
   reader.readAsText(file);
+}
+
+// 生成手机扫码一秒同步二维码
+function generateQrSyncCode() {
+  const container = document.getElementById('qr-sync-container');
+  const canvas = document.getElementById('qr-sync-canvas');
+  if (!container) return;
+
+  const plans = getLocalPlans();
+  const mistakes = getLocalMistakes();
+  const payload = { plans, mistakes };
+
+  try {
+    const jsonStr = JSON.stringify(payload);
+    const b64 = btoa(encodeURIComponent(jsonStr));
+    
+    // 如果当前是在本地运行，二维码链接指向线上域名以便手机微信直接打开同步
+    const baseUrl = (window.location.hostname === '127.0.0.1' || window.location.hostname === 'localhost')
+      ? 'https://www.bettercall12.cc/sichuan-study/'
+      : window.location.origin + window.location.pathname;
+
+    const syncUrl = `${baseUrl}?sync=${encodeURIComponent(b64)}`;
+
+    if (typeof QRCode !== 'undefined' && QRCode.toCanvas && canvas) {
+      QRCode.toCanvas(canvas, syncUrl, {
+        width: 180,
+        margin: 2,
+        color: { dark: '#0f172a', light: '#ffffff' }
+      }, (err) => {
+        if (err) {
+          container.innerHTML = `
+            <img src="https://api.qrserver.com/v1/create-qr-code/?size=180x180&data=${encodeURIComponent(syncUrl)}" alt="同步二维码" style="max-width:180px; margin:0 auto; display:block; border-radius:4px;" />
+            <div style="font-size:0.75rem; color:var(--primary); margin-top:6px; font-weight:600;">请使用手机微信 / 相机扫码即可完成全量同步</div>
+          `;
+        }
+        container.style.display = 'block';
+      });
+    } else {
+      container.innerHTML = `
+        <img src="https://api.qrserver.com/v1/create-qr-code/?size=180x180&data=${encodeURIComponent(syncUrl)}" alt="同步二维码" style="max-width:180px; margin:0 auto; display:block; border-radius:4px;" />
+        <div style="font-size:0.75rem; color:var(--primary); margin-top:6px; font-weight:600;">请使用手机微信 / 相机扫码即可完成全量同步</div>
+      `;
+      container.style.display = 'block';
+    }
+  } catch (e) {
+    alert('生成同步二维码失败：' + e.message);
+  }
 }
 
 // 复制跨端同步码
