@@ -104,12 +104,13 @@ document.addEventListener('DOMContentLoaded', async () => {
   bindEvents();
 });
 
-// 检查本地大模型运行状态
+// 检查本地大模型与公网安全隧道运行状态
 async function detectOllamaStatus() {
   const badgeText = document.getElementById('status-badge-text');
   const dot = document.querySelector('#global-ai-status-badge .status-dot');
   const chatTag = document.getElementById('chat-engine-status-tag');
 
+  // 1. 本地直连探测
   try {
     const res = await fetch('http://localhost:11434/api/tags');
     if (res.ok) {
@@ -123,6 +124,34 @@ async function detectOllamaStatus() {
         chatTag.className = 'engine-tag-pill source-llm';
       }
       return;
+    }
+  } catch (e) {}
+
+  // 2. 手机/外网在线端：全自动安全隧道探测
+  try {
+    const tunnelRes = await fetch('active_tunnel.json?t=' + Date.now());
+    if (tunnelRes.ok) {
+      const tData = await tunnelRes.json();
+      if (tData.tunnel_base) {
+        const testRes = await fetch(`${tData.tunnel_base}/api/tags`);
+        if (testRes.ok) {
+          appState.ollamaRunning = true;
+          appState.activeTunnelUrl = tData.active_tunnel;
+          
+          // 自动同步到设置中
+          const s = getAiSettings();
+          s.ollama_url = tData.active_tunnel;
+          saveAiSettingsData(s);
+
+          if (badgeText) badgeText.textContent = '千问 2.5-3B 隧道在线';
+          if (dot) { dot.className = 'status-dot green-dot'; }
+          if (chatTag) {
+            chatTag.textContent = '🟢 千问 2.5-3B 安全隧道 (Mac实时算力)';
+            chatTag.className = 'engine-tag-pill source-llm';
+          }
+          return;
+        }
+      }
     }
   } catch (e) {}
 
