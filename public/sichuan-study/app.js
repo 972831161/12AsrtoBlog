@@ -1,6 +1,10 @@
 /**
  * 2027 四川紧缺选调生 · 智能备考全栈与移动端自闭环系统
- * 核心升级：艾宾浩斯遗忘曲线抗遗忘连续答对机制（连对3次方可科学归入“已掌握”，做错1次立即清零打回“待复习”）
+ * 核心升级：
+ * 1. 数据防丢失与全自动多版本平滑找回（Auto Recovery & Migration）
+ * 2. 跨端备份与同步（导出/导入 JSON、跨端同步码一键秒传）
+ * 3. 艾宾浩斯遗忘曲线抗遗忘连续答对机制（连对 3 次科学判定已掌握）
+ * 4. 来源标识明确展示（本地千问2.5-3B / 云端API / 本地考情知识库）
  */
 
 const EMBEDDED_KNOWLEDGE = {
@@ -49,6 +53,14 @@ const CATEGORY_OPTIONS = [
 
 const EXAM_DATE = "2026-10-25";
 
+// 持久化主存储键名（锁定固定，永不修改）
+const STORAGE_KEYS = {
+  PLANS_MASTER: 'sichuan_study_plans_master',
+  MISTAKES_MASTER: 'sichuan_study_mistakes_master',
+  SETTINGS: 'sichuan_ai_settings_master',
+  THEME: 'sichuan_study_theme'
+};
+
 let appState = {
   currentDateStr: getRealCurrentDateStr(),
   calendarData: [],
@@ -80,13 +92,13 @@ function formatChineseDate(dateStr) {
   return dateStr;
 }
 
-document.addEventListener('DOMContentLoaded', () => {
+document.addEventListener('DOMContentLoaded', async () => {
   initTheme();
   initRealDateDisplay();
   initTabs();
   initSubTabs();
   detectOllamaStatus();
-  loadData();
+  await loadData();
   renderKnowledgeArticle('kb-policy');
   loadRandomQuiz();
   bindEvents();
@@ -124,15 +136,58 @@ async function detectOllamaStatus() {
 }
 
 /* ==========================================================================
-   1. 数据存储与加载
+   1. 数据存储、多版本自动扫描找回与增量合并（防丢核心）
    ========================================================================== */
 
 function getLocalPlans() {
-  const raw = localStorage.getItem('sc_study_plans');
-  if (raw) {
-    try { return JSON.parse(raw); } catch (e) {}
+  // 1. 优先读取主存储键
+  let masterRaw = localStorage.getItem(STORAGE_KEYS.PLANS_MASTER);
+  let masterPlans = null;
+  if (masterRaw) {
+    try { masterPlans = JSON.parse(masterRaw); } catch (e) {}
   }
-  const defaultPlans = {};
+
+  // 2. 如果主存储不存在，自动从历史所有键与内嵌底座中扫描找回
+  if (!masterPlans || Object.keys(masterPlans).length === 0) {
+    masterPlans = recoverAndMigrateHistoricalPlans();
+    localStorage.setItem(STORAGE_KEYS.PLANS_MASTER, JSON.stringify(masterPlans));
+  }
+
+  return masterPlans;
+}
+
+// 智能找回与合并历史打卡记录
+function recoverAndMigrateHistoricalPlans() {
+  const merged = {};
+
+  // A. 首先加载初始主备份底座（包含历史真实打卡）
+  if (typeof INITIAL_HISTORICAL_DATA !== 'undefined' && INITIAL_HISTORICAL_DATA.plans) {
+    Object.assign(merged, JSON.parse(JSON.stringify(INITIAL_HISTORICAL_DATA.plans)));
+  }
+
+  // B. 扫描旧版各个版本的 LocalStorage key
+  const legacyKeys = ['sc_study_plans', 'sc_study_plans_v1', 'sc_study_plans_v2', 'daily_plans'];
+  legacyKeys.forEach(k => {
+    const raw = localStorage.getItem(k);
+    if (raw) {
+      try {
+        const legacyPlans = JSON.parse(raw);
+        Object.entries(legacyPlans).forEach(([dateStr, dayData]) => {
+          if (!merged[dateStr]) {
+            merged[dateStr] = dayData;
+          } else {
+            // 增量合并策略：若旧版中有打卡完成或备注，优先保留用户真实打卡数据
+            const oldHasDone = (dayData.tasks || []).some(t => t.is_done) || dayData.is_completed === 1 || (dayData.notes && dayData.notes.trim() !== '');
+            if (oldHasDone) {
+              merged[dateStr] = dayData;
+            }
+          }
+        });
+      } catch (e) {}
+    }
+  });
+
+  // C. 兜底 69 天默认结构
   const start = new Date(2026, 7, 18);
   const end = new Date(2026, 9, 25);
   let cur = new Date(start);
@@ -143,28 +198,30 @@ function getLocalPlans() {
     const d = String(cur.getDate()).padStart(2, '0');
     const dStr = `${y}-${m}-${d}`;
 
-    let stage = 'stage_1';
-    let stageName = '第一阶段：公基筑基与理论强记';
-    if (dStr >= '2026-09-10' && dStr < '2026-10-06') {
-      stage = 'stage_2';
-      stageName = '第二阶段：公文实战与真题演练';
-    } else if (dStr >= '2026-10-06') {
-      stage = 'stage_3';
-      stageName = '第三阶段：全真模考与终极冲刺';
-    }
+    if (!merged[dStr]) {
+      let stage = 'stage_1';
+      let stageName = '第一阶段：公基筑基与理论强记';
+      if (dStr >= '2026-09-10' && dStr < '2026-10-06') {
+        stage = 'stage_2';
+        stageName = '第二阶段：公文实战与真题演练';
+      } else if (dStr >= '2026-10-06') {
+        stage = 'stage_3';
+        stageName = '第三阶段：全真模考与终极冲刺';
+      }
 
-    defaultPlans[dStr] = {
-      date: dStr,
-      stage: stage,
-      stage_name: stageName,
-      tasks: getDefaultTasksForDate(dStr),
-      notes: '',
-      is_completed: 0
-    };
+      merged[dStr] = {
+        date: dStr,
+        stage: stage,
+        stage_name: stageName,
+        tasks: getDefaultTasksForDate(dStr),
+        notes: '',
+        is_completed: 0
+      };
+    }
     cur.setDate(cur.getDate() + 1);
   }
-  localStorage.setItem('sc_study_plans', JSON.stringify(defaultPlans));
-  return defaultPlans;
+
+  return merged;
 }
 
 function getDefaultTasksForDate(dStr) {
@@ -198,16 +255,65 @@ function saveLocalPlan(dateStr, tasks, notes) {
     notes: notes || '',
     is_completed: allDone ? 1 : 0
   };
-  localStorage.setItem('sc_study_plans', JSON.stringify(plans));
+  localStorage.setItem(STORAGE_KEYS.PLANS_MASTER, JSON.stringify(plans));
 }
 
 function getLocalMistakes() {
-  const raw = localStorage.getItem('sc_study_mistakes_v3');
-  if (raw) {
-    try { return JSON.parse(raw); } catch (e) {}
+  let masterRaw = localStorage.getItem(STORAGE_KEYS.MISTAKES_MASTER);
+  let masterMistakes = null;
+  if (masterRaw) {
+    try { masterMistakes = JSON.parse(masterRaw); } catch (e) {}
   }
-  return [
-    {
+
+  if (!masterMistakes || masterMistakes.length === 0) {
+    masterMistakes = recoverAndMigrateHistoricalMistakes();
+    localStorage.setItem(STORAGE_KEYS.MISTAKES_MASTER, JSON.stringify(masterMistakes));
+  }
+
+  return masterMistakes;
+}
+
+// 智能找回与合并历史错题记录
+function recoverAndMigrateHistoricalMistakes() {
+  const map = new Map();
+
+  // A. 底座错题
+  if (typeof INITIAL_HISTORICAL_DATA !== 'undefined' && Array.isArray(INITIAL_HISTORICAL_DATA.mistakes)) {
+    INITIAL_HISTORICAL_DATA.mistakes.forEach(m => {
+      if (m && m.question) map.set(m.question.trim(), m);
+    });
+  }
+
+  // B. 扫描旧版各个版本的错题 Key
+  const legacyKeys = ['sc_study_mistakes_v3', 'sc_study_mistakes_v2', 'sc_study_mistakes', 'mistakes'];
+  legacyKeys.forEach(k => {
+    const raw = localStorage.getItem(k);
+    if (raw) {
+      try {
+        const list = JSON.parse(raw);
+        if (Array.isArray(list)) {
+          list.forEach(m => {
+            if (m && m.question) {
+              const qKey = m.question.trim();
+              if (!map.has(qKey)) {
+                map.set(qKey, m);
+              } else {
+                // 保留练过的最新次数
+                const cur = map.get(qKey);
+                if ((m.attempt_count || 0) > (cur.attempt_count || 0)) {
+                  map.set(qKey, m);
+                }
+              }
+            }
+          });
+        }
+      } catch (e) {}
+    }
+  });
+
+  const result = Array.from(map.values());
+  if (result.length === 0) {
+    result.push({
       id: 1,
       category: "法律常识",
       title: "行政处罚设定权限与种类",
@@ -223,16 +329,18 @@ function getLocalMistakes() {
       correct_streak: 0,
       mastery_threshold: 3,
       is_mastered: 0
-    }
-  ];
+    });
+  }
+
+  return result;
 }
 
 function saveLocalMistakes(mistakes) {
-  localStorage.setItem('sc_study_mistakes_v3', JSON.stringify(mistakes));
+  localStorage.setItem(STORAGE_KEYS.MISTAKES_MASTER, JSON.stringify(mistakes));
 }
 
 function getAiSettings() {
-  const raw = localStorage.getItem('sc_ai_settings');
+  const raw = localStorage.getItem(STORAGE_KEYS.SETTINGS);
   if (raw) {
     try { return JSON.parse(raw); } catch (e) {}
   }
@@ -247,7 +355,7 @@ function getAiSettings() {
 }
 
 function saveAiSettingsData(data) {
-  localStorage.setItem('sc_ai_settings', JSON.stringify(data));
+  localStorage.setItem(STORAGE_KEYS.SETTINGS, JSON.stringify(data));
 }
 
 function initRealDateDisplay() {
@@ -263,7 +371,7 @@ function initRealDateDisplay() {
 }
 
 function initTheme() {
-  const savedTheme = localStorage.getItem('sichuan_study_theme') || 'light';
+  const savedTheme = localStorage.getItem(STORAGE_KEYS.THEME) || 'light';
   if (savedTheme === 'dark') {
     document.body.classList.remove('theme-light');
     document.body.classList.add('theme-dark');
@@ -279,12 +387,12 @@ function initTheme() {
       document.body.classList.remove('theme-dark');
       document.body.classList.add('theme-light');
       document.getElementById('theme-icon').textContent = '🌙';
-      localStorage.setItem('sichuan_study_theme', 'light');
+      localStorage.setItem(STORAGE_KEYS.THEME, 'light');
     } else {
       document.body.classList.remove('theme-light');
       document.body.classList.add('theme-dark');
       document.getElementById('theme-icon').textContent = '☀️';
-      localStorage.setItem('sichuan_study_theme', 'dark');
+      localStorage.setItem(STORAGE_KEYS.THEME, 'dark');
     }
   });
 }
@@ -322,12 +430,23 @@ async function loadData() {
   const plans = getLocalPlans();
   appState.calendarData = Object.values(plans);
 
+  // 若处于本地后端环境，尝试全量同步 SQLite 数据库记录
   try {
-    const res = await fetch(`/api/summary?date=${appState.currentDateStr}`);
+    const res = await fetch('/api/calendar');
     if (res.ok) {
       const data = await res.json();
-      if (data.today_plan && data.today_plan.tasks) {
-        saveLocalPlan(data.today_plan.date, data.today_plan.tasks, data.today_plan.notes);
+      if (Array.isArray(data.calendar)) {
+        const merged = getLocalPlans();
+        data.calendar.forEach(serverDay => {
+          if (serverDay.date) {
+            const hasDone = (serverDay.tasks || []).some(t => t.is_done) || serverDay.is_completed === 1;
+            if (hasDone || !merged[serverDay.date]) {
+              merged[serverDay.date] = serverDay;
+            }
+          }
+        });
+        localStorage.setItem(STORAGE_KEYS.PLANS_MASTER, JSON.stringify(merged));
+        appState.calendarData = Object.values(merged);
       }
     }
   } catch (e) {}
@@ -716,6 +835,113 @@ async function saveDateModal() {
   renderCalendar();
 }
 
+/* ==========================================================================
+   2. 数据备份、导出/导入与跨端同步工具
+   ========================================================================== */
+
+function openBackupSyncModal() {
+  document.getElementById('modal-backup-sync').classList.remove('hidden');
+}
+
+function closeBackupSyncModal() {
+  document.getElementById('modal-backup-sync').classList.add('hidden');
+}
+
+// 导出全量 JSON 备份
+function exportStudyDataJSON() {
+  const plans = getLocalPlans();
+  const mistakes = getLocalMistakes();
+  const settings = getAiSettings();
+
+  const exportObj = {
+    app: "2027_sichuan_study_system",
+    export_at: new Date().toISOString(),
+    plans: plans,
+    mistakes: mistakes,
+    settings: settings
+  };
+
+  const str = JSON.stringify(exportObj, null, 2);
+  const blob = new Blob([str], { type: "application/json" });
+  const url = URL.createObjectURL(blob);
+
+  const a = document.createElement('a');
+  a.href = url;
+  a.download = `sichuan_study_backup_${appState.currentDateStr}.json`;
+  a.click();
+  URL.revokeObjectURL(url);
+}
+
+// 导入 JSON 备份文件
+function importStudyDataJSON(file) {
+  if (!file) return;
+  const reader = new FileReader();
+  reader.onload = function(e) {
+    try {
+      const data = JSON.parse(e.target.result);
+      if (data.plans) {
+        localStorage.setItem(STORAGE_KEYS.PLANS_MASTER, JSON.stringify(data.plans));
+      }
+      if (data.mistakes) {
+        localStorage.setItem(STORAGE_KEYS.MISTAKES_MASTER, JSON.stringify(data.mistakes));
+      }
+      if (data.settings) {
+        saveAiSettingsData(data.settings);
+      }
+      alert('🎉 备份数据导入成功！页面将自动刷新并展示最新进度。');
+      window.location.reload();
+    } catch (err) {
+      alert('❌ 导入失败，文件格式有误：' + err.message);
+    }
+  };
+  reader.readAsText(file);
+}
+
+// 复制跨端同步码
+function copySyncCode() {
+  const plans = getLocalPlans();
+  const mistakes = getLocalMistakes();
+  const payload = {
+    plans: plans,
+    mistakes: mistakes
+  };
+  try {
+    const jsonStr = JSON.stringify(payload);
+    const b64 = btoa(encodeURIComponent(jsonStr));
+    navigator.clipboard.writeText(b64).then(() => {
+      alert('📋 同步码已成功复制到剪贴板！\n可直接粘贴发送到手机端进行数据同步。');
+    }).catch(() => {
+      document.getElementById('sync-code-input').value = b64;
+      alert('请手动复制文本框内的同步码：');
+    });
+  } catch (e) {
+    alert('生成同步码失败：' + e.message);
+  }
+}
+
+// 应用跨端同步码
+function applySyncCode() {
+  const code = document.getElementById('sync-code-input').value.trim();
+  if (!code) {
+    alert('请先粘贴同步码！');
+    return;
+  }
+  try {
+    const jsonStr = decodeURIComponent(atob(code));
+    const data = JSON.parse(jsonStr);
+    if (data.plans) {
+      localStorage.setItem(STORAGE_KEYS.PLANS_MASTER, JSON.stringify(data.plans));
+    }
+    if (data.mistakes) {
+      localStorage.setItem(STORAGE_KEYS.MISTAKES_MASTER, JSON.stringify(data.mistakes));
+    }
+    alert('🎉 跨端数据同步成功！页面将自动刷新。');
+    window.location.reload();
+  } catch (e) {
+    alert('❌ 同步码解析失败，请确保复制完整！');
+  }
+}
+
 function renderKnowledgeArticle(target) {
   const display = document.getElementById('kb-content-display');
   if (!display) return;
@@ -922,7 +1148,7 @@ async function submitGradeDoc() {
 }
 
 /* ==========================================================================
-   7. 艾宾浩斯抗遗忘连续答对掌握度核心
+   3. 错题集与艾宾浩斯抗遗忘连续掌握
    ========================================================================== */
 
 function loadMistakes() {
@@ -984,7 +1210,6 @@ function renderMistakes() {
 
     const attempts = m.attempt_count || 0;
 
-    // 艾宾浩斯掌握阶梯状态
     let levelBadge = `<span class="badge badge-primary">🔴 盲点 (连对 0/${threshold})</span>`;
     let levelTip = "初始错题，请进行复练";
     if (isMastered || streak >= threshold) {
@@ -998,7 +1223,6 @@ function renderMistakes() {
       levelTip = `短期记忆建立，需继续连对 2 次巩固`;
     }
 
-    // 3 槽式刻度条
     const slot1Active = streak >= 1 ? 'active-1' : '';
     const slot2Active = streak >= 2 ? 'active-2' : '';
     const slot3Active = streak >= 3 ? 'active-3' : '';
@@ -1021,7 +1245,6 @@ function renderMistakes() {
         </div>
       </div>
 
-      <!-- 艾宾浩斯连续掌握度进度条卡片 -->
       <div class="ebbinghaus-streak-card" id="streak-card-${m.id}">
         <div class="streak-left-info">
           <span>🧠 艾宾浩斯掌握阶梯:</span>
@@ -1064,7 +1287,6 @@ function renderMistakes() {
   });
 }
 
-// 核心作答判定：艾宾浩斯抗遗忘连续答对流转
 async function attemptMistakeChoice(mistakeId, choiceChar, btnEl) {
   const item = appState.mistakes.find(m => m.id === mistakeId);
   if (!item) return;
@@ -1106,7 +1328,6 @@ async function attemptMistakeChoice(mistakeId, choiceChar, btnEl) {
       alert(`✨ 答对了！当前连续答对 ${item.correct_streak}/${threshold} 次。再连对 ${threshold - item.correct_streak} 次即可真正掌握！`);
     }
   } else {
-    // 答错惩罚：立即清零，坚决打回“待复习”
     item.correct_streak = 0;
     item.is_mastered = 0;
     card.classList.remove('is-mastered-card');
@@ -1200,7 +1421,6 @@ async function executeAiParseMistake() {
   const settings = getAiSettings();
   let parsed = null;
 
-  // 1. 如果配置了云端 API Key 且选择了 openai 模式，前端优先直接请求云端 LLM
   if (settings.engine_type === 'openai' && settings.api_key) {
     try {
       parsed = await callCloudLlmParseMistake(rawText, settings);
@@ -1209,7 +1429,6 @@ async function executeAiParseMistake() {
     }
   }
 
-  // 2. 如果未配置云端或处于本地模式，尝试调用本地后端
   if (!parsed) {
     try {
       const res = await fetch('/api/ai/parse-mistake', {
@@ -1224,7 +1443,6 @@ async function executeAiParseMistake() {
     } catch (e) {}
   }
 
-  // 3. 兜底内置极速规则引擎
   if (!parsed) {
     parsed = localRuleBasedParseMistake(rawText);
   }
@@ -1250,7 +1468,6 @@ async function executeAiParseMistake() {
   document.getElementById('btn-save-parsed-mistake').disabled = false;
 }
 
-// 前端直接调用云端 LLM (DeepSeek/Qwen/OpenAI 等)
 async function callCloudLlmParseMistake(rawText, settings) {
   const prompt = `你是一个专业的中国公务员与选调生考试智能助教。请将以下错题原始文本精准抽取为 JSON 格式。
 【考试核心板块 (category 必须严格为以下之一)】:

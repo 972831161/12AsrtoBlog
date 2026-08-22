@@ -31,6 +31,7 @@
       </div>
 
       <div class="nav-right">
+        <button class="btn btn-outline btn-sm" onclick="openBackupSyncModal()" style="padding:4px 10px; font-size:0.75rem;">💾 备份/同步</button>
         <!-- 引擎状态指示徽章 -->
         <div class="ai-status-indicator" id="global-ai-status-badge" title="点击查看 AI 引擎状态" onclick="openAiSettingsModal()">
           <span class="status-dot green-dot"></span>
@@ -555,15 +556,52 @@ D. 较大数额罚款
             </div>
           </div>
         </div>
+    <!-- 弹窗 4：数据备份与跨端同步 Modal -->
+    <div id="modal-backup-sync" class="modal-overlay hidden">
+      <div class="modal-card">
+        <div class="modal-header">
+          <h3>💾 备考数据备份与跨端同步</h3>
+          <button class="btn-close" onclick="closeBackupSyncModal()">✕</button>
+        </div>
+        <div class="modal-body">
+          <p style="font-size:0.82rem; color:var(--text-secondary);">
+            系统支持<b>自动防丢与版本平滑迁移</b>。通过本面板，您可以轻松将电脑上的打卡/错题同步到手机，或定期导出备份文件，防止浏览器意外清理缓存。
+          </p>
+
+          <div style="background:var(--bg-subtle); padding:12px; border-radius:var(--radius-sm); margin-top:8px;">
+            <h4 style="font-size:0.85rem; margin-bottom:8px;">📁 方式一：本地文件备份与还原 (JSON)</h4>
+            <div style="display:flex; gap:10px; flex-wrap:wrap;">
+              <button class="btn btn-primary btn-sm" onclick="exportStudyDataJSON()">📤 导出全量备份 (下载JSON)</button>
+              <label class="btn btn-outline btn-sm" style="cursor:pointer; margin:0;">
+                📥 导入备份文件
+                <input type="file" id="backup-file-input" accept=".json" style="display:none;" onchange="importStudyDataJSON(this.files[0])">
+              </label>
+            </div>
+          </div>
+
+          <div style="background:var(--bg-subtle); padding:12px; border-radius:var(--radius-sm); margin-top:12px;">
+            <h4 style="font-size:0.85rem; margin-bottom:6px;">📲 方式二：跨端快捷同步码 (手机 ↔ 电脑秒传)</h4>
+            <p style="font-size:0.75rem; color:var(--text-muted); margin-bottom:6px;">
+              在电脑端点击“复制同步码”，发送到手机上粘贴并点击“导入同步码”，即可实现全量数据无缝合并同步！
+            </p>
+            <div style="display:flex; gap:8px; margin-bottom:8px;">
+              <button class="btn btn-outline btn-sm" onclick="copySyncCode()">📋 复制当前全量同步码</button>
+            </div>
+            <textarea id="sync-code-input" rows="3" class="form-control" placeholder="在此粘贴另一台设备复制的同步码..."></textarea>
+            <div style="display:flex; justify-content:flex-end; margin-top:8px;">
+              <button class="btn btn-primary btn-sm" onclick="applySyncCode()">📥 应用同步码并合并数据</button>
+            </div>
+          </div>
+        </div>
         <div class="modal-footer">
-          <button class="btn btn-outline" onclick="closeDateModal()">取消</button>
-          <button class="btn btn-primary" onclick="saveDateModal()">保存该日打卡与修改</button>
+          <button class="btn btn-outline" onclick="closeBackupSyncModal()">关闭</button>
         </div>
       </div>
     </div>
 
   </div>
 
+  <script src="historical_data.js"></script>
   <script src="app.js"></script>
 </body>
 </html>

@@ -1,0 +1,2326 @@
+{
+  "plans": {
+    "2026-08-18": {
+      "date": "2026-08-18",
+      "tasks": [
+        {
+          "id": "task-1",
+          "category": "行测专项",
+          "time_range": "",
+          "content": "言语理解20题精练",
+          "duration": 2.5,
+          "is_done": true
+        },
+        {
+          "id": "task-2",
+          "category": "公基与法律",
+          "time_range": "",
+          "content": "行政处罚法条死记",
+          "duration": 3.5,
+          "is_done": true
+        },
+        {
+          "id": "task-custom",
+          "category": "自定义冲刺",
+          "time_range": "",
+          "content": "手写通知与请示2篇",
+          "duration": 2.0,
+          "is_done": true
+        }
+      ],
+      "notes": "今日效率很高，完成公文写作实战",
+      "is_completed": 1,
+      "study_hours": 8.0
+    },
+    "2026-08-19": {
+      "date": "2026-08-19",
+      "tasks": [
+        {
+          "id": "task-1",
+          "category": "行测专项",
+          "time_range": "08:00 - 11:00",
+          "content": "行测言语理解 & 资料分析精练 (花生13技巧)",
+          "duration": 3.0,
+          "is_done": false
+        },
+        {
+          "id": "task-2",
+          "category": "公基与法律",
+          "time_range": "13:00 - 17:00",
+          "content": "行政法重点法条梳理 + 专项题海刷题 (吴飞/陈志)",
+          "duration": 4.0,
+          "is_done": false
+        },
+        {
+          "id": "task-3",
+          "category": "习思想与时政",
+          "time_range": "18:30 - 22:00",
+          "content": "习近平新时代中国特色社会主义思想‘胶带挖空’强背",
+          "duration": 3.5,
+          "is_done": false
+        }
+      ],
+      "notes": "",
+      "is_completed": 0,
+      "study_hours": 10.5
+    },
+    "2026-08-20": {
+      "date": "2026-08-20",
+      "tasks": [
+        {
+          "id": "task-1",
+          "category": "行测专项",
+          "time_range": "08:00 - 11:00",
+          "content": "行测言语理解 & 资料分析精练 (花生13技巧)",
+          "duration": 3.0,
+          "is_done": false
+        },
+        {
+          "id": "task-2",
+          "category": "公基与法律",
+          "time_range": "13:00 - 17:00",
+          "content": "行政法重点法条梳理 + 专项题海刷题 (吴飞/陈志)",
+          "duration": 4.0,
+          "is_done": false
+        },
+        {
+          "id": "task-3",
+          "category": "习思想与时政",
+          "time_range": "18:30 - 22:00",
+          "content": "习近平新时代中国特色社会主义思想‘胶带挖空’强背",
+          "duration": 3.5,
+          "is_done": false
+        }
+      ],
+      "notes": "",
+      "is_completed": 0,
+      "study_hours": 10.5
+    },
+    "2026-08-21": {
+      "date": "2026-08-21",
+      "tasks": [
+        {
+          "id": "task-1",
+          "category": "行测专项",
+          "time_range": "08:00 - 11:00",
+          "content": "行测言语理解 & 资料分析精练 (花生13技巧)",
+          "duration": 3.0,
+          "is_done": false
+        },
+        {
+          "id": "task-2",
+          "category": "公基与法律",
+          "time_range": "13:00 - 17:00",
+          "content": "行政法重点法条梳理 + 专项题海刷题 (吴飞/陈志)",
+          "duration": 4.0,
+          "is_done": false
+        },
+        {
+          "id": "task-3",
+          "category": "习思想与时政",
+          "time_range": "18:30 - 22:00",
+          "content": "习近平新时代中国特色社会主义思想‘胶带挖空’强背",
+          "duration": 3.5,
+          "is_done": false
+        }
+      ],
+      "notes": "",
+      "is_completed": 0,
+      "study_hours": 10.5
+    },
+    "2026-08-22": {
+      "date": "2026-08-22",
+      "tasks": [
+        {
+          "id": "task-1",
+          "category": "行测专项",
+          "time_range": "08:00 - 11:00",
+          "content": "行测言语理解 & 资料分析精练 (花生13技巧)",
+          "duration": 3.0,
+          "is_done": false
+        },
+        {
+          "id": "task-2",
+          "category": "公基与法律",
+          "time_range": "13:00 - 17:00",
+          "content": "行政法重点法条梳理 + 专项题海刷题 (吴飞/陈志)",
+          "duration": 4.0,
+          "is_done": false
+        },
+        {
+          "id": "task-3",
+          "category": "习思想与时政",
+          "time_range": "18:30 - 22:00",
+          "content": "习近平新时代中国特色社会主义思想‘胶带挖空’强背",
+          "duration": 3.5,
+          "is_done": false
+        }
+      ],
+      "notes": "",
+      "is_completed": 0,
+      "study_hours": 10.5
+    },
+    "2026-08-23": {
+      "date": "2026-08-23",
+      "tasks": [
+        {
+          "id": "task-1",
+          "category": "行测专项",
+          "time_range": "08:00 - 11:00",
+          "content": "行测言语理解 & 资料分析精练 (花生13技巧)",
+          "duration": 3.0,
+          "is_done": false
+        },
+        {
+          "id": "task-2",
+          "category": "公基与法律",
+          "time_range": "13:00 - 17:00",
+          "content": "行政法重点法条梳理 + 专项题海刷题 (吴飞/陈志)",
+          "duration": 4.0,
+          "is_done": false
+        },
+        {
+          "id": "task-3",
+          "category": "习思想与时政",
+          "time_range": "18:30 - 22:00",
+          "content": "习近平新时代中国特色社会主义思想‘胶带挖空’强背",
+          "duration": 3.5,
+          "is_done": false
+        }
+      ],
+      "notes": "",
+      "is_completed": 0,
+      "study_hours": 10.5
+    },
+    "2026-08-24": {
+      "date": "2026-08-24",
+      "tasks": [
+        {
+          "id": "task-1",
+          "category": "行测专项",
+          "time_range": "08:00 - 11:00",
+          "content": "行测言语理解 & 资料分析精练 (花生13技巧)",
+          "duration": 3.0,
+          "is_done": false
+        },
+        {
+          "id": "task-2",
+          "category": "公基与法律",
+          "time_range": "13:00 - 17:00",
+          "content": "行政法重点法条梳理 + 专项题海刷题 (吴飞/陈志)",
+          "duration": 4.0,
+          "is_done": false
+        },
+        {
+          "id": "task-3",
+          "category": "习思想与时政",
+          "time_range": "18:30 - 22:00",
+          "content": "习近平新时代中国特色社会主义思想‘胶带挖空’强背",
+          "duration": 3.5,
+          "is_done": false
+        }
+      ],
+      "notes": "",
+      "is_completed": 0,
+      "study_hours": 10.5
+    },
+    "2026-08-25": {
+      "date": "2026-08-25",
+      "tasks": [
+        {
+          "id": "task-1",
+          "category": "行测专项",
+          "time_range": "08:00 - 11:00",
+          "content": "行测言语理解 & 资料分析精练 (花生13技巧)",
+          "duration": 3.0,
+          "is_done": false
+        },
+        {
+          "id": "task-2",
+          "category": "公基与法律",
+          "time_range": "13:00 - 17:00",
+          "content": "行政法重点法条梳理 + 专项题海刷题 (吴飞/陈志)",
+          "duration": 4.0,
+          "is_done": false
+        },
+        {
+          "id": "task-3",
+          "category": "习思想与时政",
+          "time_range": "18:30 - 22:00",
+          "content": "习近平新时代中国特色社会主义思想‘胶带挖空’强背",
+          "duration": 3.5,
+          "is_done": false
+        }
+      ],
+      "notes": "",
+      "is_completed": 0,
+      "study_hours": 10.5
+    },
+    "2026-08-26": {
+      "date": "2026-08-26",
+      "tasks": [
+        {
+          "id": "task-1",
+          "category": "行测专项",
+          "time_range": "08:00 - 11:00",
+          "content": "行测言语理解 & 资料分析精练 (花生13技巧)",
+          "duration": 3.0,
+          "is_done": false
+        },
+        {
+          "id": "task-2",
+          "category": "公基与法律",
+          "time_range": "13:00 - 17:00",
+          "content": "行政法重点法条梳理 + 专项题海刷题 (吴飞/陈志)",
+          "duration": 4.0,
+          "is_done": false
+        },
+        {
+          "id": "task-3",
+          "category": "习思想与时政",
+          "time_range": "18:30 - 22:00",
+          "content": "习近平新时代中国特色社会主义思想‘胶带挖空’强背",
+          "duration": 3.5,
+          "is_done": false
+        }
+      ],
+      "notes": "",
+      "is_completed": 0,
+      "study_hours": 10.5
+    },
+    "2026-08-27": {
+      "date": "2026-08-27",
+      "tasks": [
+        {
+          "id": "task-1",
+          "category": "行测专项",
+          "time_range": "08:00 - 11:00",
+          "content": "行测言语理解 & 资料分析精练 (花生13技巧)",
+          "duration": 3.0,
+          "is_done": false
+        },
+        {
+          "id": "task-2",
+          "category": "公基与法律",
+          "time_range": "13:00 - 17:00",
+          "content": "行政法重点法条梳理 + 专项题海刷题 (吴飞/陈志)",
+          "duration": 4.0,
+          "is_done": false
+        },
+        {
+          "id": "task-3",
+          "category": "习思想与时政",
+          "time_range": "18:30 - 22:00",
+          "content": "习近平新时代中国特色社会主义思想‘胶带挖空’强背",
+          "duration": 3.5,
+          "is_done": false
+        }
+      ],
+      "notes": "",
+      "is_completed": 0,
+      "study_hours": 10.5
+    },
+    "2026-08-28": {
+      "date": "2026-08-28",
+      "tasks": [
+        {
+          "id": "task-1",
+          "category": "行测专项",
+          "time_range": "08:00 - 11:00",
+          "content": "行测言语理解 & 资料分析精练 (花生13技巧)",
+          "duration": 3.0,
+          "is_done": false
+        },
+        {
+          "id": "task-2",
+          "category": "公基与法律",
+          "time_range": "13:00 - 17:00",
+          "content": "行政法重点法条梳理 + 专项题海刷题 (吴飞/陈志)",
+          "duration": 4.0,
+          "is_done": false
+        },
+        {
+          "id": "task-3",
+          "category": "习思想与时政",
+          "time_range": "18:30 - 22:00",
+          "content": "习近平新时代中国特色社会主义思想‘胶带挖空’强背",
+          "duration": 3.5,
+          "is_done": false
+        }
+      ],
+      "notes": "",
+      "is_completed": 0,
+      "study_hours": 10.5
+    },
+    "2026-08-29": {
+      "date": "2026-08-29",
+      "tasks": [
+        {
+          "id": "task-1",
+          "category": "行测专项",
+          "time_range": "08:00 - 11:00",
+          "content": "行测言语理解 & 资料分析精练 (花生13技巧)",
+          "duration": 3.0,
+          "is_done": false
+        },
+        {
+          "id": "task-2",
+          "category": "公基与法律",
+          "time_range": "13:00 - 17:00",
+          "content": "行政法重点法条梳理 + 专项题海刷题 (吴飞/陈志)",
+          "duration": 4.0,
+          "is_done": false
+        },
+        {
+          "id": "task-3",
+          "category": "习思想与时政",
+          "time_range": "18:30 - 22:00",
+          "content": "习近平新时代中国特色社会主义思想‘胶带挖空’强背",
+          "duration": 3.5,
+          "is_done": false
+        }
+      ],
+      "notes": "",
+      "is_completed": 0,
+      "study_hours": 10.5
+    },
+    "2026-08-30": {
+      "date": "2026-08-30",
+      "tasks": [
+        {
+          "id": "task-1",
+          "category": "行测专项",
+          "time_range": "08:00 - 11:00",
+          "content": "行测言语理解 & 资料分析精练 (花生13技巧)",
+          "duration": 3.0,
+          "is_done": false
+        },
+        {
+          "id": "task-2",
+          "category": "公基与法律",
+          "time_range": "13:00 - 17:00",
+          "content": "行政法重点法条梳理 + 专项题海刷题 (吴飞/陈志)",
+          "duration": 4.0,
+          "is_done": false
+        },
+        {
+          "id": "task-3",
+          "category": "习思想与时政",
+          "time_range": "18:30 - 22:00",
+          "content": "习近平新时代中国特色社会主义思想‘胶带挖空’强背",
+          "duration": 3.5,
+          "is_done": false
+        }
+      ],
+      "notes": "",
+      "is_completed": 0,
+      "study_hours": 10.5
+    },
+    "2026-08-31": {
+      "date": "2026-08-31",
+      "tasks": [
+        {
+          "id": "task-1",
+          "category": "行测专项",
+          "time_range": "08:00 - 11:00",
+          "content": "行测言语理解 & 资料分析精练 (花生13技巧)",
+          "duration": 3.0,
+          "is_done": false
+        },
+        {
+          "id": "task-2",
+          "category": "公基与法律",
+          "time_range": "13:00 - 17:00",
+          "content": "行政法重点法条梳理 + 专项题海刷题 (吴飞/陈志)",
+          "duration": 4.0,
+          "is_done": false
+        },
+        {
+          "id": "task-3",
+          "category": "习思想与时政",
+          "time_range": "18:30 - 22:00",
+          "content": "习近平新时代中国特色社会主义思想‘胶带挖空’强背",
+          "duration": 3.5,
+          "is_done": false
+        }
+      ],
+      "notes": "",
+      "is_completed": 0,
+      "study_hours": 10.5
+    },
+    "2026-09-01": {
+      "date": "2026-09-01",
+      "tasks": [
+        {
+          "id": "task-1",
+          "category": "行测专项",
+          "time_range": "08:00 - 11:00",
+          "content": "行测言语理解 & 资料分析精练 (花生13技巧)",
+          "duration": 3.0,
+          "is_done": false
+        },
+        {
+          "id": "task-2",
+          "category": "公基与法律",
+          "time_range": "13:00 - 17:00",
+          "content": "行政法重点法条梳理 + 专项题海刷题 (吴飞/陈志)",
+          "duration": 4.0,
+          "is_done": false
+        },
+        {
+          "id": "task-3",
+          "category": "习思想与时政",
+          "time_range": "18:30 - 22:00",
+          "content": "习近平新时代中国特色社会主义思想‘胶带挖空’强背",
+          "duration": 3.5,
+          "is_done": false
+        }
+      ],
+      "notes": "",
+      "is_completed": 0,
+      "study_hours": 10.5
+    },
+    "2026-09-02": {
+      "date": "2026-09-02",
+      "tasks": [
+        {
+          "id": "task-1",
+          "category": "行测专项",
+          "time_range": "08:00 - 11:00",
+          "content": "行测言语理解 & 资料分析精练 (花生13技巧)",
+          "duration": 3.0,
+          "is_done": false
+        },
+        {
+          "id": "task-2",
+          "category": "公基与法律",
+          "time_range": "13:00 - 17:00",
+          "content": "行政法重点法条梳理 + 专项题海刷题 (吴飞/陈志)",
+          "duration": 4.0,
+          "is_done": false
+        },
+        {
+          "id": "task-3",
+          "category": "习思想与时政",
+          "time_range": "18:30 - 22:00",
+          "content": "习近平新时代中国特色社会主义思想‘胶带挖空’强背",
+          "duration": 3.5,
+          "is_done": false
+        }
+      ],
+      "notes": "",
+      "is_completed": 0,
+      "study_hours": 10.5
+    },
+    "2026-09-03": {
+      "date": "2026-09-03",
+      "tasks": [
+        {
+          "id": "task-1",
+          "category": "行测专项",
+          "time_range": "08:00 - 11:00",
+          "content": "行测言语理解 & 资料分析精练 (花生13技巧)",
+          "duration": 3.0,
+          "is_done": false
+        },
+        {
+          "id": "task-2",
+          "category": "公基与法律",
+          "time_range": "13:00 - 17:00",
+          "content": "行政法重点法条梳理 + 专项题海刷题 (吴飞/陈志)",
+          "duration": 4.0,
+          "is_done": false
+        },
+        {
+          "id": "task-3",
+          "category": "习思想与时政",
+          "time_range": "18:30 - 22:00",
+          "content": "习近平新时代中国特色社会主义思想‘胶带挖空’强背",
+          "duration": 3.5,
+          "is_done": false
+        }
+      ],
+      "notes": "",
+      "is_completed": 0,
+      "study_hours": 10.5
+    },
+    "2026-09-04": {
+      "date": "2026-09-04",
+      "tasks": [
+        {
+          "id": "task-1",
+          "category": "行测专项",
+          "time_range": "08:00 - 11:00",
+          "content": "行测言语理解 & 资料分析精练 (花生13技巧)",
+          "duration": 3.0,
+          "is_done": false
+        },
+        {
+          "id": "task-2",
+          "category": "公基与法律",
+          "time_range": "13:00 - 17:00",
+          "content": "行政法重点法条梳理 + 专项题海刷题 (吴飞/陈志)",
+          "duration": 4.0,
+          "is_done": false
+        },
+        {
+          "id": "task-3",
+          "category": "习思想与时政",
+          "time_range": "18:30 - 22:00",
+          "content": "习近平新时代中国特色社会主义思想‘胶带挖空’强背",
+          "duration": 3.5,
+          "is_done": false
+        }
+      ],
+      "notes": "",
+      "is_completed": 0,
+      "study_hours": 10.5
+    },
+    "2026-09-05": {
+      "date": "2026-09-05",
+      "tasks": [
+        {
+          "id": "task-1",
+          "category": "行测专项",
+          "time_range": "08:00 - 11:00",
+          "content": "行测言语理解 & 资料分析精练 (花生13技巧)",
+          "duration": 3.0,
+          "is_done": false
+        },
+        {
+          "id": "task-2",
+          "category": "公基与法律",
+          "time_range": "13:00 - 17:00",
+          "content": "行政法重点法条梳理 + 专项题海刷题 (吴飞/陈志)",
+          "duration": 4.0,
+          "is_done": false
+        },
+        {
+          "id": "task-3",
+          "category": "习思想与时政",
+          "time_range": "18:30 - 22:00",
+          "content": "习近平新时代中国特色社会主义思想‘胶带挖空’强背",
+          "duration": 3.5,
+          "is_done": false
+        }
+      ],
+      "notes": "",
+      "is_completed": 0,
+      "study_hours": 10.5
+    },
+    "2026-09-06": {
+      "date": "2026-09-06",
+      "tasks": [
+        {
+          "id": "task-1",
+          "category": "行测专项",
+          "time_range": "08:00 - 11:00",
+          "content": "行测言语理解 & 资料分析精练 (花生13技巧)",
+          "duration": 3.0,
+          "is_done": false
+        },
+        {
+          "id": "task-2",
+          "category": "公基与法律",
+          "time_range": "13:00 - 17:00",
+          "content": "行政法重点法条梳理 + 专项题海刷题 (吴飞/陈志)",
+          "duration": 4.0,
+          "is_done": false
+        },
+        {
+          "id": "task-3",
+          "category": "习思想与时政",
+          "time_range": "18:30 - 22:00",
+          "content": "习近平新时代中国特色社会主义思想‘胶带挖空’强背",
+          "duration": 3.5,
+          "is_done": false
+        }
+      ],
+      "notes": "",
+      "is_completed": 0,
+      "study_hours": 10.5
+    },
+    "2026-09-07": {
+      "date": "2026-09-07",
+      "tasks": [
+        {
+          "id": "task-1",
+          "category": "行测专项",
+          "time_range": "08:00 - 11:00",
+          "content": "行测言语理解 & 资料分析精练 (花生13技巧)",
+          "duration": 3.0,
+          "is_done": false
+        },
+        {
+          "id": "task-2",
+          "category": "公基与法律",
+          "time_range": "13:00 - 17:00",
+          "content": "行政法重点法条梳理 + 专项题海刷题 (吴飞/陈志)",
+          "duration": 4.0,
+          "is_done": false
+        },
+        {
+          "id": "task-3",
+          "category": "习思想与时政",
+          "time_range": "18:30 - 22:00",
+          "content": "习近平新时代中国特色社会主义思想‘胶带挖空’强背",
+          "duration": 3.5,
+          "is_done": false
+        }
+      ],
+      "notes": "",
+      "is_completed": 0,
+      "study_hours": 10.5
+    },
+    "2026-09-08": {
+      "date": "2026-09-08",
+      "tasks": [
+        {
+          "id": "task-1",
+          "category": "行测专项",
+          "time_range": "08:00 - 11:00",
+          "content": "行测言语理解 & 资料分析精练 (花生13技巧)",
+          "duration": 3.0,
+          "is_done": false
+        },
+        {
+          "id": "task-2",
+          "category": "公基与法律",
+          "time_range": "13:00 - 17:00",
+          "content": "行政法重点法条梳理 + 专项题海刷题 (吴飞/陈志)",
+          "duration": 4.0,
+          "is_done": false
+        },
+        {
+          "id": "task-3",
+          "category": "习思想与时政",
+          "time_range": "18:30 - 22:00",
+          "content": "习近平新时代中国特色社会主义思想‘胶带挖空’强背",
+          "duration": 3.5,
+          "is_done": false
+        }
+      ],
+      "notes": "",
+      "is_completed": 0,
+      "study_hours": 10.5
+    },
+    "2026-09-09": {
+      "date": "2026-09-09",
+      "tasks": [
+        {
+          "id": "task-1",
+          "category": "行测专项",
+          "time_range": "08:00 - 11:00",
+          "content": "行测言语理解 & 资料分析精练 (花生13技巧)",
+          "duration": 3.0,
+          "is_done": false
+        },
+        {
+          "id": "task-2",
+          "category": "公基与法律",
+          "time_range": "13:00 - 17:00",
+          "content": "行政法重点法条梳理 + 专项题海刷题 (吴飞/陈志)",
+          "duration": 4.0,
+          "is_done": false
+        },
+        {
+          "id": "task-3",
+          "category": "习思想与时政",
+          "time_range": "18:30 - 22:00",
+          "content": "习近平新时代中国特色社会主义思想‘胶带挖空’强背",
+          "duration": 3.5,
+          "is_done": false
+        }
+      ],
+      "notes": "",
+      "is_completed": 0,
+      "study_hours": 10.5
+    },
+    "2026-09-10": {
+      "date": "2026-09-10",
+      "tasks": [
+        {
+          "id": "task-1",
+          "category": "真题演练",
+          "time_range": "08:00 - 11:00",
+          "content": "四川近5年定向选调真题限时演练与错题复盘",
+          "duration": 3.0,
+          "is_done": false
+        },
+        {
+          "id": "task-2",
+          "category": "公文写作",
+          "time_range": "13:00 - 17:00",
+          "content": "15种法定公文手写实战（通知/请示/方案/宣讲稿）",
+          "duration": 4.0,
+          "is_done": false
+        },
+        {
+          "id": "task-3",
+          "category": "时政热点",
+          "time_range": "18:30 - 22:00",
+          "content": "2026年重大会议精神与时政热点文章精读",
+          "duration": 3.5,
+          "is_done": false
+        }
+      ],
+      "notes": "",
+      "is_completed": 0,
+      "study_hours": 10.5
+    },
+    "2026-09-11": {
+      "date": "2026-09-11",
+      "tasks": [
+        {
+          "id": "task-1",
+          "category": "真题演练",
+          "time_range": "08:00 - 11:00",
+          "content": "四川近5年定向选调真题限时演练与错题复盘",
+          "duration": 3.0,
+          "is_done": false
+        },
+        {
+          "id": "task-2",
+          "category": "公文写作",
+          "time_range": "13:00 - 17:00",
+          "content": "15种法定公文手写实战（通知/请示/方案/宣讲稿）",
+          "duration": 4.0,
+          "is_done": false
+        },
+        {
+          "id": "task-3",
+          "category": "时政热点",
+          "time_range": "18:30 - 22:00",
+          "content": "2026年重大会议精神与时政热点文章精读",
+          "duration": 3.5,
+          "is_done": false
+        }
+      ],
+      "notes": "",
+      "is_completed": 0,
+      "study_hours": 10.5
+    },
+    "2026-09-12": {
+      "date": "2026-09-12",
+      "tasks": [
+        {
+          "id": "task-1",
+          "category": "真题演练",
+          "time_range": "08:00 - 11:00",
+          "content": "四川近5年定向选调真题限时演练与错题复盘",
+          "duration": 3.0,
+          "is_done": false
+        },
+        {
+          "id": "task-2",
+          "category": "公文写作",
+          "time_range": "13:00 - 17:00",
+          "content": "15种法定公文手写实战（通知/请示/方案/宣讲稿）",
+          "duration": 4.0,
+          "is_done": false
+        },
+        {
+          "id": "task-3",
+          "category": "时政热点",
+          "time_range": "18:30 - 22:00",
+          "content": "2026年重大会议精神与时政热点文章精读",
+          "duration": 3.5,
+          "is_done": false
+        }
+      ],
+      "notes": "",
+      "is_completed": 0,
+      "study_hours": 10.5
+    },
+    "2026-09-13": {
+      "date": "2026-09-13",
+      "tasks": [
+        {
+          "id": "task-1",
+          "category": "真题演练",
+          "time_range": "08:00 - 11:00",
+          "content": "四川近5年定向选调真题限时演练与错题复盘",
+          "duration": 3.0,
+          "is_done": false
+        },
+        {
+          "id": "task-2",
+          "category": "公文写作",
+          "time_range": "13:00 - 17:00",
+          "content": "15种法定公文手写实战（通知/请示/方案/宣讲稿）",
+          "duration": 4.0,
+          "is_done": false
+        },
+        {
+          "id": "task-3",
+          "category": "时政热点",
+          "time_range": "18:30 - 22:00",
+          "content": "2026年重大会议精神与时政热点文章精读",
+          "duration": 3.5,
+          "is_done": false
+        }
+      ],
+      "notes": "",
+      "is_completed": 0,
+      "study_hours": 10.5
+    },
+    "2026-09-14": {
+      "date": "2026-09-14",
+      "tasks": [
+        {
+          "id": "task-1",
+          "category": "真题演练",
+          "time_range": "08:00 - 11:00",
+          "content": "四川近5年定向选调真题限时演练与错题复盘",
+          "duration": 3.0,
+          "is_done": false
+        },
+        {
+          "id": "task-2",
+          "category": "公文写作",
+          "time_range": "13:00 - 17:00",
+          "content": "15种法定公文手写实战（通知/请示/方案/宣讲稿）",
+          "duration": 4.0,
+          "is_done": false
+        },
+        {
+          "id": "task-3",
+          "category": "时政热点",
+          "time_range": "18:30 - 22:00",
+          "content": "2026年重大会议精神与时政热点文章精读",
+          "duration": 3.5,
+          "is_done": false
+        }
+      ],
+      "notes": "",
+      "is_completed": 0,
+      "study_hours": 10.5
+    },
+    "2026-09-15": {
+      "date": "2026-09-15",
+      "tasks": [
+        {
+          "id": "task-1",
+          "category": "真题演练",
+          "time_range": "08:00 - 11:00",
+          "content": "四川近5年定向选调真题限时演练与错题复盘",
+          "duration": 3.0,
+          "is_done": false
+        },
+        {
+          "id": "task-2",
+          "category": "公文写作",
+          "time_range": "13:00 - 17:00",
+          "content": "15种法定公文手写实战（通知/请示/方案/宣讲稿）",
+          "duration": 4.0,
+          "is_done": false
+        },
+        {
+          "id": "task-3",
+          "category": "时政热点",
+          "time_range": "18:30 - 22:00",
+          "content": "2026年重大会议精神与时政热点文章精读",
+          "duration": 3.5,
+          "is_done": false
+        }
+      ],
+      "notes": "",
+      "is_completed": 0,
+      "study_hours": 10.5
+    },
+    "2026-09-16": {
+      "date": "2026-09-16",
+      "tasks": [
+        {
+          "id": "task-1",
+          "category": "真题演练",
+          "time_range": "08:00 - 11:00",
+          "content": "四川近5年定向选调真题限时演练与错题复盘",
+          "duration": 3.0,
+          "is_done": false
+        },
+        {
+          "id": "task-2",
+          "category": "公文写作",
+          "time_range": "13:00 - 17:00",
+          "content": "15种法定公文手写实战（通知/请示/方案/宣讲稿）",
+          "duration": 4.0,
+          "is_done": false
+        },
+        {
+          "id": "task-3",
+          "category": "时政热点",
+          "time_range": "18:30 - 22:00",
+          "content": "2026年重大会议精神与时政热点文章精读",
+          "duration": 3.5,
+          "is_done": false
+        }
+      ],
+      "notes": "",
+      "is_completed": 0,
+      "study_hours": 10.5
+    },
+    "2026-09-17": {
+      "date": "2026-09-17",
+      "tasks": [
+        {
+          "id": "task-1",
+          "category": "真题演练",
+          "time_range": "08:00 - 11:00",
+          "content": "四川近5年定向选调真题限时演练与错题复盘",
+          "duration": 3.0,
+          "is_done": false
+        },
+        {
+          "id": "task-2",
+          "category": "公文写作",
+          "time_range": "13:00 - 17:00",
+          "content": "15种法定公文手写实战（通知/请示/方案/宣讲稿）",
+          "duration": 4.0,
+          "is_done": false
+        },
+        {
+          "id": "task-3",
+          "category": "时政热点",
+          "time_range": "18:30 - 22:00",
+          "content": "2026年重大会议精神与时政热点文章精读",
+          "duration": 3.5,
+          "is_done": false
+        }
+      ],
+      "notes": "",
+      "is_completed": 0,
+      "study_hours": 10.5
+    },
+    "2026-09-18": {
+      "date": "2026-09-18",
+      "tasks": [
+        {
+          "id": "task-1",
+          "category": "真题演练",
+          "time_range": "08:00 - 11:00",
+          "content": "四川近5年定向选调真题限时演练与错题复盘",
+          "duration": 3.0,
+          "is_done": false
+        },
+        {
+          "id": "task-2",
+          "category": "公文写作",
+          "time_range": "13:00 - 17:00",
+          "content": "15种法定公文手写实战（通知/请示/方案/宣讲稿）",
+          "duration": 4.0,
+          "is_done": false
+        },
+        {
+          "id": "task-3",
+          "category": "时政热点",
+          "time_range": "18:30 - 22:00",
+          "content": "2026年重大会议精神与时政热点文章精读",
+          "duration": 3.5,
+          "is_done": false
+        }
+      ],
+      "notes": "",
+      "is_completed": 0,
+      "study_hours": 10.5
+    },
+    "2026-09-19": {
+      "date": "2026-09-19",
+      "tasks": [
+        {
+          "id": "task-1",
+          "category": "真题演练",
+          "time_range": "08:00 - 11:00",
+          "content": "四川近5年定向选调真题限时演练与错题复盘",
+          "duration": 3.0,
+          "is_done": false
+        },
+        {
+          "id": "task-2",
+          "category": "公文写作",
+          "time_range": "13:00 - 17:00",
+          "content": "15种法定公文手写实战（通知/请示/方案/宣讲稿）",
+          "duration": 4.0,
+          "is_done": false
+        },
+        {
+          "id": "task-3",
+          "category": "时政热点",
+          "time_range": "18:30 - 22:00",
+          "content": "2026年重大会议精神与时政热点文章精读",
+          "duration": 3.5,
+          "is_done": false
+        }
+      ],
+      "notes": "",
+      "is_completed": 0,
+      "study_hours": 10.5
+    },
+    "2026-09-20": {
+      "date": "2026-09-20",
+      "tasks": [
+        {
+          "id": "task-1",
+          "category": "真题演练",
+          "time_range": "08:00 - 11:00",
+          "content": "四川近5年定向选调真题限时演练与错题复盘",
+          "duration": 3.0,
+          "is_done": false
+        },
+        {
+          "id": "task-2",
+          "category": "公文写作",
+          "time_range": "13:00 - 17:00",
+          "content": "15种法定公文手写实战（通知/请示/方案/宣讲稿）",
+          "duration": 4.0,
+          "is_done": false
+        },
+        {
+          "id": "task-3",
+          "category": "时政热点",
+          "time_range": "18:30 - 22:00",
+          "content": "2026年重大会议精神与时政热点文章精读",
+          "duration": 3.5,
+          "is_done": false
+        }
+      ],
+      "notes": "",
+      "is_completed": 0,
+      "study_hours": 10.5
+    },
+    "2026-09-21": {
+      "date": "2026-09-21",
+      "tasks": [
+        {
+          "id": "task-1",
+          "category": "真题演练",
+          "time_range": "08:00 - 11:00",
+          "content": "四川近5年定向选调真题限时演练与错题复盘",
+          "duration": 3.0,
+          "is_done": false
+        },
+        {
+          "id": "task-2",
+          "category": "公文写作",
+          "time_range": "13:00 - 17:00",
+          "content": "15种法定公文手写实战（通知/请示/方案/宣讲稿）",
+          "duration": 4.0,
+          "is_done": false
+        },
+        {
+          "id": "task-3",
+          "category": "时政热点",
+          "time_range": "18:30 - 22:00",
+          "content": "2026年重大会议精神与时政热点文章精读",
+          "duration": 3.5,
+          "is_done": false
+        }
+      ],
+      "notes": "",
+      "is_completed": 0,
+      "study_hours": 10.5
+    },
+    "2026-09-22": {
+      "date": "2026-09-22",
+      "tasks": [
+        {
+          "id": "task-1",
+          "category": "真题演练",
+          "time_range": "08:00 - 11:00",
+          "content": "四川近5年定向选调真题限时演练与错题复盘",
+          "duration": 3.0,
+          "is_done": false
+        },
+        {
+          "id": "task-2",
+          "category": "公文写作",
+          "time_range": "13:00 - 17:00",
+          "content": "15种法定公文手写实战（通知/请示/方案/宣讲稿）",
+          "duration": 4.0,
+          "is_done": false
+        },
+        {
+          "id": "task-3",
+          "category": "时政热点",
+          "time_range": "18:30 - 22:00",
+          "content": "2026年重大会议精神与时政热点文章精读",
+          "duration": 3.5,
+          "is_done": false
+        }
+      ],
+      "notes": "",
+      "is_completed": 0,
+      "study_hours": 10.5
+    },
+    "2026-09-23": {
+      "date": "2026-09-23",
+      "tasks": [
+        {
+          "id": "task-1",
+          "category": "真题演练",
+          "time_range": "08:00 - 11:00",
+          "content": "四川近5年定向选调真题限时演练与错题复盘",
+          "duration": 3.0,
+          "is_done": false
+        },
+        {
+          "id": "task-2",
+          "category": "公文写作",
+          "time_range": "13:00 - 17:00",
+          "content": "15种法定公文手写实战（通知/请示/方案/宣讲稿）",
+          "duration": 4.0,
+          "is_done": false
+        },
+        {
+          "id": "task-3",
+          "category": "时政热点",
+          "time_range": "18:30 - 22:00",
+          "content": "2026年重大会议精神与时政热点文章精读",
+          "duration": 3.5,
+          "is_done": false
+        }
+      ],
+      "notes": "",
+      "is_completed": 0,
+      "study_hours": 10.5
+    },
+    "2026-09-24": {
+      "date": "2026-09-24",
+      "tasks": [
+        {
+          "id": "task-1",
+          "category": "真题演练",
+          "time_range": "08:00 - 11:00",
+          "content": "四川近5年定向选调真题限时演练与错题复盘",
+          "duration": 3.0,
+          "is_done": false
+        },
+        {
+          "id": "task-2",
+          "category": "公文写作",
+          "time_range": "13:00 - 17:00",
+          "content": "15种法定公文手写实战（通知/请示/方案/宣讲稿）",
+          "duration": 4.0,
+          "is_done": false
+        },
+        {
+          "id": "task-3",
+          "category": "时政热点",
+          "time_range": "18:30 - 22:00",
+          "content": "2026年重大会议精神与时政热点文章精读",
+          "duration": 3.5,
+          "is_done": false
+        }
+      ],
+      "notes": "",
+      "is_completed": 0,
+      "study_hours": 10.5
+    },
+    "2026-09-25": {
+      "date": "2026-09-25",
+      "tasks": [
+        {
+          "id": "task-1",
+          "category": "真题演练",
+          "time_range": "08:00 - 11:00",
+          "content": "四川近5年定向选调真题限时演练与错题复盘",
+          "duration": 3.0,
+          "is_done": false
+        },
+        {
+          "id": "task-2",
+          "category": "公文写作",
+          "time_range": "13:00 - 17:00",
+          "content": "15种法定公文手写实战（通知/请示/方案/宣讲稿）",
+          "duration": 4.0,
+          "is_done": false
+        },
+        {
+          "id": "task-3",
+          "category": "时政热点",
+          "time_range": "18:30 - 22:00",
+          "content": "2026年重大会议精神与时政热点文章精读",
+          "duration": 3.5,
+          "is_done": false
+        }
+      ],
+      "notes": "",
+      "is_completed": 0,
+      "study_hours": 10.5
+    },
+    "2026-09-26": {
+      "date": "2026-09-26",
+      "tasks": [
+        {
+          "id": "task-1",
+          "category": "真题演练",
+          "time_range": "08:00 - 11:00",
+          "content": "四川近5年定向选调真题限时演练与错题复盘",
+          "duration": 3.0,
+          "is_done": false
+        },
+        {
+          "id": "task-2",
+          "category": "公文写作",
+          "time_range": "13:00 - 17:00",
+          "content": "15种法定公文手写实战（通知/请示/方案/宣讲稿）",
+          "duration": 4.0,
+          "is_done": false
+        },
+        {
+          "id": "task-3",
+          "category": "时政热点",
+          "time_range": "18:30 - 22:00",
+          "content": "2026年重大会议精神与时政热点文章精读",
+          "duration": 3.5,
+          "is_done": false
+        }
+      ],
+      "notes": "",
+      "is_completed": 0,
+      "study_hours": 10.5
+    },
+    "2026-09-27": {
+      "date": "2026-09-27",
+      "tasks": [
+        {
+          "id": "task-1",
+          "category": "真题演练",
+          "time_range": "08:00 - 11:00",
+          "content": "四川近5年定向选调真题限时演练与错题复盘",
+          "duration": 3.0,
+          "is_done": false
+        },
+        {
+          "id": "task-2",
+          "category": "公文写作",
+          "time_range": "13:00 - 17:00",
+          "content": "15种法定公文手写实战（通知/请示/方案/宣讲稿）",
+          "duration": 4.0,
+          "is_done": false
+        },
+        {
+          "id": "task-3",
+          "category": "时政热点",
+          "time_range": "18:30 - 22:00",
+          "content": "2026年重大会议精神与时政热点文章精读",
+          "duration": 3.5,
+          "is_done": false
+        }
+      ],
+      "notes": "",
+      "is_completed": 0,
+      "study_hours": 10.5
+    },
+    "2026-09-28": {
+      "date": "2026-09-28",
+      "tasks": [
+        {
+          "id": "task-1",
+          "category": "真题演练",
+          "time_range": "08:00 - 11:00",
+          "content": "四川近5年定向选调真题限时演练与错题复盘",
+          "duration": 3.0,
+          "is_done": false
+        },
+        {
+          "id": "task-2",
+          "category": "公文写作",
+          "time_range": "13:00 - 17:00",
+          "content": "15种法定公文手写实战（通知/请示/方案/宣讲稿）",
+          "duration": 4.0,
+          "is_done": false
+        },
+        {
+          "id": "task-3",
+          "category": "时政热点",
+          "time_range": "18:30 - 22:00",
+          "content": "2026年重大会议精神与时政热点文章精读",
+          "duration": 3.5,
+          "is_done": false
+        }
+      ],
+      "notes": "",
+      "is_completed": 0,
+      "study_hours": 10.5
+    },
+    "2026-09-29": {
+      "date": "2026-09-29",
+      "tasks": [
+        {
+          "id": "task-1",
+          "category": "真题演练",
+          "time_range": "08:00 - 11:00",
+          "content": "四川近5年定向选调真题限时演练与错题复盘",
+          "duration": 3.0,
+          "is_done": false
+        },
+        {
+          "id": "task-2",
+          "category": "公文写作",
+          "time_range": "13:00 - 17:00",
+          "content": "15种法定公文手写实战（通知/请示/方案/宣讲稿）",
+          "duration": 4.0,
+          "is_done": false
+        },
+        {
+          "id": "task-3",
+          "category": "时政热点",
+          "time_range": "18:30 - 22:00",
+          "content": "2026年重大会议精神与时政热点文章精读",
+          "duration": 3.5,
+          "is_done": false
+        }
+      ],
+      "notes": "",
+      "is_completed": 0,
+      "study_hours": 10.5
+    },
+    "2026-09-30": {
+      "date": "2026-09-30",
+      "tasks": [
+        {
+          "id": "task-1",
+          "category": "真题演练",
+          "time_range": "08:00 - 11:00",
+          "content": "四川近5年定向选调真题限时演练与错题复盘",
+          "duration": 3.0,
+          "is_done": false
+        },
+        {
+          "id": "task-2",
+          "category": "公文写作",
+          "time_range": "13:00 - 17:00",
+          "content": "15种法定公文手写实战（通知/请示/方案/宣讲稿）",
+          "duration": 4.0,
+          "is_done": false
+        },
+        {
+          "id": "task-3",
+          "category": "时政热点",
+          "time_range": "18:30 - 22:00",
+          "content": "2026年重大会议精神与时政热点文章精读",
+          "duration": 3.5,
+          "is_done": false
+        }
+      ],
+      "notes": "",
+      "is_completed": 0,
+      "study_hours": 10.5
+    },
+    "2026-10-01": {
+      "date": "2026-10-01",
+      "tasks": [
+        {
+          "id": "task-1",
+          "category": "真题演练",
+          "time_range": "08:00 - 11:00",
+          "content": "四川近5年定向选调真题限时演练与错题复盘",
+          "duration": 3.0,
+          "is_done": false
+        },
+        {
+          "id": "task-2",
+          "category": "公文写作",
+          "time_range": "13:00 - 17:00",
+          "content": "15种法定公文手写实战（通知/请示/方案/宣讲稿）",
+          "duration": 4.0,
+          "is_done": false
+        },
+        {
+          "id": "task-3",
+          "category": "时政热点",
+          "time_range": "18:30 - 22:00",
+          "content": "2026年重大会议精神与时政热点文章精读",
+          "duration": 3.5,
+          "is_done": false
+        }
+      ],
+      "notes": "",
+      "is_completed": 0,
+      "study_hours": 10.5
+    },
+    "2026-10-02": {
+      "date": "2026-10-02",
+      "tasks": [
+        {
+          "id": "task-1",
+          "category": "真题演练",
+          "time_range": "08:00 - 11:00",
+          "content": "四川近5年定向选调真题限时演练与错题复盘",
+          "duration": 3.0,
+          "is_done": false
+        },
+        {
+          "id": "task-2",
+          "category": "公文写作",
+          "time_range": "13:00 - 17:00",
+          "content": "15种法定公文手写实战（通知/请示/方案/宣讲稿）",
+          "duration": 4.0,
+          "is_done": false
+        },
+        {
+          "id": "task-3",
+          "category": "时政热点",
+          "time_range": "18:30 - 22:00",
+          "content": "2026年重大会议精神与时政热点文章精读",
+          "duration": 3.5,
+          "is_done": false
+        }
+      ],
+      "notes": "",
+      "is_completed": 0,
+      "study_hours": 10.5
+    },
+    "2026-10-03": {
+      "date": "2026-10-03",
+      "tasks": [
+        {
+          "id": "task-1",
+          "category": "真题演练",
+          "time_range": "08:00 - 11:00",
+          "content": "四川近5年定向选调真题限时演练与错题复盘",
+          "duration": 3.0,
+          "is_done": false
+        },
+        {
+          "id": "task-2",
+          "category": "公文写作",
+          "time_range": "13:00 - 17:00",
+          "content": "15种法定公文手写实战（通知/请示/方案/宣讲稿）",
+          "duration": 4.0,
+          "is_done": false
+        },
+        {
+          "id": "task-3",
+          "category": "时政热点",
+          "time_range": "18:30 - 22:00",
+          "content": "2026年重大会议精神与时政热点文章精读",
+          "duration": 3.5,
+          "is_done": false
+        }
+      ],
+      "notes": "",
+      "is_completed": 0,
+      "study_hours": 10.5
+    },
+    "2026-10-04": {
+      "date": "2026-10-04",
+      "tasks": [
+        {
+          "id": "task-1",
+          "category": "真题演练",
+          "time_range": "08:00 - 11:00",
+          "content": "四川近5年定向选调真题限时演练与错题复盘",
+          "duration": 3.0,
+          "is_done": false
+        },
+        {
+          "id": "task-2",
+          "category": "公文写作",
+          "time_range": "13:00 - 17:00",
+          "content": "15种法定公文手写实战（通知/请示/方案/宣讲稿）",
+          "duration": 4.0,
+          "is_done": false
+        },
+        {
+          "id": "task-3",
+          "category": "时政热点",
+          "time_range": "18:30 - 22:00",
+          "content": "2026年重大会议精神与时政热点文章精读",
+          "duration": 3.5,
+          "is_done": false
+        }
+      ],
+      "notes": "",
+      "is_completed": 0,
+      "study_hours": 10.5
+    },
+    "2026-10-05": {
+      "date": "2026-10-05",
+      "tasks": [
+        {
+          "id": "task-1",
+          "category": "真题演练",
+          "time_range": "08:00 - 11:00",
+          "content": "四川近5年定向选调真题限时演练与错题复盘",
+          "duration": 3.0,
+          "is_done": false
+        },
+        {
+          "id": "task-2",
+          "category": "公文写作",
+          "time_range": "13:00 - 17:00",
+          "content": "15种法定公文手写实战（通知/请示/方案/宣讲稿）",
+          "duration": 4.0,
+          "is_done": false
+        },
+        {
+          "id": "task-3",
+          "category": "时政热点",
+          "time_range": "18:30 - 22:00",
+          "content": "2026年重大会议精神与时政热点文章精读",
+          "duration": 3.5,
+          "is_done": false
+        }
+      ],
+      "notes": "",
+      "is_completed": 0,
+      "study_hours": 10.5
+    },
+    "2026-10-06": {
+      "date": "2026-10-06",
+      "tasks": [
+        {
+          "id": "task-1",
+          "category": "全真模考",
+          "time_range": "08:30 - 11:30",
+          "content": "全真闭卷机考模拟（90道综合测试题限时作答）",
+          "duration": 3.0,
+          "is_done": false
+        },
+        {
+          "id": "task-2",
+          "category": "公文精修",
+          "time_range": "13:30 - 17:00",
+          "content": "整套公文写作AI诊断批改 & 错题集地毯式过筛",
+          "duration": 3.5,
+          "is_done": false
+        },
+        {
+          "id": "task-3",
+          "category": "冲刺背诵",
+          "time_range": "18:30 - 22:30",
+          "content": "习思想帽子词与2026时政终极必背金句过筛",
+          "duration": 4.0,
+          "is_done": false
+        }
+      ],
+      "notes": "",
+      "is_completed": 0,
+      "study_hours": 10.5
+    },
+    "2026-10-07": {
+      "date": "2026-10-07",
+      "tasks": [
+        {
+          "id": "task-1",
+          "category": "全真模考",
+          "time_range": "08:30 - 11:30",
+          "content": "全真闭卷机考模拟（90道综合测试题限时作答）",
+          "duration": 3.0,
+          "is_done": false
+        },
+        {
+          "id": "task-2",
+          "category": "公文精修",
+          "time_range": "13:30 - 17:00",
+          "content": "整套公文写作AI诊断批改 & 错题集地毯式过筛",
+          "duration": 3.5,
+          "is_done": false
+        },
+        {
+          "id": "task-3",
+          "category": "冲刺背诵",
+          "time_range": "18:30 - 22:30",
+          "content": "习思想帽子词与2026时政终极必背金句过筛",
+          "duration": 4.0,
+          "is_done": false
+        }
+      ],
+      "notes": "",
+      "is_completed": 0,
+      "study_hours": 10.5
+    },
+    "2026-10-08": {
+      "date": "2026-10-08",
+      "tasks": [
+        {
+          "id": "task-1",
+          "category": "全真模考",
+          "time_range": "08:30 - 11:30",
+          "content": "全真闭卷机考模拟（90道综合测试题限时作答）",
+          "duration": 3.0,
+          "is_done": false
+        },
+        {
+          "id": "task-2",
+          "category": "公文精修",
+          "time_range": "13:30 - 17:00",
+          "content": "整套公文写作AI诊断批改 & 错题集地毯式过筛",
+          "duration": 3.5,
+          "is_done": false
+        },
+        {
+          "id": "task-3",
+          "category": "冲刺背诵",
+          "time_range": "18:30 - 22:30",
+          "content": "习思想帽子词与2026时政终极必背金句过筛",
+          "duration": 4.0,
+          "is_done": false
+        }
+      ],
+      "notes": "",
+      "is_completed": 0,
+      "study_hours": 10.5
+    },
+    "2026-10-09": {
+      "date": "2026-10-09",
+      "tasks": [
+        {
+          "id": "task-1",
+          "category": "全真模考",
+          "time_range": "08:30 - 11:30",
+          "content": "全真闭卷机考模拟（90道综合测试题限时作答）",
+          "duration": 3.0,
+          "is_done": false
+        },
+        {
+          "id": "task-2",
+          "category": "公文精修",
+          "time_range": "13:30 - 17:00",
+          "content": "整套公文写作AI诊断批改 & 错题集地毯式过筛",
+          "duration": 3.5,
+          "is_done": false
+        },
+        {
+          "id": "task-3",
+          "category": "冲刺背诵",
+          "time_range": "18:30 - 22:30",
+          "content": "习思想帽子词与2026时政终极必背金句过筛",
+          "duration": 4.0,
+          "is_done": false
+        }
+      ],
+      "notes": "",
+      "is_completed": 0,
+      "study_hours": 10.5
+    },
+    "2026-10-10": {
+      "date": "2026-10-10",
+      "tasks": [
+        {
+          "id": "task-1",
+          "category": "全真模考",
+          "time_range": "08:30 - 11:30",
+          "content": "全真闭卷机考模拟（90道综合测试题限时作答）",
+          "duration": 3.0,
+          "is_done": false
+        },
+        {
+          "id": "task-2",
+          "category": "公文精修",
+          "time_range": "13:30 - 17:00",
+          "content": "整套公文写作AI诊断批改 & 错题集地毯式过筛",
+          "duration": 3.5,
+          "is_done": false
+        },
+        {
+          "id": "task-3",
+          "category": "冲刺背诵",
+          "time_range": "18:30 - 22:30",
+          "content": "习思想帽子词与2026时政终极必背金句过筛",
+          "duration": 4.0,
+          "is_done": false
+        }
+      ],
+      "notes": "",
+      "is_completed": 0,
+      "study_hours": 10.5
+    },
+    "2026-10-11": {
+      "date": "2026-10-11",
+      "tasks": [
+        {
+          "id": "task-1",
+          "category": "全真模考",
+          "time_range": "08:30 - 11:30",
+          "content": "全真闭卷机考模拟（90道综合测试题限时作答）",
+          "duration": 3.0,
+          "is_done": false
+        },
+        {
+          "id": "task-2",
+          "category": "公文精修",
+          "time_range": "13:30 - 17:00",
+          "content": "整套公文写作AI诊断批改 & 错题集地毯式过筛",
+          "duration": 3.5,
+          "is_done": false
+        },
+        {
+          "id": "task-3",
+          "category": "冲刺背诵",
+          "time_range": "18:30 - 22:30",
+          "content": "习思想帽子词与2026时政终极必背金句过筛",
+          "duration": 4.0,
+          "is_done": false
+        }
+      ],
+      "notes": "",
+      "is_completed": 0,
+      "study_hours": 10.5
+    },
+    "2026-10-12": {
+      "date": "2026-10-12",
+      "tasks": [
+        {
+          "id": "task-1",
+          "category": "全真模考",
+          "time_range": "08:30 - 11:30",
+          "content": "全真闭卷机考模拟（90道综合测试题限时作答）",
+          "duration": 3.0,
+          "is_done": false
+        },
+        {
+          "id": "task-2",
+          "category": "公文精修",
+          "time_range": "13:30 - 17:00",
+          "content": "整套公文写作AI诊断批改 & 错题集地毯式过筛",
+          "duration": 3.5,
+          "is_done": false
+        },
+        {
+          "id": "task-3",
+          "category": "冲刺背诵",
+          "time_range": "18:30 - 22:30",
+          "content": "习思想帽子词与2026时政终极必背金句过筛",
+          "duration": 4.0,
+          "is_done": false
+        }
+      ],
+      "notes": "",
+      "is_completed": 0,
+      "study_hours": 10.5
+    },
+    "2026-10-13": {
+      "date": "2026-10-13",
+      "tasks": [
+        {
+          "id": "task-1",
+          "category": "全真模考",
+          "time_range": "08:30 - 11:30",
+          "content": "全真闭卷机考模拟（90道综合测试题限时作答）",
+          "duration": 3.0,
+          "is_done": false
+        },
+        {
+          "id": "task-2",
+          "category": "公文精修",
+          "time_range": "13:30 - 17:00",
+          "content": "整套公文写作AI诊断批改 & 错题集地毯式过筛",
+          "duration": 3.5,
+          "is_done": false
+        },
+        {
+          "id": "task-3",
+          "category": "冲刺背诵",
+          "time_range": "18:30 - 22:30",
+          "content": "习思想帽子词与2026时政终极必背金句过筛",
+          "duration": 4.0,
+          "is_done": false
+        }
+      ],
+      "notes": "",
+      "is_completed": 0,
+      "study_hours": 10.5
+    },
+    "2026-10-14": {
+      "date": "2026-10-14",
+      "tasks": [
+        {
+          "id": "task-1",
+          "category": "全真模考",
+          "time_range": "08:30 - 11:30",
+          "content": "全真闭卷机考模拟（90道综合测试题限时作答）",
+          "duration": 3.0,
+          "is_done": false
+        },
+        {
+          "id": "task-2",
+          "category": "公文精修",
+          "time_range": "13:30 - 17:00",
+          "content": "整套公文写作AI诊断批改 & 错题集地毯式过筛",
+          "duration": 3.5,
+          "is_done": false
+        },
+        {
+          "id": "task-3",
+          "category": "冲刺背诵",
+          "time_range": "18:30 - 22:30",
+          "content": "习思想帽子词与2026时政终极必背金句过筛",
+          "duration": 4.0,
+          "is_done": false
+        }
+      ],
+      "notes": "",
+      "is_completed": 0,
+      "study_hours": 10.5
+    },
+    "2026-10-15": {
+      "date": "2026-10-15",
+      "tasks": [
+        {
+          "id": "task-1",
+          "category": "全真模考",
+          "time_range": "08:30 - 11:30",
+          "content": "全真闭卷机考模拟（90道综合测试题限时作答）",
+          "duration": 3.0,
+          "is_done": false
+        },
+        {
+          "id": "task-2",
+          "category": "公文精修",
+          "time_range": "13:30 - 17:00",
+          "content": "整套公文写作AI诊断批改 & 错题集地毯式过筛",
+          "duration": 3.5,
+          "is_done": false
+        },
+        {
+          "id": "task-3",
+          "category": "冲刺背诵",
+          "time_range": "18:30 - 22:30",
+          "content": "习思想帽子词与2026时政终极必背金句过筛",
+          "duration": 4.0,
+          "is_done": false
+        }
+      ],
+      "notes": "",
+      "is_completed": 0,
+      "study_hours": 10.5
+    },
+    "2026-10-16": {
+      "date": "2026-10-16",
+      "tasks": [
+        {
+          "id": "task-1",
+          "category": "全真模考",
+          "time_range": "08:30 - 11:30",
+          "content": "全真闭卷机考模拟（90道综合测试题限时作答）",
+          "duration": 3.0,
+          "is_done": false
+        },
+        {
+          "id": "task-2",
+          "category": "公文精修",
+          "time_range": "13:30 - 17:00",
+          "content": "整套公文写作AI诊断批改 & 错题集地毯式过筛",
+          "duration": 3.5,
+          "is_done": false
+        },
+        {
+          "id": "task-3",
+          "category": "冲刺背诵",
+          "time_range": "18:30 - 22:30",
+          "content": "习思想帽子词与2026时政终极必背金句过筛",
+          "duration": 4.0,
+          "is_done": false
+        }
+      ],
+      "notes": "",
+      "is_completed": 0,
+      "study_hours": 10.5
+    },
+    "2026-10-17": {
+      "date": "2026-10-17",
+      "tasks": [
+        {
+          "id": "task-1",
+          "category": "全真模考",
+          "time_range": "08:30 - 11:30",
+          "content": "全真闭卷机考模拟（90道综合测试题限时作答）",
+          "duration": 3.0,
+          "is_done": false
+        },
+        {
+          "id": "task-2",
+          "category": "公文精修",
+          "time_range": "13:30 - 17:00",
+          "content": "整套公文写作AI诊断批改 & 错题集地毯式过筛",
+          "duration": 3.5,
+          "is_done": false
+        },
+        {
+          "id": "task-3",
+          "category": "冲刺背诵",
+          "time_range": "18:30 - 22:30",
+          "content": "习思想帽子词与2026时政终极必背金句过筛",
+          "duration": 4.0,
+          "is_done": false
+        }
+      ],
+      "notes": "",
+      "is_completed": 0,
+      "study_hours": 10.5
+    },
+    "2026-10-18": {
+      "date": "2026-10-18",
+      "tasks": [
+        {
+          "id": "task-1",
+          "category": "全真模考",
+          "time_range": "08:30 - 11:30",
+          "content": "全真闭卷机考模拟（90道综合测试题限时作答）",
+          "duration": 3.0,
+          "is_done": false
+        },
+        {
+          "id": "task-2",
+          "category": "公文精修",
+          "time_range": "13:30 - 17:00",
+          "content": "整套公文写作AI诊断批改 & 错题集地毯式过筛",
+          "duration": 3.5,
+          "is_done": false
+        },
+        {
+          "id": "task-3",
+          "category": "冲刺背诵",
+          "time_range": "18:30 - 22:30",
+          "content": "习思想帽子词与2026时政终极必背金句过筛",
+          "duration": 4.0,
+          "is_done": false
+        }
+      ],
+      "notes": "",
+      "is_completed": 0,
+      "study_hours": 10.5
+    },
+    "2026-10-19": {
+      "date": "2026-10-19",
+      "tasks": [
+        {
+          "id": "task-1",
+          "category": "全真模考",
+          "time_range": "08:30 - 11:30",
+          "content": "全真闭卷机考模拟（90道综合测试题限时作答）",
+          "duration": 3.0,
+          "is_done": false
+        },
+        {
+          "id": "task-2",
+          "category": "公文精修",
+          "time_range": "13:30 - 17:00",
+          "content": "整套公文写作AI诊断批改 & 错题集地毯式过筛",
+          "duration": 3.5,
+          "is_done": false
+        },
+        {
+          "id": "task-3",
+          "category": "冲刺背诵",
+          "time_range": "18:30 - 22:30",
+          "content": "习思想帽子词与2026时政终极必背金句过筛",
+          "duration": 4.0,
+          "is_done": false
+        }
+      ],
+      "notes": "",
+      "is_completed": 0,
+      "study_hours": 10.5
+    },
+    "2026-10-20": {
+      "date": "2026-10-20",
+      "tasks": [
+        {
+          "id": "task-1",
+          "category": "全真模考",
+          "time_range": "08:30 - 11:30",
+          "content": "全真闭卷机考模拟（90道综合测试题限时作答）",
+          "duration": 3.0,
+          "is_done": false
+        },
+        {
+          "id": "task-2",
+          "category": "公文精修",
+          "time_range": "13:30 - 17:00",
+          "content": "整套公文写作AI诊断批改 & 错题集地毯式过筛",
+          "duration": 3.5,
+          "is_done": false
+        },
+        {
+          "id": "task-3",
+          "category": "冲刺背诵",
+          "time_range": "18:30 - 22:30",
+          "content": "习思想帽子词与2026时政终极必背金句过筛",
+          "duration": 4.0,
+          "is_done": false
+        }
+      ],
+      "notes": "",
+      "is_completed": 0,
+      "study_hours": 10.5
+    },
+    "2026-10-21": {
+      "date": "2026-10-21",
+      "tasks": [
+        {
+          "id": "task-1",
+          "category": "全真模考",
+          "time_range": "08:30 - 11:30",
+          "content": "全真闭卷机考模拟（90道综合测试题限时作答）",
+          "duration": 3.0,
+          "is_done": false
+        },
+        {
+          "id": "task-2",
+          "category": "公文精修",
+          "time_range": "13:30 - 17:00",
+          "content": "整套公文写作AI诊断批改 & 错题集地毯式过筛",
+          "duration": 3.5,
+          "is_done": false
+        },
+        {
+          "id": "task-3",
+          "category": "冲刺背诵",
+          "time_range": "18:30 - 22:30",
+          "content": "习思想帽子词与2026时政终极必背金句过筛",
+          "duration": 4.0,
+          "is_done": false
+        }
+      ],
+      "notes": "",
+      "is_completed": 0,
+      "study_hours": 10.5
+    },
+    "2026-10-22": {
+      "date": "2026-10-22",
+      "tasks": [
+        {
+          "id": "task-1",
+          "category": "全真模考",
+          "time_range": "08:30 - 11:30",
+          "content": "全真闭卷机考模拟（90道综合测试题限时作答）",
+          "duration": 3.0,
+          "is_done": false
+        },
+        {
+          "id": "task-2",
+          "category": "公文精修",
+          "time_range": "13:30 - 17:00",
+          "content": "整套公文写作AI诊断批改 & 错题集地毯式过筛",
+          "duration": 3.5,
+          "is_done": false
+        },
+        {
+          "id": "task-3",
+          "category": "冲刺背诵",
+          "time_range": "18:30 - 22:30",
+          "content": "习思想帽子词与2026时政终极必背金句过筛",
+          "duration": 4.0,
+          "is_done": false
+        }
+      ],
+      "notes": "",
+      "is_completed": 0,
+      "study_hours": 10.5
+    },
+    "2026-10-23": {
+      "date": "2026-10-23",
+      "tasks": [
+        {
+          "id": "task-1",
+          "category": "全真模考",
+          "time_range": "08:30 - 11:30",
+          "content": "全真闭卷机考模拟（90道综合测试题限时作答）",
+          "duration": 3.0,
+          "is_done": false
+        },
+        {
+          "id": "task-2",
+          "category": "公文精修",
+          "time_range": "13:30 - 17:00",
+          "content": "整套公文写作AI诊断批改 & 错题集地毯式过筛",
+          "duration": 3.5,
+          "is_done": false
+        },
+        {
+          "id": "task-3",
+          "category": "冲刺背诵",
+          "time_range": "18:30 - 22:30",
+          "content": "习思想帽子词与2026时政终极必背金句过筛",
+          "duration": 4.0,
+          "is_done": false
+        }
+      ],
+      "notes": "",
+      "is_completed": 0,
+      "study_hours": 10.5
+    },
+    "2026-10-24": {
+      "date": "2026-10-24",
+      "tasks": [
+        {
+          "id": "task-1",
+          "category": "全真模考",
+          "time_range": "08:30 - 11:30",
+          "content": "全真闭卷机考模拟（90道综合测试题限时作答）",
+          "duration": 3.0,
+          "is_done": false
+        },
+        {
+          "id": "task-2",
+          "category": "公文精修",
+          "time_range": "13:30 - 17:00",
+          "content": "整套公文写作AI诊断批改 & 错题集地毯式过筛",
+          "duration": 3.5,
+          "is_done": false
+        },
+        {
+          "id": "task-3",
+          "category": "冲刺背诵",
+          "time_range": "18:30 - 22:30",
+          "content": "习思想帽子词与2026时政终极必背金句过筛",
+          "duration": 4.0,
+          "is_done": false
+        }
+      ],
+      "notes": "",
+      "is_completed": 0,
+      "study_hours": 10.5
+    },
+    "2026-10-25": {
+      "date": "2026-10-25",
+      "tasks": [
+        {
+          "id": "task-1",
+          "category": "全真模考",
+          "time_range": "08:30 - 11:30",
+          "content": "全真闭卷机考模拟（90道综合测试题限时作答）",
+          "duration": 3.0,
+          "is_done": false
+        },
+        {
+          "id": "task-2",
+          "category": "公文精修",
+          "time_range": "13:30 - 17:00",
+          "content": "整套公文写作AI诊断批改 & 错题集地毯式过筛",
+          "duration": 3.5,
+          "is_done": false
+        },
+        {
+          "id": "task-3",
+          "category": "冲刺背诵",
+          "time_range": "18:30 - 22:30",
+          "content": "习思想帽子词与2026时政终极必背金句过筛",
+          "duration": 4.0,
+          "is_done": false
+        }
+      ],
+      "notes": "",
+      "is_completed": 0,
+      "study_hours": 10.5
+    }
+  },
+  "mistakes": [
+    {
+      "id": 2,
+      "category": "习近平新时代中国特色社会主义思想",
+      "title": "1 / 91题",
+      "question": "1 / 91题\n判断题\n中国式现代化的本质要求中，实现高质量发展居于首位，体现了发展是党执政兴国的第一要务。（   ）\n\n题目解析\n\n正确答案: 错误\n我的答案: 正确\n正确率：36%\n【优众教育答案】×\n【解析】本题考查习思想/中国式现代化本质要求。\n党的二十大报告明确指出，中国式现代化的本质要求是：坚持中国共产党领导，坚持中国特色社会主义，实现高质量发展，发展全过程人民民主，丰富人民精神世界，实现全体人民共同富裕，促进人与自然和谐共生，推动构建人类命运共同体，创造人类文明新形态。居于首位的是坚持中国共产党领导，而非实现高质量发展。实现高质量发展排在第三位。高质量发展是全面建设社会主义现代化国家的首要任务。\n故本题说法错误。",
+      "options": [],
+      "correct_answer": null,
+      "user_answer": null,
+      "correct_analysis": "当前未配置外部模型。已先完成分类和题面整理；建议复现时结合教材答案补充解析。",
+      "key_point": "",
+      "attempt_count": 0,
+      "correct_count": 0,
+      "correct_streak": 0,
+      "mastery_threshold": 3,
+      "is_mastered": 0
+    },
+    {
+      "id": 3,
+      "category": "非法律公基 - 经济",
+      "title": "某市出租车起步价从10元上调至12元，调价后一个月内，日均载客量仅下降了3%。依",
+      "question": "某市出租车起步价从10元上调至12元，调价后一个月内，日均载客量仅下降了3%。依据需求价格弹性理论，下列关于该调价现象的分析，正确的是（   ）。\n\n题目解析\n\n正确答案: B\n我的答案: A\n正确率：79%\n【优众教育答案】B\n【解析】本题考查微观经济学/需求价格弹性\n价格变动率=（12-10）/10=20%；需求量变动率=3%。需求价格弹性Ed=3%/20%=0.15<1，属于缺乏弹性。\nA选项说法错误，大于1，属于富有弹性。Ed为0.15，属于缺乏弹性。富有弹性（Ed>1）的商品涨价后总收益是减少的。A选项结论对、前提错。\nB选项说法正确。Ed=0.15<1，需求缺乏弹性，意味着价格变动百分比远大于需求量变动百分比。涨价20%仅导致载客量下降3%，价格上升带来的单位收益增加远超销量减少带来的损失，因此总收益增加。这正是缺乏弹性商品薄利不多销、提价反增收的典型特征。出租车属于出行刚需、替代品有限。\nC选项说法错误，若Ed=1是单位弹性，则价格变动百分比与需求量变动百分比相等，总收益确实不变。但根据计算的20%与3%明显不等，Ed=0.15而非1。\nD选项说法错误，载客量确实下降了，但判断敏感与否的标准不是说量有没有降，而是量的变动幅度相对于价的变动幅度是大还是小。20%的涨幅只换来3%的量降，说明消费者不敏感、依赖性强，是缺乏弹性的表现。\n故本题答案为B。",
+      "options": [],
+      "correct_answer": null,
+      "user_answer": null,
+      "correct_analysis": "当前未配置外部模型。已先完成分类和题面整理；建议复现时结合教材答案补充解析。",
+      "key_point": "",
+      "attempt_count": 0,
+      "correct_count": 0,
+      "correct_streak": 1,
+      "mastery_threshold": 3,
+      "is_mastered": 0
+    },
+    {
+      "id": 4,
+      "category": "非法律公基",
+      "title": "某市出租车起步价从10元上调至12元，调",
+      "question": "某市出租车起步价从10元上调至12元，调价后一个月内，日均载客量仅下降了3%。依据需求价格弹性理论，下列关于该调价现象的分析，正确的是()。",
+      "options": [
+        "A.该出租车服务的需求价格弹性大于1，属于富有弹性的商品，涨价后运营总收益将增加",
+        "B.该出租车服务的需求价格弹性小于1，属于缺乏弹性的商品，涨价后运营总收益将增加。",
+        "C.该出租车服务的需求价格弹性等于1，涨价带来的单价提升与载客量下降对总收益的影响恰好抵消，总收益不变",
+        "D.载客量出现下降说明消费者对价格变动较为敏感，该服务属于富有弹性的商品，涨价策略不利于增加总收益"
+      ],
+      "correct_answer": "B",
+      "user_answer": "A",
+      "correct_analysis": "正确答案:B\n纠错\n我的答案:A\n正确率:79%\n[优众教育答案]B【解析】本题考查微观经济学/需求价格弹性\n价格变动率=（12-10）/10=20%；需求量变动率=3%。需求价格弹性Ed=3%/20%=0.15<1，属于缺乏弹性。\nA选项说法错误，大于1，属于富有弹性。Ed为0.15，属于缺乏弹性。富有弹性（Ed>1）的商品涨价后总收益是减少的。A选项结论对、前提错。\nB选项说法正确。Ed=0.15<1，需求缺乏弹性，意味着价格变动百分比远大于需求量变动百分比。涨价20%仅导致载客量下降3%，价格上升带来的单位收益增加远超销量减少带来的损失，因此总收益增加。这正是缺乏弹性商品薄利不多销、提价反增收的典型特征。出租车属于出行刚需、替代品有限。\nC选项说法错误，若Ed=1是单位弹性，则价格变动百分比与需求量变动百分比相等，总收益确实不变。但根据计算的20%与3%明显不等，Ed=0.15而非1。\nD选项说法错误，载客量确实下降了，但判断敏感与否的标准不是说量有没有降，而是量的变动幅度相对于价的变动幅度是大还是小。20%的涨幅只换来3%的量降，说明消费者不敏感、依赖性强，是缺乏弹性的表现。\n故本题答案为B。",
+      "key_point": "非法律公基",
+      "attempt_count": 1,
+      "correct_count": 1,
+      "correct_streak": 0,
+      "mastery_threshold": 3,
+      "is_mastered": 1
+    },
+    {
+      "id": 5,
+      "category": "非法律公基",
+      "title": "某市出租车起步价从10元上调至12元，调",
+      "question": "某市出租车起步价从10元上调至12元，调价后一个月内，日均载客量仅下降了3%。依据需求价格弹性理论，下列关于该调价现象的分析，正确的是()。",
+      "options": [
+        "A.该出租车服务的需求价格弹性大于1，属于富有弹性的商品，张价后运营总收益将增加",
+        "B.该出租车服务的需求价格弹性小于1，属于缺乏弹性的商品，张价后运营总收益将增加",
+        "C.该出租车服务的需求价格弹性等于1，涨价带来的单价提升与载客量下降对总收益的影响恰好抵消，总收益不变",
+        "D.载客量出现下降说明消费者对价格变动较为敏感，该服务属于富有弹性的商品，涨价策略不利于增加总收益【优众教育"
+      ],
+      "correct_answer": "B",
+      "user_answer": "A",
+      "correct_analysis": "本题考查微观经济学/需求价格弹性\n价格变动率=（12-10）/10=20%；需求量变动率=3%。需求价格弹性Ed=3%/20%=0.15<1，属于缺乏弹性。\nA选项说法错误，大于1，属于富有弹性。Ed为0.15，属于缺乏弹性。富有弹性（Ed>1）的商品涨价后总收益是减少的。A选项结论对、前提错。\nB选项说法正确。Ed=0.15<1，需求缺乏弹性，意味着价格变动百分比远大于需求量变动百分比。涨价20%仅导致载客量下降3%，价格上升带来的单位收益增加远超销量减少带来的损失，因此总收益增加。这正是缺乏弹性商品薄利不多销、提价反增收的典型特征。出租车属于出行刚需、替代品有限。\nC选项说法错误，若Ed=1是单位弹性，则价格变动百分比与需求量变动百分比相等，总收益确实不变。但根据计算的20%与3%明显不等，Ed=0.15而非1。\nD选项说法错误，载客量确实下降了，但判断敏感与否的标准不是说量有没有降，而是量的变动幅度相对于价的变动幅度是大还是小。20%的涨幅只换来3%的量降，说明消费者不敏感、依赖性强，是缺乏弹性的表现。\n故本题答案为B。",
+      "key_point": "非法律公基",
+      "attempt_count": 0,
+      "correct_count": 0,
+      "correct_streak": 0,
+      "mastery_threshold": 3,
+      "is_mastered": 0
+    },
+    {
+      "id": 6,
+      "category": "非法律公基",
+      "title": "美晶公司最近推进员工薪酬制度改革，提高基",
+      "question": "美晶公司最近推进员工薪酬制度改革，提高基层岗位津贴标准。根据赫茨伯格双因素理论，这一举措属于激励因素，能够持续提升基层员工的工作积极性和职业成就感。（   ）\na.正确\nb.错误\n题目",
+      "options": [
+        "A. 正确",
+        "B. 错误"
+      ],
+      "correct_answer": "B",
+      "user_answer": "A",
+      "correct_analysis": "正确答案: 错误\n我的答案: 正确\n正确率：49%\n【优众教育答案】×\n【解析】本题考查管理学基础/赫茨伯格双因素理论。\n赫茨伯格将影响员工态度的因素分为两类：保健因素（薪酬、工作条件、公司政策、人际关系等）和激励因素（成就感、认可、工作本身的挑战性、成长与晋升等）。二者的作用机制不同：保健因素得到满足时，员工不会不满，但也不会产生真正的满意和内在动力；保健因素缺失时，员工会产生不满。激励因素得到满足时，员工才会产生持续的满意感和积极性。题干中提高基层岗位津贴标准属于薪酬待遇范畴，在双因素理论中是典型的保健因素，而非激励因素。这一举措能够缓解基层干部因待遇偏低产生的不满情绪，但无法持续提升工作积极性和职业成就感，后者需要靠工作本身的挑战性、晋升通道、组织认可等激励因素来实现。\n故本题说法错误。",
+      "key_point": "非法律公基",
+      "attempt_count": 0,
+      "correct_count": 0,
+      "correct_streak": 0,
+      "mastery_threshold": 3,
+      "is_mastered": 0
+    },
+    {
+      "id": 7,
+      "category": "法律常识",
+      "title": "行政处罚设定权限测试",
+      "question": "根据行政处罚法，哪一类处罚只能由法律设定？",
+      "options": [
+        "A. 限制人身自由",
+        "B. 责令停产停业"
+      ],
+      "correct_answer": "A",
+      "user_answer": "",
+      "correct_analysis": "",
+      "key_point": "",
+      "attempt_count": 4,
+      "correct_count": 3,
+      "correct_streak": 0,
+      "mastery_threshold": 3,
+      "is_mastered": 0
+    }
+  ]
+}
