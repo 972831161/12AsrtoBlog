@@ -1421,15 +1421,21 @@ async function executeAiParseMistake() {
   const settings = getAiSettings();
   let parsed = null;
 
+  // 1. 如果配置了云端 API Key 且选择了 openai 模式，前端优先直接请求云端 LLM
   if (settings.engine_type === 'openai' && settings.api_key) {
     try {
+      btn.textContent = '🚀 云端大模型正在深度解析中...';
       parsed = await callCloudLlmParseMistake(rawText, settings);
     } catch (e) {
       console.warn("云端 LLM 调用失败，回退规则引擎:", e);
     }
   }
 
-  if (!parsed) {
+  // 2. 如果是 ollama 模式（本地后端或公网穿透 HTTPS）
+  if (!parsed && settings.engine_type === 'ollama') {
+    btn.textContent = '🚀 本地千问 2.5-3B 正在深度推理中 (约 3~6秒)...';
+    
+    // 优先尝试本地后端中转
     try {
       const res = await fetch('/api/ai/parse-mistake', {
         method: 'POST',
@@ -1441,8 +1447,18 @@ async function executeAiParseMistake() {
         if (data.parsed) parsed = data.parsed;
       }
     } catch (e) {}
+
+    // 如果处于在线纯静态页（无后端），尝试前端直连 Ollama (比如 Cloudflare Tunnel 穿透的 HTTPS URL)
+    if (!parsed && settings.ollama_url) {
+      try {
+        parsed = await callDirectOllamaParseMistake(rawText, settings);
+      } catch (e) {
+        console.warn("前端直接调用 Ollama 地址失败:", e);
+      }
+    }
   }
 
+  // 3. 兜底内置极速规则引擎
   if (!parsed) {
     parsed = localRuleBasedParseMistake(rawText);
   }
@@ -1515,6 +1531,47 @@ ${rawText}`;
   const cleanJsonStr = rawContent.replace(/```json/g, '').replace(/```/g, '').trim();
   const parsedObj = JSON.parse(cleanJsonStr);
   parsedObj.engine_label = `☁️ 云端大模型 (${settings.api_model || 'DeepSeek'}) 实时解析`;
+  return parsedObj;
+}
+
+// 前端直接调用本地/穿透的 Ollama 接口
+async function callDirectOllamaParseMistake(rawText, settings) {
+  const prompt = `你是一个专业的公考题目解析专家。请将以下错题抽取为严格合法的 JSON 对象。
+必须包含以下字段:
+{
+  "category": "所属板块(必须是：习近平新时代中国特色社会主义思想与时政 / 法律常识 / 非法律公基 / 公文写作与改错 / 行测专项 之一)",
+  "title": "考点简短标题",
+  "question_type": "single",
+  "question": "题干纯文本",
+  "options": ["A. 选项A内容", "B. 选项B内容", "C. 选项C内容", "D. 选项D内容"],
+  "correct_answer": "正确选项(如 A)",
+  "user_answer": "当时错选(如 B，若无留空)",
+  "correct_analysis": "核心考点解析",
+  "key_point": "考点关键词"
+}
+【题目文本】:
+${rawText}`;
+
+  const targetUrl = (settings.ollama_url || 'http://localhost:11434/api/generate').trim();
+  const modelName = (settings.ollama_model || 'qwen2.5:3b').trim();
+
+  const res = await fetch(targetUrl, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({
+      model: modelName,
+      prompt: prompt,
+      stream: false,
+      format: 'json'
+    })
+  });
+
+  if (!res.ok) throw new Error(`Ollama HTTP Error: ${res.status}`);
+  const data = await res.json();
+  const rawResponse = (data.response || '').trim();
+  const cleanStr = rawResponse.replace(/```json/g, '').replace(/```/g, '').trim();
+  const parsedObj = JSON.parse(cleanStr);
+  parsedObj.engine_label = `🟢 本地千问大模型 (${modelName}) 穿透实时推理`;
   return parsedObj;
 }
 
