@@ -1200,18 +1200,31 @@ async function executeAiParseMistake() {
   const settings = getAiSettings();
   let parsed = null;
 
-  try {
-    const res = await fetch('/api/ai/parse-mistake', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ raw_text: rawText, engine_config: settings })
-    });
-    if (res.ok) {
-      const data = await res.json();
-      if (data.parsed) parsed = data.parsed;
+  // 1. 如果配置了云端 API Key 且选择了 openai 模式，前端优先直接请求云端 LLM
+  if (settings.engine_type === 'openai' && settings.api_key) {
+    try {
+      parsed = await callCloudLlmParseMistake(rawText, settings);
+    } catch (e) {
+      console.warn("云端 LLM 调用失败，回退规则引擎:", e);
     }
-  } catch (e) {}
+  }
 
+  // 2. 如果未配置云端或处于本地模式，尝试调用本地后端
+  if (!parsed) {
+    try {
+      const res = await fetch('/api/ai/parse-mistake', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ raw_text: rawText, engine_config: settings })
+      });
+      if (res.ok) {
+        const data = await res.json();
+        if (data.parsed) parsed = data.parsed;
+      }
+    } catch (e) {}
+  }
+
+  // 3. 兜底内置极速规则引擎
   if (!parsed) {
     parsed = localRuleBasedParseMistake(rawText);
   }
@@ -1235,6 +1248,57 @@ async function executeAiParseMistake() {
 
   document.getElementById('ai-parsed-preview').classList.remove('hidden');
   document.getElementById('btn-save-parsed-mistake').disabled = false;
+}
+
+// 前端直接调用云端 LLM (DeepSeek/Qwen/OpenAI 等)
+async function callCloudLlmParseMistake(rawText, settings) {
+  const prompt = `你是一个专业的中国公务员与选调生考试智能助教。请将以下错题原始文本精准抽取为 JSON 格式。
+【考试核心板块 (category 必须严格为以下之一)】:
+1. 习近平新时代中国特色社会主义思想与时政
+2. 法律常识
+3. 非法律公基
+4. 公文写作与改错
+5. 行测专项
+
+【必须返回严格合法的单一 JSON 对象，不要输出任何 Markdown 标记或多余文字】:
+{
+  "category": "所属板块名称",
+  "title": "简短考点标题(15字内)",
+  "question_type": "single",
+  "question": "题干纯文本",
+  "options": ["A. 选项内容", "B. 选项内容", "C. 选项内容", "D. 选项内容"],
+  "correct_answer": "正确选项(如 A 或 ABC)",
+  "user_answer": "当时错选项(如 B，若无留空)",
+  "correct_analysis": "核心考点解析与关键法条/理论口诀",
+  "key_point": "考点关键词(如 行政处罚设定权)"
+}
+
+【原始题目文本】:
+${rawText}`;
+
+  const res = await fetch(settings.api_url || 'https://api.deepseek.com/v1/chat/completions', {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+      'Authorization': `Bearer ${settings.api_key}`
+    },
+    body: JSON.stringify({
+      model: settings.api_model || 'deepseek-chat',
+      messages: [
+        { role: 'system', content: 'You are a helpful assistant that outputs only valid JSON.' },
+        { role: 'user', content: prompt }
+      ],
+      temperature: 0.1
+    })
+  });
+
+  if (!res.ok) throw new Error(`API HTTP Error: ${res.status}`);
+  const data = await res.json();
+  const rawContent = data.choices[0].message.content.trim();
+  const cleanJsonStr = rawContent.replace(/```json/g, '').replace(/```/g, '').trim();
+  const parsedObj = JSON.parse(cleanJsonStr);
+  parsedObj.engine_label = `☁️ 云端大模型 (${settings.api_model || 'DeepSeek'}) 实时解析`;
+  return parsedObj;
 }
 
 function localRuleBasedParseMistake(raw) {
@@ -1367,6 +1431,28 @@ function openAiSettingsModal() {
 
 function closeAiSettingsModal() {
   document.getElementById('modal-ai-settings').classList.add('hidden');
+}
+
+function applyProviderPreset(preset) {
+  const urlInput = document.getElementById('setting-api-url');
+  const modelInput = document.getElementById('setting-api-model');
+  
+  if (preset === 'deepseek') {
+    urlInput.value = 'https://api.deepseek.com/v1/chat/completions';
+    modelInput.value = 'deepseek-chat';
+  } else if (preset === 'qwen') {
+    urlInput.value = 'https://dashscope.aliyuncs.com/compatible-mode/v1/chat/completions';
+    modelInput.value = 'qwen-plus';
+  } else if (preset === 'siliconflow') {
+    urlInput.value = 'https://api.siliconflow.cn/v1/chat/completions';
+    modelInput.value = 'Qwen/Qwen2.5-7B-Instruct';
+  } else if (preset === 'kimi') {
+    urlInput.value = 'https://api.moonshot.cn/v1/chat/completions';
+    modelInput.value = 'moonshot-v1-8k';
+  } else if (preset === 'openai') {
+    urlInput.value = 'https://api.openai.com/v1/chat/completions';
+    modelInput.value = 'gpt-4o-mini';
+  }
 }
 
 function toggleEngineSettings() {

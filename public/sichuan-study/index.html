@@ -505,15 +505,27 @@ D. 较大数额罚款
 
           <div id="openai-config-group" class="hidden">
             <div class="form-group">
-              <label>API Base URL</label>
+              <label>常用模型服务商预设（自动填好地址与模型）</label>
+              <select id="setting-provider-preset" class="form-control" onchange="applyProviderPreset(this.value)">
+                <option value="deepseek">DeepSeek (默认推荐 · 超便宜高智商)</option>
+                <option value="qwen">阿里百炼 · 通义千问 (DashScope)</option>
+                <option value="siliconflow">硅基流动 · SiliconFlow (免费Qwen/DeepSeek)</option>
+                <option value="kimi">月之暗面 · Moonshot Kimi</option>
+                <option value="openai">OpenAI (ChatGPT-4o-mini)</option>
+                <option value="custom">自定义 (手动输入URL与Model)</option>
+              </select>
+            </div>
+            <div class="form-group">
+              <label>API Key (密钥) <span style="color:var(--accent-red); font-size:0.75rem;">* 必填</span></label>
+              <input type="password" id="setting-api-key" class="form-control" placeholder="在此粘贴您的 API Key (如 sk-...)">
+              <small style="color:var(--text-secondary);">💡 选好上面的服务商后，您<b>只需要在此粘贴 API Key</b> 即可使用！</small>
+            </div>
+            <div class="form-group">
+              <label>API 接口地址 (URL)</label>
               <input type="text" id="setting-api-url" class="form-control" value="https://api.deepseek.com/v1/chat/completions">
             </div>
             <div class="form-group">
-              <label>API Key</label>
-              <input type="password" id="setting-api-key" class="form-control" placeholder="sk-...">
-            </div>
-            <div class="form-group">
-              <label>Model</label>
+              <label>模型名称 (Model)</label>
               <input type="text" id="setting-api-model" class="form-control" value="deepseek-chat">
             </div>
           </div>
