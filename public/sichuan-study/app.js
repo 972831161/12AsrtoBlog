@@ -538,12 +538,19 @@ function calculateAndRenderDashboard() {
   const examDt = new Date(EXAM_DATE);
   const diffDays = Math.max(0, Math.ceil((examDt - curDt) / (1000 * 60 * 60 * 24)));
 
-  document.getElementById('nav-days-left').textContent = diffDays;
-  document.getElementById('stat-days-left').textContent = diffDays;
-  document.getElementById('stat-comp-days').textContent = completedDays;
+  const elNav = document.getElementById('nav-days-left');
+  if (elNav) elNav.textContent = diffDays;
+  const elMob = document.getElementById('mobile-days-left');
+  if (elMob) elMob.textContent = diffDays;
+  const elStat = document.getElementById('stat-days-left');
+  if (elStat) elStat.textContent = diffDays;
+  const elComp = document.getElementById('stat-comp-days');
+  if (elComp) elComp.textContent = completedDays;
   const compRate = planList.length > 0 ? (completedDays / planList.length * 100).toFixed(1) : '0.0';
-  document.getElementById('stat-comp-rate').textContent = compRate;
-  document.getElementById('stat-hours').textContent = totalHours.toFixed(1);
+  const elRate = document.getElementById('stat-comp-rate');
+  if (elRate) elRate.textContent = compRate;
+  const elHours = document.getElementById('stat-hours');
+  if (elHours) elHours.textContent = totalHours.toFixed(1);
 
   updateStageHighlight(appState.currentDateStr);
 

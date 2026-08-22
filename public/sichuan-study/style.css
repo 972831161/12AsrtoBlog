@@ -963,133 +963,18 @@ body {
 .modal-footer { padding: 12px 18px; border-top: 1px solid var(--border-subtle); display: flex; justify-content: flex-end; gap: 10px; }
 .modal-tasks-container { display: flex; flex-direction: column; gap: 8px; }
 
-/* Hero Banner (独立舒展卡片) */
-.hero-banner-container {
-  max-width: 1200px;
-  margin: 14px auto 0;
-  padding: 0 16px;
-}
-
-.hero-banner-card {
+/* 顶部导航容器 */
+.navbar-wrapper {
+  position: sticky;
+  top: 0;
+  z-index: 100;
   background: var(--bg-surface);
-  border: 1px solid var(--border-subtle);
-  border-radius: var(--radius-md);
   box-shadow: var(--shadow-sm);
-  padding: 16px 20px;
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 20px;
-  background-image: radial-gradient(at 100% 0%, rgba(220, 38, 38, 0.05) 0px, transparent 50%),
-                    radial-gradient(at 0% 100%, rgba(37, 99, 235, 0.05) 0px, transparent 50%);
 }
 
-.hero-cd-box {
-  display: flex;
-  flex-direction: column;
-  align-items: flex-start;
-  flex-shrink: 0;
-  border-right: 1px dashed var(--border-subtle);
-  padding-right: 24px;
+.mobile-subbar {
+  display: none;
 }
-
-.hero-cd-pill {
-  font-size: 0.75rem;
-  font-weight: 700;
-  color: var(--accent-red);
-  background: rgba(220, 38, 38, 0.08);
-  padding: 3px 8px;
-  border-radius: var(--radius-full);
-  margin-bottom: 4px;
-}
-
-.hero-cd-main {
-  display: flex;
-  align-items: baseline;
-  gap: 4px;
-}
-
-.hero-cd-number {
-  font-size: 2.2rem;
-  font-weight: 900;
-  color: var(--accent-red);
-  line-height: 1;
-  font-family: 'Inter', sans-serif;
-  letter-spacing: -1px;
-}
-
-.hero-cd-unit {
-  font-size: 0.88rem;
-  font-weight: 600;
-  color: var(--text-secondary);
-}
-
-.hero-cd-date {
-  font-size: 0.72rem;
-  color: var(--text-muted);
-  margin-top: 4px;
-}
-
-.hero-profile-box {
-  flex: 1;
-  min-width: 0;
-  display: flex;
-  flex-direction: column;
-  gap: 8px;
-}
-
-.hero-profile-top {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 8px;
-  flex-wrap: wrap;
-}
-
-.hero-school-badge {
-  font-size: 0.85rem;
-  font-weight: 700;
-  color: var(--text-main);
-}
-
-.hero-stage-badge {
-  font-size: 0.75rem;
-  font-weight: 600;
-  color: var(--primary);
-  background: var(--primary-light);
-  padding: 2px 8px;
-  border-radius: var(--radius-full);
-}
-
-.hero-volunteers-grid {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 8px;
-}
-
-.vol-item {
-  background: var(--bg-subtle);
-  border: 1px solid var(--border-subtle);
-  border-radius: var(--radius-sm);
-  padding: 6px 10px;
-  display: flex;
-  align-items: center;
-  gap: 6px;
-  font-size: 0.76rem;
-  color: var(--text-secondary);
-}
-
-.vol-tag {
-  font-size: 0.7rem;
-  font-weight: 700;
-  padding: 1px 5px;
-  border-radius: 3px;
-  flex-shrink: 0;
-}
-
-.vol-rank-1 .vol-tag { background: rgba(220, 38, 38, 0.12); color: var(--accent-red); }
-.vol-rank-2 .vol-tag { background: rgba(16, 185, 129, 0.12); color: var(--accent-green); }
-.vol-text { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
 
 /* 主导航 Tabs 平滑滚动支持 */
 .main-tabs {
@@ -1107,35 +992,40 @@ body {
 
 /* 移动端全面优化响应式 */
 @media (max-width: 768px) {
-  .navbar { padding: 8px 12px; height: 50px; }
+  .navbar {
+    padding: 8px 12px;
+    height: 48px;
+  }
   .nav-title { font-size: 0.92rem; }
   .logo-badge { font-size: 0.72rem; padding: 3px 6px; }
+  .nav-subtitle { display: none; }
+  .countdown-badge { display: none; }
   .btn-sync-nav { padding: 4px 8px; font-size: 0.72rem; }
   .ai-status-indicator { padding: 4px 8px; font-size: 0.72rem; }
-  .current-real-date, .stat-deco { display: none; }
 
-  .hero-banner-container { padding: 0 12px; margin-top: 10px; }
-  .hero-banner-card {
-    flex-direction: column;
-    align-items: stretch;
-    padding: 12px 14px;
-    gap: 10px;
-  }
-  .hero-cd-box {
-    border-right: none;
-    border-bottom: 1px dashed var(--border-subtle);
-    padding-right: 0;
-    padding-bottom: 10px;
-    flex-direction: row;
-    align-items: center;
+  /* 移动端专属紧凑顶栏状态副条 */
+  .mobile-subbar {
+    display: flex;
     justify-content: space-between;
-    width: 100%;
+    align-items: center;
+    padding: 5px 12px;
+    background: var(--bg-subtle);
+    border-bottom: 1px solid var(--border-subtle);
+    font-size: 0.75rem;
+    color: var(--text-secondary);
   }
-  .hero-cd-number { font-size: 1.75rem; }
-  .hero-volunteers-grid { grid-template-columns: 1fr; gap: 6px; }
-  .vol-item { font-size: 0.74rem; padding: 5px 8px; }
+  .mobile-cd-info {
+    display: flex;
+    align-items: center;
+    gap: 3px;
+    font-weight: 600;
+  }
+  .mobile-profile-info {
+    font-size: 0.72rem;
+    color: var(--text-muted);
+  }
 
-  .main-tabs { padding: 8px 12px 4px; gap: 6px; }
+  .main-tabs { padding: 8px 12px 4px; gap: 6px; margin-top: 6px; }
   .tab-btn { padding: 6px 12px; font-size: 0.78rem; border-radius: var(--radius-full); }
   .main-content { padding: 0 12px 30px; margin: 10px auto; }
   .card { padding: 12px; border-radius: var(--radius-sm); margin-bottom: 12px; }
