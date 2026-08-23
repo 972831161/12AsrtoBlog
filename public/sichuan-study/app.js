@@ -432,7 +432,8 @@ async function performAutoSyncPush() {
     const res = await fetch(targetEndpoint, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(payload)
+      body: JSON.stringify(payload),
+      signal: AbortSignal.timeout ? AbortSignal.timeout(2000) : undefined
     });
     if (res.ok) {
       showAutoSyncIndicator('☁️ 已自动实时同步');
@@ -446,7 +447,8 @@ async function performAutoSyncPush() {
     await fetch(`https://kvdb.io/4y9pA78eW7w8Y6a4wYQp5r/${cloudSyncId}`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(payload)
+      body: JSON.stringify(payload),
+      signal: AbortSignal.timeout ? AbortSignal.timeout(2000) : undefined
     });
     showAutoSyncIndicator('☁️ 云端已实时同步');
   } catch (e) {}
@@ -460,7 +462,9 @@ async function autoPullRemoteSync() {
 
   let remoteData = null;
   try {
-    const res = await fetch(pullEndpoint);
+    const res = await fetch(pullEndpoint, {
+      signal: AbortSignal.timeout ? AbortSignal.timeout(2000) : undefined
+    });
     if (res.ok) {
       const data = await res.json();
       if (data && (data.plans || data.mistakes)) remoteData = data;
@@ -470,7 +474,9 @@ async function autoPullRemoteSync() {
   if (!remoteData) {
     try {
       const cloudSyncId = 'sichuan_study_2027_sync_master';
-      const res = await fetch(`https://kvdb.io/4y9pA78eW7w8Y6a4wYQp5r/${cloudSyncId}?t=` + Date.now());
+      const res = await fetch(`https://kvdb.io/4y9pA78eW7w8Y6a4wYQp5r/${cloudSyncId}?t=` + Date.now(), {
+        signal: AbortSignal.timeout ? AbortSignal.timeout(2000) : undefined
+      });
       if (res.ok) {
         remoteData = await res.json();
       }
@@ -2263,17 +2269,15 @@ function refineParsedCategory(category, rawText) {
   return category || "非法律公基";
 }
 
-function localRuleBasedParseMistake(raw) {
-  const text = raw.trim();
-  const category = refineParsedCategory("非法律公基", text);
+async function callCloudLlmParseMistake(rawText, settings) {
   const prompt = `你是一个专业的中国公务员与四川紧缺专业选调生考试智能解析名师。请将以下错题原始文本精准拆解为标准 JSON 格式。
 
 【考试板块精准分类指引 (category 必须严格属于以下5个之一，严禁误判)】:
-1. 习近平新时代中国特色社会主义思想与时政：考查党的二十大/二十届三中全会精神、习近平总书记重要论述、中国式现代化、新质生产力、党纪学习教育、党建党史、重大时政会议新闻。
+1. 习近平新时代中国特色社会主义思想与时政：考查党的二十大/二十届三中全会精神、习近平总书记重要论述、中国式现代化、新质生产力、党纪学习教育、党建党史、重大时政会议新闻。⚠️ 排除：中国近代史历史事件(如鸦片战争/洋务运动/辛亥革命)属于非法律公基文史常识，严禁误选！
 2. 法律常识：考查宪法、行政法(处罚/许可/强制/复议/诉讼/国家赔偿)、民法典、刑法、公务员法、监察法等法条规范。
-3. 非法律公基：考查微观/宏观经济学(需求弹性/通胀/财政货币政策)、管理学、历史人文、地理省情、前沿科技常识。
-4. 公文写作与改错：【仅且仅当考查公文格式要素规则本身】（如发文字号六角括号、主送机关规范、15种法定文种适用范围、请示与报告区别、成文日期数字、GB/T 9704-2012公文条例）。⚠️ 凡题干仅以某部门《通知/意见/通报》作为背景考查政治方针、法律程序或经济实质内容的，严禁归入公文！
-5. 行测专项：考查言语理解(选词填空/中心主旨)、数量关系、资料分析、判断推理(图推/类比/定义)。
+3. 非法律公基：考查中国近代史(鸦片战争/洋务运动/辛亥革命/五四运动)、古代史、诗词文学常识、经济学(弹性/通胀/财政货币政策)、地理省情、前沿科技常识。⚠️ 所有历史常识、经济科技常识选择题均归入此项！
+4. 公文写作与改错：【仅且仅当考查公文格式要素规则本身】（如发文字号六角括号、主送机关规范、15种法定文种适用范围、请示与报告区别、成文日期数字、GB/T 9704-2012公文条例）。⚠️ 凡题干仅以某部门《通知/意见/通报》作为背景考查实质内容的，严禁归入公文！
+5. 行测专项：【仅限纯行测题型】：选词填空/中心主旨、数量关系、资料分析、判断推理(图推/类比/定义)。⚠️ 常识选择题绝非行测！
 
 【必须返回严格合法的单一 JSON 对象，不要输出任何 Markdown 标记或多余文字】:
 {
@@ -2285,7 +2289,7 @@ function localRuleBasedParseMistake(raw) {
   "correct_answer": "正确选项(如 A 或 ABC)",
   "user_answer": "当时错选项(如 B，若无留空)",
   "correct_analysis": "核心考点解析与关键法条/理论口诀",
-  "key_point": "考点关键词(如 行政处罚听证程序)"
+  "key_point": "考点关键词"
 }
 
 【原始题目文本】:
@@ -2312,6 +2316,7 @@ ${rawText}`;
   const rawContent = data.choices[0].message.content.trim();
   const cleanJsonStr = rawContent.replace(/```json/g, '').replace(/```/g, '').trim();
   const parsedObj = JSON.parse(cleanJsonStr);
+  parsedObj.category = refineParsedCategory(parsedObj.category, rawText);
   parsedObj.engine_label = `☁️ 云端大模型 (${settings.api_model || 'DeepSeek'}) 实时解析`;
   return parsedObj;
 }
@@ -2321,11 +2326,11 @@ async function callDirectOllamaParseMistake(rawText, settings) {
   const prompt = `你是一个专业的中国公务员与四川紧缺专业选调生考试智能解析名师。请将以下错题抽取为严格合法的 JSON 对象。
 
 【考试板块精准分类指引 (category 必须严格属于以下5个之一，严禁误判)】:
-1. 习近平新时代中国特色社会主义思想与时政：考查党的二十大/二十届三中全会精神、习近平总书记重要论述、中国式现代化、新质生产力、党纪学习教育、党建党史、重大时政会议新闻。
+1. 习近平新时代中国特色社会主义思想与时政：考查党的二十大/二十届三中全会精神、习近平总书记重要论述、中国式现代化、新质生产力、党纪学习教育、党建党史、重大时政会议新闻。⚠️ 排除：中国近代史历史事件(如鸦片战争/洋务运动/辛亥革命)属于非法律公基文史常识，严禁误选！
 2. 法律常识：考查宪法、行政法(处罚/许可/强制/复议/诉讼/国家赔偿)、民法典、刑法、公务员法、监察法等法条规范。
-3. 非法律公基：考查微观/宏观经济学(需求弹性/通胀/财政货币政策)、管理学、历史人文、地理省情、前沿科技常识。
-4. 公文写作与改错：【仅且仅当考查公文格式要素规则本身】（如发文字号六角括号、主送机关规范、15种法定文种适用范围、请示与报告区别、成文日期数字、GB/T 9704-2012公文条例）。⚠️ 凡题干仅以某部门《通知/意见/通报》作为背景考查政治方针、法律程序或经济实质内容的，严禁归入公文！
-5. 行测专项：考查言语理解(选词填空/中心主旨)、数量关系、资料分析、判断推理(图推/类比/定义)。
+3. 非法律公基：考查中国近代史(鸦片战争/洋务运动/辛亥革命/五四运动)、古代史、诗词文学常识、经济学(弹性/通胀/财政货币政策)、地理省情、前沿科技常识。⚠️ 所有历史常识、经济科技常识选择题均归入此项！
+4. 公文写作与改错：【仅且仅当考查公文格式要素规则本身】（如发文字号六角括号、主送机关规范、15种法定文种适用范围、请示与报告区别、成文日期数字、GB/T 9704-2012公文条例）。⚠️ 凡题干仅以某部门《通知/意见/通报》作为背景考查实质内容的，严禁归入公文！
+5. 行测专项：【仅限纯行测题型】：选词填空/中心主旨、数量关系、资料分析、判断推理(图推/类比/定义)。⚠️ 常识选择题绝非行测！
 
 必须返回合法的单一 JSON 对象，不要输出任何多余标记:
 {
@@ -2361,35 +2366,14 @@ ${rawText}`;
   const rawResponse = (data.response || '').trim();
   const cleanStr = rawResponse.replace(/```json/g, '').replace(/```/g, '').trim();
   const parsedObj = JSON.parse(cleanStr);
+  parsedObj.category = refineParsedCategory(parsedObj.category, rawText);
   parsedObj.engine_label = `🟢 本地千问大模型 (${modelName}) 穿透实时推理`;
   return parsedObj;
 }
 
 function localRuleBasedParseMistake(raw) {
   const text = raw.trim();
-  const low = text.toLowerCase();
-  let category = "非法律公基";
-
-  // 1. 优先判定：习近平新时代中国特色社会主义思想与时政
-  if (["习思想", "习近平", "总书记", "二十大", "三中全会", "新时代", "六个必须坚持", "新质生产力", "中国式现代化", "党纪学习教育", "全党", "党章", "党史", "立德树人", "首要任务", "两个确立", "两个维护", "四个自信"].some(k => low.includes(k))) {
-    category = "习近平新时代中国特色社会主义思想与时政";
-  }
-  // 2. 判定：法律常识 (行政法/宪法/刑法/民法/诉讼/公务员法)
-  else if (["行政处罚", "行政许可", "行政强制", "行政复议", "行政诉讼", "国家赔偿", "宪法", "刑法", "民法", "民法典", "法条", "法律", "拘留", "罚款", "没收", "羁押", "公务员法", "处分", "监察", "人民法院", "检察院", "侵权", "物权", "合同法", "诉讼时效"].some(k => low.includes(k))) {
-    category = "法律常识";
-  }
-  // 3. 严格判定：公文写作与改错 (仅限考查公文格式要素规则本身)
-  else if (["发文字号", "主送机关", "抄送机关", "成文日期", "公文文种", "行文规则", "上行文", "下行文", "平行文", "公文处理工作条例", "六角括号", "请示不得", "报告中不得", "公文格式", "党政机关公文"].some(k => low.includes(k))) {
-    category = "公文写作与改错";
-  }
-  // 4. 判定：行测专项
-  else if (["依次填入", "横线处", "划线部分", "段落大意", "作者意图", "增长率", "同比", "环比", "资料分析", "图形推理", "定义判断", "类比推理", "得出结论", "言语理解"].some(k => low.includes(k))) {
-    category = "行测专项";
-  }
-  // 5. 兜底：非法律公基 (经济/历史/管理/科技/地理)
-  else {
-    category = "非法律公基";
-  }
+  const category = refineParsedCategory("非法律公基", text);
 
   let ans = "A";
   const ansMatch = text.match(/(?:正确答案|参考答案|答案|【答案】)[：:\s]*([A-Da-d]+|正确|错误|对|错)/);
