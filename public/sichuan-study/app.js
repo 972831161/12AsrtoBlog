@@ -2180,11 +2180,16 @@ async function executeAiParseMistake() {
     parsed = localRuleBasedParseMistake(rawText);
   }
 
+  // 4. 执行高精度板块双重校正引擎 (消除文史/经济/科技常识被误判为行测专项或时政)
+  if (parsed) {
+    parsed.category = refineParsedCategory(parsed.category, rawText);
+  }
+
   btn.textContent = '🚀 AI 智能提取并结构化';
   btn.disabled = false;
 
   appState.parsedMistakeData = parsed;
-  document.getElementById('parsed-cat-select').value = parsed.category || "法律常识";
+  document.getElementById('parsed-cat-select').value = parsed.category || "非法律公基";
   document.getElementById('parsed-q-input').value = parsed.question || "";
   document.getElementById('parsed-opts-input').value = (parsed.options || []).join('\n');
   document.getElementById('parsed-ans-input').value = parsed.correct_answer || "A";
@@ -2201,7 +2206,66 @@ async function executeAiParseMistake() {
   document.getElementById('btn-save-parsed-mistake').disabled = false;
 }
 
-async function callCloudLlmParseMistake(rawText, settings) {
+// 前端高精度板块双重校正算法
+function refineParsedCategory(category, rawText) {
+  const low = rawText.toLowerCase();
+
+  // 1. 严格锁定：总书记重要论述、党纪学习教育、二十大/三中全会精神
+  const xiModernKeys = [
+    "习近平", "总书记", "二十大", "三中全会", "新质生产力", "中国式现代化",
+    "六个必须坚持", "十个坚持", "首要任务", "两个确立", "两个维护", "四个意识", "四个自信",
+    "党纪学习教育", "政治纪律", "组织纪律", "廉洁纪律", "群众纪律", "工作纪律", "生活纪律"
+  ];
+  if (xiModernKeys.some(k => low.includes(k))) {
+    return "习近平新时代中国特色社会主义思想与时政";
+  }
+
+  // 2. 强力识别：中国近代史/古代历史/文学常识/经济学/科技/地理常识 ➔ 100% 归入【非法律公基】
+  const historyEconomyScience = [
+    "鸦片战争", "洋务运动", "戊戌变法", "辛亥革命", "五四运动", "旧民主主义", "新民主主义",
+    "甲午中日战争", "八国联军", "太平天国", "义和团", "百团大战", "抗日战争", "解放战争", "长征",
+    "唐代", "宋代", "明代", "清代", "春秋战国", "秦始皇", "汉武帝", "三国", "两晋南北朝",
+    "史记", "资治通鉴", "诗经", "楚辞", "唐诗", "宋词", "古文运动", "诸子百家", "儒家", "道家", "法家",
+    "需求价格弹性", "供求定理", "边际效用", "恩格尔系数", "基尼系数", "cpi", "gdp", "通货膨胀", "通货紧缩", "宏观调控", "货币政策", "财政政策",
+    "光合作用", "牛顿", "电磁感应", "量子", "超导", "板块构造", "季风气候", "喀斯特地貌", "管理学", "组织行为"
+  ];
+  if (historyEconomyScience.some(k => low.includes(k))) {
+    return "非法律公基";
+  }
+
+  // 3. 严格识别：法律常识
+  const lawKeys = [
+    "行政处罚", "行政许可", "行政强制", "行政复议", "行政诉讼", "国家赔偿",
+    "宪法", "刑法", "民法", "民法典", "公务员法", "监察法", "拘留", "罚款", "没收违法所得", "侵权责任", "诉讼时效"
+  ];
+  if (lawKeys.some(k => low.includes(k))) {
+    return "法律常识";
+  }
+
+  // 4. 严格识别：公文规则 (仅限公文格式条例本身)
+  const docKeys = [
+    "发文字号", "主送机关", "抄送机关", "成文日期", "公文文种", "行文规则",
+    "上行文", "下行文", "平行文", "公文处理工作条例", "六角括号", "请示不得", "报告中不得"
+  ];
+  if (docKeys.some(k => low.includes(k))) {
+    return "公文写作与改错";
+  }
+
+  // 5. 严格识别：行测专项 (仅限行测纯方法论题型)
+  const xingceKeys = [
+    "依次填入", "横线处", "划线部分", "意在说明", "主旨概括", "中心理解",
+    "图形推理", "折叠", "定义判断", "类比推理", "得出结论", "削弱论证", "加强论证", "增长率", "同比", "环比", "排列组合"
+  ];
+  if (xingceKeys.some(k => low.includes(k))) {
+    return "行测专项";
+  }
+
+  return category || "非法律公基";
+}
+
+function localRuleBasedParseMistake(raw) {
+  const text = raw.trim();
+  const category = refineParsedCategory("非法律公基", text);
   const prompt = `你是一个专业的中国公务员与四川紧缺专业选调生考试智能解析名师。请将以下错题原始文本精准拆解为标准 JSON 格式。
 
 【考试板块精准分类指引 (category 必须严格属于以下5个之一，严禁误判)】:
