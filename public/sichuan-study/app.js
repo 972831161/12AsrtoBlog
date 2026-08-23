@@ -103,6 +103,14 @@ document.addEventListener('DOMContentLoaded', async () => {
   renderKnowledgeArticle('kb-policy');
   loadRandomQuiz();
   bindEvents();
+  autoPullRemoteSync(); // 自动无感拉取远端最新合并数据
+});
+
+// 当手机从后台切回前台时，自动静默检测并同步最新数据
+document.addEventListener('visibilitychange', () => {
+  if (document.visibilityState === 'visible') {
+    autoPullRemoteSync();
+  }
 });
 
 // 检查 URL 中是否有扫码传入的极速同步数据
@@ -312,6 +320,7 @@ function saveLocalPlan(dateStr, tasks, notes) {
     is_completed: allDone ? 1 : 0
   };
   localStorage.setItem(STORAGE_KEYS.PLANS_MASTER, JSON.stringify(plans));
+  triggerAutoSync(); // 自动无感静默同步！
 }
 
 function getLocalMistakes() {
@@ -393,6 +402,168 @@ function recoverAndMigrateHistoricalMistakes() {
 
 function saveLocalMistakes(mistakes) {
   localStorage.setItem(STORAGE_KEYS.MISTAKES_MASTER, JSON.stringify(mistakes));
+  triggerAutoSync(); // 自动无感静默同步！
+}
+
+/* ==========================================================================
+   全自动实时无感跨端双向同步引擎 (Auto-Sync on Change)
+   ========================================================================== */
+
+let autoSyncTimer = null;
+function triggerAutoSync() {
+  if (autoSyncTimer) clearTimeout(autoSyncTimer);
+  autoSyncTimer = setTimeout(async () => {
+    await performAutoSyncPush();
+  }, 600);
+}
+
+// 自动静默推送到云端/服务器
+async function performAutoSyncPush() {
+  const plans = getLocalPlans();
+  const mistakes = getLocalMistakes();
+  const payload = { plans, mistakes };
+
+  // 1. 本地直连或活跃隧道模式
+  const targetEndpoint = appState.activeTunnelUrl 
+    ? appState.activeTunnelUrl.replace('/api/generate', '/api/sync/push')
+    : '/api/sync/push';
+
+  try {
+    const res = await fetch(targetEndpoint, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(payload)
+    });
+    if (res.ok) {
+      showAutoSyncIndicator('☁️ 已自动实时同步');
+      return;
+    }
+  } catch (e) {}
+
+  // 2. 免费轻量公共云中继保障 (确保手机端在外网且Mac关机时也能自动保存同步)
+  try {
+    const cloudSyncId = 'sichuan_study_2027_sync_master';
+    await fetch(`https://kvdb.io/4y9pA78eW7w8Y6a4wYQp5r/${cloudSyncId}`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(payload)
+    });
+    showAutoSyncIndicator('☁️ 云端已实时同步');
+  } catch (e) {}
+}
+
+// 自动在后台静默拉取远端最新数据
+async function autoPullRemoteSync() {
+  const pullEndpoint = appState.activeTunnelUrl 
+    ? appState.activeTunnelUrl.replace('/api/generate', '/api/sync/pull')
+    : '/api/sync/pull';
+
+  let remoteData = null;
+  try {
+    const res = await fetch(pullEndpoint);
+    if (res.ok) {
+      const data = await res.json();
+      if (data && (data.plans || data.mistakes)) remoteData = data;
+    }
+  } catch (e) {}
+
+  if (!remoteData) {
+    try {
+      const cloudSyncId = 'sichuan_study_2027_sync_master';
+      const res = await fetch(`https://kvdb.io/4y9pA78eW7w8Y6a4wYQp5r/${cloudSyncId}?t=` + Date.now());
+      if (res.ok) {
+        remoteData = await res.json();
+      }
+    } catch (e) {}
+  }
+
+  if (remoteData) {
+    mergeRemoteDataSafely(remoteData);
+  }
+}
+
+// 增量安全合并远端数据，绝不破坏本地修改
+function mergeRemoteDataSafely(remoteData) {
+  let hasUpdate = false;
+
+  // 1. 合并日历打卡
+  if (remoteData.plans && typeof remoteData.plans === 'object') {
+    const localPlans = getLocalPlans();
+    Object.entries(remoteData.plans).forEach(([dateStr, rPlan]) => {
+      const lPlan = localPlans[dateStr];
+      if (!lPlan) {
+        localPlans[dateStr] = rPlan;
+        hasUpdate = true;
+      } else {
+        const rDone = (rPlan.tasks || []).some(t => t.is_done) || rPlan.is_completed === 1;
+        const lDone = (lPlan.tasks || []).some(t => t.is_done) || lPlan.is_completed === 1;
+        if (rDone && !lDone) {
+          localPlans[dateStr] = rPlan;
+          hasUpdate = true;
+        }
+      }
+    });
+    if (hasUpdate) {
+      localStorage.setItem(STORAGE_KEYS.PLANS_MASTER, JSON.stringify(localPlans));
+    }
+  }
+
+  // 2. 合并错题
+  if (remoteData.mistakes && Array.isArray(remoteData.mistakes)) {
+    const localMistakes = getLocalMistakes();
+    const map = new Map();
+    localMistakes.forEach(m => {
+      if (m && m.question) map.set(m.question.trim(), m);
+    });
+
+    let mistakeUpdated = false;
+    remoteData.mistakes.forEach(rm => {
+      if (rm && rm.question) {
+        const qKey = rm.question.trim();
+        if (!map.has(qKey)) {
+          map.set(qKey, rm);
+          mistakeUpdated = true;
+        } else {
+          const lm = map.get(qKey);
+          if ((rm.attempt_count || 0) > (lm.attempt_count || 0)) {
+            map.set(qKey, rm);
+            mistakeUpdated = true;
+          }
+        }
+      }
+    });
+
+    if (mistakeUpdated) {
+      const mergedList = Array.from(map.values());
+      localStorage.setItem(STORAGE_KEYS.MISTAKES_MASTER, JSON.stringify(mergedList));
+      appState.mistakes = mergedList;
+      hasUpdate = true;
+    }
+  }
+
+  if (hasUpdate) {
+    calculateAndRenderDashboard();
+    renderCalendar();
+    renderMistakes();
+    updateMistakeCounters();
+    showAutoSyncIndicator('☁️ 已自动同步最新');
+  }
+}
+
+// 顶部提示徽章
+function showAutoSyncIndicator(text) {
+  const syncBtn = document.querySelector('.btn-sync-nav');
+  if (syncBtn) {
+    const orig = syncBtn.textContent;
+    syncBtn.textContent = text;
+    syncBtn.style.color = 'var(--accent-green)';
+    syncBtn.style.borderColor = 'var(--accent-green)';
+    setTimeout(() => {
+      syncBtn.textContent = '💾 备份/同步';
+      syncBtn.style.color = '';
+      syncBtn.style.borderColor = '';
+    }, 2500);
+  }
 }
 
 function getAiSettings() {
