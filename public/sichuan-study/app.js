@@ -70,6 +70,8 @@ let appState = {
   mistakes: [],
   activeMistakeFilter: 'all',
   activeMistakeCategory: 'all',
+  activeMistakeTypeFilter: 'all',
+  multiSelections: {},
   parsedMistakeData: null,
   ollamaRunning: false
 };
@@ -1903,12 +1905,19 @@ function renderMistakes() {
 
   let filtered = appState.mistakes;
 
+  // 1. 掌握状态过滤
   if (appState.activeMistakeFilter === 'unmastered') {
     filtered = filtered.filter(m => (m.is_mastered || 0) === 0);
   } else if (appState.activeMistakeFilter === 'mastered') {
     filtered = filtered.filter(m => (m.is_mastered || 0) === 1);
   }
 
+  // 2. 题型过滤 (单选/多选/判断)
+  if (appState.activeMistakeTypeFilter !== 'all') {
+    filtered = filtered.filter(m => (m.question_type || 'single') === appState.activeMistakeTypeFilter);
+  }
+
+  // 3. 考查板块过滤
   if (appState.activeMistakeCategory !== 'all') {
     filtered = filtered.filter(m => m.category.includes(appState.activeMistakeCategory) || appState.activeMistakeCategory.includes(m.category));
   }
@@ -1923,6 +1932,7 @@ function renderMistakes() {
     const isMastered = (m.is_mastered || 0) === 1;
     const streak = m.correct_streak || 0;
     const threshold = m.mastery_threshold || 3;
+    const qType = m.question_type || 'single';
 
     card.className = `interactive-mistake-card ${isMastered ? 'is-mastered-card' : ''}`;
     card.id = `mistake-card-${m.id}`;
@@ -1950,17 +1960,52 @@ function renderMistakes() {
     const slot2Active = streak >= 2 ? 'active-2' : '';
     const slot3Active = streak >= 3 ? 'active-3' : '';
 
+    let typeBadgeHtml = `<span class="type-badge type-badge-single">🔘 单选</span>`;
+    if (qType === 'multiple') {
+      typeBadgeHtml = `<span class="type-badge type-badge-multiple">☑️ 多选</span>`;
+    } else if (qType === 'judge') {
+      typeBadgeHtml = `<span class="type-badge type-badge-judge">⚖️ 判断</span>`;
+    }
+
+    const isMultiple = (qType === 'multiple');
+    const curSelected = appState.multiSelections[m.id] || [];
+
+    // 构建选项列表 HTML
+    const optionsHtml = options.map(opt => {
+      const optKey = opt.trim().charAt(0).toUpperCase();
+      if (isMultiple) {
+        const isChecked = curSelected.includes(optKey);
+        return `
+          <button class="practice-opt-btn ${isChecked ? 'multi-selected' : ''}" id="opt-btn-${m.id}-${optKey}" onclick="toggleMultiSelectOption(${m.id}, '${optKey}')">
+            <span><strong>${isChecked ? '☑️' : '⬜'}</strong> ${escapeHtml(opt)}</span>
+            <span class="opt-feedback-icon"></span>
+          </button>
+        `;
+      } else {
+        return `
+          <button class="practice-opt-btn" onclick="attemptMistakeChoice(${m.id}, '${optKey}', this)">
+            <span>${escapeHtml(opt)}</span>
+            <span class="opt-feedback-icon"></span>
+          </button>
+        `;
+      }
+    }).join('');
+
     card.innerHTML = `
       <div class="mistake-card-top">
         <div class="mistake-badges-group">
+          ${typeBadgeHtml}
           ${levelBadge}
           <span class="kp-tag">【${m.category}】</span>
           ${m.key_point ? `<span class="kp-tag" style="background:rgba(217,119,6,0.1); color:var(--accent-amber);">🏷️ ${m.key_point}</span>` : ''}
           <span class="stats-tag">已练: ${attempts}次</span>
         </div>
-        <div>
+        <div style="display:flex; gap:6px;">
+          <button class="btn btn-outline" style="padding:3px 8px; font-size:0.72rem; color:var(--primary);" onclick="openEditMistakeModal(${m.id})">
+            ✏️ 编辑
+          </button>
           <button class="btn btn-outline" style="padding:3px 8px; font-size:0.72rem;" onclick="toggleMistakeMasterStatus(${m.id})">
-            ${isMastered ? '标记为待复习' : '直接手动掌握'}
+            ${isMastered ? '设为待复习' : '直接掌握'}
           </button>
           <button class="btn btn-outline" style="padding:3px 6px; font-size:0.72rem; color:var(--accent-red);" onclick="deleteMistake(${m.id})">
             🗑️
@@ -1984,13 +2029,16 @@ function renderMistakes() {
       <div class="mistake-q-title">${escapeHtml(m.question)}</div>
 
       <div class="practice-options-grid" id="practice-opts-${m.id}">
-        ${options.map(opt => `
-          <button class="practice-opt-btn" onclick="attemptMistakeChoice(${m.id}, '${opt.charAt(0)}', this)">
-            <span>${escapeHtml(opt)}</span>
-            <span class="opt-feedback-icon"></span>
-          </button>
-        `).join('')}
+        ${optionsHtml}
       </div>
+
+      ${isMultiple ? `
+        <div style="margin-bottom:12px;" id="multi-submit-wrap-${m.id}">
+          <button class="btn btn-primary btn-sm" style="width:100%;" onclick="submitMultiSelectChoice(${m.id})">
+            📝 提交多选作答 ${curSelected.length > 0 ? `(已选: ${curSelected.slice().sort().join('')})` : '(请先勾选选项)'}
+          </button>
+        </div>
+      ` : ''}
 
       <div class="mistake-analysis-drawer" id="analysis-drawer-${m.id}" style="display:none;">
         <div style="margin-bottom:4px;">
@@ -2008,6 +2056,108 @@ function renderMistakes() {
 
     container.appendChild(card);
   });
+}
+
+// 切换多选题选项勾选状态
+function toggleMultiSelectOption(mistakeId, optKey) {
+  if (!appState.multiSelections[mistakeId]) {
+    appState.multiSelections[mistakeId] = [];
+  }
+  const list = appState.multiSelections[mistakeId];
+  const idx = list.indexOf(optKey);
+  if (idx > -1) {
+    list.splice(idx, 1);
+  } else {
+    list.push(optKey);
+  }
+
+  // 局部刷新按钮状态与文案
+  const btn = document.getElementById(`opt-btn-${mistakeId}-${optKey}`);
+  if (btn) {
+    const isChecked = list.includes(optKey);
+    btn.classList.toggle('multi-selected', isChecked);
+    const labelSpan = btn.querySelector('span:first-child');
+    if (labelSpan) {
+      const origText = labelSpan.textContent.replace(/^[☑️⬜\s]+/, '');
+      labelSpan.innerHTML = `<strong>${isChecked ? '☑️' : '⬜'}</strong> ${origText}`;
+    }
+  }
+
+  const submitWrap = document.getElementById(`multi-submit-wrap-${mistakeId}`);
+  if (submitWrap) {
+    const submitBtn = submitWrap.querySelector('button');
+    if (submitBtn) {
+      submitBtn.textContent = `📝 提交多选作答 ${list.length > 0 ? `(已选: ${list.slice().sort().join('')})` : '(请先勾选选项)'}`;
+    }
+  }
+}
+
+// 提交多选题作答
+async function submitMultiSelectChoice(mistakeId) {
+  const item = appState.mistakes.find(m => m.id === mistakeId);
+  if (!item) return;
+
+  const selectedList = appState.multiSelections[mistakeId] || [];
+  if (selectedList.length === 0) {
+    alert('请先至少勾选一个选项再提交作答！');
+    return;
+  }
+
+  const userAns = selectedList.slice().sort().join('');
+  const correctAns = (item.correct_answer || "ABC").toUpperCase().replace(/[^A-D]/g, '').split('').sort().join('');
+  const isCorrect = (userAns === correctAns);
+  const threshold = item.mastery_threshold || 3;
+
+  const container = document.getElementById(`practice-opts-${mistakeId}`);
+  const drawer = document.getElementById(`analysis-drawer-${mistakeId}`);
+  const card = document.getElementById(`mistake-card-${mistakeId}`);
+
+  if (container) {
+    container.querySelectorAll('.practice-opt-btn').forEach(b => {
+      const optLetter = b.id.replace(`opt-btn-${mistakeId}-`, '').toUpperCase();
+      const inCorrect = correctAns.includes(optLetter);
+      const inUser = userAns.includes(optLetter);
+
+      if (inCorrect && inUser) {
+        b.classList.add('correct-choice');
+      } else if (!inCorrect && inUser) {
+        b.classList.add('wrong-choice');
+      } else if (inCorrect && !inUser) {
+        b.classList.add('missed-choice');
+      }
+    });
+  }
+
+  if (drawer) drawer.style.display = 'block';
+
+  item.attempt_count = (item.attempt_count || 0) + 1;
+
+  if (isCorrect) {
+    item.correct_count = (item.correct_count || 0) + 1;
+    item.correct_streak = (item.correct_streak || 0) + 1;
+
+    if (item.correct_streak >= threshold) {
+      item.is_mastered = 1;
+      card.classList.add('is-mastered-card');
+      alert(`🎉 恭喜！多选题全部选项选择正确（${userAns}），达成【艾宾浩斯抗遗忘认证 · 科学已掌握】！`);
+    } else {
+      item.is_mastered = 0;
+      card.classList.remove('is-mastered-card');
+      alert(`✨ 答对了！多选题选项全部命中（${userAns}），当前连对 ${item.correct_streak}/${threshold} 次！`);
+    }
+  } else {
+    item.correct_streak = 0;
+    item.is_mastered = 0;
+    card.classList.remove('is-mastered-card');
+    alert(`❌ 多选题作答有误！正确答案为【${correctAns}】，您的选择为【${userAns}】。连对进度已清零，请查看下方解析！`);
+  }
+
+  // 清除作答暂存
+  delete appState.multiSelections[mistakeId];
+
+  saveLocalMistakes(appState.mistakes);
+  renderMistakes();
+  updateMistakeCounters();
 }
 
 async function attemptMistakeChoice(mistakeId, choiceChar, btnEl) {
@@ -2071,14 +2221,8 @@ async function attemptMistakeChoice(mistakeId, choiceChar, btnEl) {
 }
 
 function resetPracticeCard(mistakeId) {
-  const container = document.getElementById(`practice-opts-${mistakeId}`);
-  if (container) {
-    container.querySelectorAll('.practice-opt-btn').forEach(b => {
-      b.classList.remove('correct-choice', 'wrong-choice');
-    });
-  }
-  const drawer = document.getElementById(`analysis-drawer-${mistakeId}`);
-  if (drawer) drawer.style.display = 'none';
+  delete appState.multiSelections[mistakeId];
+  renderMistakes();
 }
 
 function toggleAnalysisDrawer(mistakeId) {
@@ -2108,11 +2252,47 @@ function deleteMistake(id) {
   updateMistakeCounters();
 }
 
-function openAiAddMistakeModal() {
+// 打开已有错题编辑弹窗
+function openEditMistakeModal(id) {
+  const item = appState.mistakes.find(m => m.id === id);
+  if (!item) return;
+
+  document.getElementById('editing-mistake-id').value = item.id;
+  document.getElementById('modal-mistake-title').textContent = '✏️ 编辑错题详情与考点';
+  document.getElementById('raw-input-group').classList.add('hidden');
+  document.getElementById('ai-parsed-preview').classList.remove('hidden');
+
+  document.getElementById('parsed-cat-select').value = item.category || '非法律公基';
+  document.getElementById('parsed-type-select').value = item.question_type || 'single';
+  document.getElementById('parsed-q-input').value = item.question || '';
+  document.getElementById('parsed-opts-input').value = (item.options || []).join('\n');
+  document.getElementById('parsed-ans-input').value = item.correct_answer || 'A';
+  document.getElementById('parsed-my-input').value = item.user_answer || '';
+  document.getElementById('parsed-kp-input').value = item.key_point || '';
+  document.getElementById('parsed-exp-input').value = item.correct_analysis || '';
+
+  const pill = document.getElementById('parsed-engine-source-pill');
+  if (pill) pill.textContent = '✏️ 正在编辑已有错题';
+
+  const saveBtn = document.getElementById('btn-save-parsed-mistake');
+  saveBtn.textContent = '💾 保存修改';
+  saveBtn.disabled = false;
+
   document.getElementById('modal-ai-add-mistake').classList.remove('hidden');
+}
+
+function openAiAddMistakeModal() {
+  document.getElementById('editing-mistake-id').value = '';
+  document.getElementById('modal-mistake-title').textContent = '✨ AI 一键智能录入错题';
+  document.getElementById('raw-input-group').classList.remove('hidden');
   document.getElementById('raw-mistake-input').value = '';
   document.getElementById('ai-parsed-preview').classList.add('hidden');
-  document.getElementById('btn-save-parsed-mistake').disabled = true;
+  
+  const saveBtn = document.getElementById('btn-save-parsed-mistake');
+  saveBtn.textContent = '💾 确认入库';
+  saveBtn.disabled = true;
+
+  document.getElementById('modal-ai-add-mistake').classList.remove('hidden');
 }
 
 function closeAiAddMistakeModal() {
@@ -2128,6 +2308,21 @@ D. 暂扣许可证件
 【正确答案】：A
 【我的答案】：B
 【解析】：本题考查行政处罚的设定权限。《行政处罚法》第十条明确规定：限制人身自由的行政处罚，只能由法律设定。行政法规可以设定除限制人身自由以外的行政处罚。因此本题选A。`;
+}
+
+// 题型自动智能识别算法
+function detectMistakeQuestionType(rawText, ans) {
+  const cleanAns = (ans || "").trim().toUpperCase();
+  const low = (rawText || "").toLowerCase();
+
+  // 1. 如果答案包含2个或以上字母（如 ABC, ACD），100% 多选
+  if (/^[A-D]{2,}$/.test(cleanAns)) return "multiple";
+  if (low.includes("多选题") || low.includes("多项选择") || low.includes("【多选】") || low.includes("至少有两项")) return "multiple";
+
+  // 2. 如果答案为对/错/正确/错误或文本包含判断题
+  if (low.includes("判断题") || low.includes("判断正误") || cleanAns === "对" || cleanAns === "错" || cleanAns === "正确" || cleanAns === "错误") return "judge";
+
+  return "single";
 }
 
 async function executeAiParseMistake() {
@@ -2186,9 +2381,10 @@ async function executeAiParseMistake() {
     parsed = localRuleBasedParseMistake(rawText);
   }
 
-  // 4. 执行高精度板块双重校正引擎 (消除文史/经济/科技常识被误判为行测专项或时政)
+  // 4. 执行高精度板块双重校正引擎与题型自动识别
   if (parsed) {
     parsed.category = refineParsedCategory(parsed.category, rawText);
+    parsed.question_type = parsed.question_type || detectMistakeQuestionType(rawText, parsed.correct_answer);
   }
 
   btn.textContent = '🚀 AI 智能提取并结构化';
@@ -2196,6 +2392,7 @@ async function executeAiParseMistake() {
 
   appState.parsedMistakeData = parsed;
   document.getElementById('parsed-cat-select').value = parsed.category || "非法律公基";
+  document.getElementById('parsed-type-select').value = parsed.question_type || "single";
   document.getElementById('parsed-q-input').value = parsed.question || "";
   document.getElementById('parsed-opts-input').value = (parsed.options || []).join('\n');
   document.getElementById('parsed-ans-input').value = parsed.correct_answer || "A";
@@ -2282,8 +2479,8 @@ async function callCloudLlmParseMistake(rawText, settings) {
 【必须返回严格合法的单一 JSON 对象，不要输出任何 Markdown 标记或多余文字】:
 {
   "category": "所属板块名称(严格为上述5个之一)",
+  "question_type": "single 或 multiple 或 judge",
   "title": "简短考点标题(15字内)",
-  "question_type": "single",
   "question": "题干纯文本(剥离选项和答案)",
   "options": ["A. 选项A内容", "B. 选项B内容", "C. 选项C内容", "D. 选项D内容"],
   "correct_answer": "正确选项(如 A 或 ABC)",
@@ -2317,6 +2514,7 @@ ${rawText}`;
   const cleanJsonStr = rawContent.replace(/```json/g, '').replace(/```/g, '').trim();
   const parsedObj = JSON.parse(cleanJsonStr);
   parsedObj.category = refineParsedCategory(parsedObj.category, rawText);
+  parsedObj.question_type = parsedObj.question_type || detectMistakeQuestionType(rawText, parsedObj.correct_answer);
   parsedObj.engine_label = `☁️ 云端大模型 (${settings.api_model || 'DeepSeek'}) 实时解析`;
   return parsedObj;
 }
@@ -2335,11 +2533,11 @@ async function callDirectOllamaParseMistake(rawText, settings) {
 必须返回合法的单一 JSON 对象，不要输出任何多余标记:
 {
   "category": "所属板块名称(严格为上述5个之一)",
+  "question_type": "single 或 multiple 或 judge",
   "title": "考点简短标题",
-  "question_type": "single",
   "question": "题干纯文本(剥离选项与答案)",
   "options": ["A. 选项A内容", "B. 选项B内容", "C. 选项C内容", "D. 选项D内容"],
-  "correct_answer": "正确选项(如 A)",
+  "correct_answer": "正确选项(如 A 或 ABC)",
   "user_answer": "当时错选(如 B，若无留空)",
   "correct_analysis": "核心考点解析",
   "key_point": "考点关键词"
@@ -2367,6 +2565,7 @@ ${rawText}`;
   const cleanStr = rawResponse.replace(/```json/g, '').replace(/```/g, '').trim();
   const parsedObj = JSON.parse(cleanStr);
   parsedObj.category = refineParsedCategory(parsedObj.category, rawText);
+  parsedObj.question_type = parsedObj.question_type || detectMistakeQuestionType(rawText, parsedObj.correct_answer);
   parsedObj.engine_label = `🟢 本地千问大模型 (${modelName}) 穿透实时推理`;
   return parsedObj;
 }
@@ -2387,7 +2586,9 @@ function localRuleBasedParseMistake(raw) {
   const myMatch = text.match(/(?:我的答案|我的选择|错选|作答)[：:\s]*([A-Da-d]+)/);
   if (myMatch) myAns = myMatch[1].toUpperCase();
 
-  let exp = "掌握核心考点与相关法条。";
+  const qType = detectMistakeQuestionType(text, ans);
+
+  let exp = "掌握核心考点与相关法条/理论。";
   const expMatch = text.match(/(?:解析|深度解析|【解析】|答案解析)[：:\s]*([\s\S]+)/);
   if (expMatch) exp = expMatch[1].trim();
 
@@ -2403,7 +2604,7 @@ function localRuleBasedParseMistake(raw) {
     const firstOptIdx = clean.indexOf(optMatches[0]);
     question = clean.substring(0, firstOptIdx).trim();
   } else {
-    options = ["A. 选项A", "B. 选项B", "C. 选项C", "D. 选项D"];
+    options = qType === "judge" ? ["A. 正确", "B. 错误"] : ["A. 选项A", "B. 选项B", "C. 选项C", "D. 选项D"];
   }
 
   question = question.replace(/^(?:【[^】]+】|\d+[\.、\s]*)/, '').trim();
@@ -2411,7 +2612,7 @@ function localRuleBasedParseMistake(raw) {
   return {
     category: category,
     title: question.slice(0, 18),
-    question_type: "single",
+    question_type: qType,
     question: question,
     options: options,
     correct_answer: ans,
@@ -2423,7 +2624,12 @@ function localRuleBasedParseMistake(raw) {
 }
 
 function confirmSaveParsedMistake() {
+  const editIdStr = document.getElementById('editing-mistake-id').value;
+  const isEditing = Boolean(editIdStr);
+  const editId = isEditing ? (isNaN(editIdStr) ? editIdStr : Number(editIdStr)) : null;
+
   const cat = document.getElementById('parsed-cat-select').value;
+  const qType = document.getElementById('parsed-type-select').value || 'single';
   const q = document.getElementById('parsed-q-input').value.trim();
   const optsRaw = document.getElementById('parsed-opts-input').value.trim();
   const ans = document.getElementById('parsed-ans-input').value.trim().toUpperCase();
@@ -2438,13 +2644,37 @@ function confirmSaveParsedMistake() {
 
   const options = optsRaw.split('\n').map(s => s.trim()).filter(s => s);
 
+  if (isEditing) {
+    const idx = appState.mistakes.findIndex(m => m.id == editId);
+    if (idx > -1) {
+      appState.mistakes[idx] = {
+        ...appState.mistakes[idx],
+        category: cat,
+        question_type: qType,
+        title: q.slice(0, 20),
+        question: q,
+        options: options.length > 0 ? options : (qType === 'judge' ? ["A. 正确", "B. 错误"] : ["A. 选项A", "B. 选项B"]),
+        correct_answer: ans || "A",
+        user_answer: myAns,
+        correct_analysis: exp,
+        key_point: kp
+      };
+      saveLocalMistakes(appState.mistakes);
+      closeAiAddMistakeModal();
+      renderMistakes();
+      updateMistakeCounters();
+      alert('🎉 错题已成功修改并自动同步！');
+      return;
+    }
+  }
+
   const newMistake = {
     id: Date.now(),
     category: cat,
     title: q.slice(0, 20),
-    question_type: "single",
+    question_type: qType,
     question: q,
-    options: options.length > 0 ? options : ["A. 选项A", "B. 选项B"],
+    options: options.length > 0 ? options : (qType === 'judge' ? ["A. 正确", "B. 错误"] : ["A. 选项A", "B. 选项B"]),
     correct_answer: ans || "A",
     user_answer: myAns,
     correct_analysis: exp,
@@ -2549,6 +2779,16 @@ document.querySelectorAll('.filter-chip').forEach(chip => {
     document.querySelectorAll('.filter-chip').forEach(c => c.classList.remove('active'));
     chip.classList.add('active');
     appState.activeMistakeFilter = chip.getAttribute('data-filter');
+    renderMistakes();
+  });
+});
+
+// 绑定题型专属筛选标签点击事件
+document.querySelectorAll('.type-filter-chip').forEach(chip => {
+  chip.addEventListener('click', () => {
+    document.querySelectorAll('.type-filter-chip').forEach(c => c.classList.remove('active'));
+    chip.classList.add('active');
+    appState.activeMistakeTypeFilter = chip.getAttribute('data-type');
     renderMistakes();
   });
 });

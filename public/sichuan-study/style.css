@@ -838,13 +838,11 @@ body {
 .score-display-card { display: flex; align-items: center; justify-content: space-between; padding: 12px 16px; background: linear-gradient(135deg, var(--primary), #1e3a8a); color: #fff; border-radius: var(--radius-sm); margin-bottom: 12px; }
 .score-num { font-size: 1.8rem; font-weight: 900; }
 
-/* ================= 错题集与艾宾浩斯抗遗忘掌握度 UI ================= */
-
 .mistakes-filter-bar { display: flex; gap: 8px; margin-bottom: 10px; overflow-x: auto; scrollbar-width: none; }
-.mistakes-cat-tabs { display: flex; gap: 6px; margin-bottom: 16px; overflow-x: auto; scrollbar-width: none; }
+.mistakes-cat-tabs, .mistakes-type-tabs { display: flex; gap: 6px; margin-bottom: 12px; overflow-x: auto; scrollbar-width: none; }
 
-.filter-chip, .cat-filter-chip {
-  padding: 4px 12px;
+.filter-chip, .cat-filter-chip, .type-filter-chip {
+  padding: 5px 12px;
   border-radius: var(--radius-full);
   border: 1px solid var(--border-subtle);
   background: var(--bg-surface);
@@ -854,12 +852,19 @@ body {
   cursor: pointer;
   white-space: nowrap;
   flex-shrink: 0;
+  transition: all var(--transition-fast);
 }
 
-.filter-chip.active, .cat-filter-chip.active {
+.filter-chip.active, .cat-filter-chip.active, .type-filter-chip.active {
   background: var(--primary-light);
   color: var(--primary);
   border-color: var(--primary);
+}
+
+.type-filter-chip.active {
+  background: rgba(147, 51, 234, 0.12);
+  color: #9333ea;
+  border-color: #9333ea;
 }
 
 .mistakes-list { display: flex; flex-direction: column; gap: 14px; }
@@ -880,6 +885,11 @@ body {
 
 .mistake-card-top { display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px; }
 .mistake-badges-group { display: flex; align-items: center; gap: 6px; flex-wrap: wrap; }
+.type-badge { font-size: 0.7rem; padding: 2px 6px; border-radius: 4px; font-weight: 700; }
+.type-badge-single { background: rgba(59, 130, 246, 0.12); color: #2563eb; }
+.type-badge-multiple { background: rgba(147, 51, 234, 0.14); color: #9333ea; border: 1px solid rgba(147, 51, 234, 0.3); }
+.type-badge-judge { background: rgba(217, 119, 6, 0.12); color: #d97706; }
+
 .kp-tag { font-size: 0.7rem; background: rgba(37, 99, 235, 0.1); color: var(--primary); padding: 2px 6px; border-radius: 4px; font-weight: 600; }
 .stats-tag { font-size: 0.7rem; color: var(--text-muted); }
 
@@ -945,7 +955,15 @@ body {
   justify-content: space-between;
 }
 .practice-opt-btn:hover { border-color: var(--primary); background: var(--primary-light); }
+.practice-opt-btn.multi-selected {
+  border-color: #9333ea;
+  background: rgba(147, 51, 234, 0.08);
+  font-weight: 700;
+  box-shadow: 0 0 0 1px #9333ea;
+}
 .practice-opt-btn.correct-choice { background: rgba(16, 185, 129, 0.15); border-color: var(--accent-green); color: var(--accent-green); font-weight: 700; }
+.practice-opt-btn.wrong-choice { background: rgba(220, 38, 38, 0.15); border-color: var(--accent-red); color: var(--accent-red); font-weight: 700; }
+.practice-opt-btn.missed-choice { background: rgba(245, 158, 11, 0.15); border-color: #f59e0b; color: #d97706; font-weight: 700; }ht: 700; }
 .practice-opt-btn.wrong-choice { background: rgba(220, 38, 38, 0.15); border-color: var(--accent-red); color: var(--accent-red); font-weight: 700; }
 
 .mistake-analysis-drawer { background: var(--bg-subtle); border-radius: var(--radius-sm); padding: 12px 14px; border-left: 3px solid var(--primary); font-size: 0.82rem; line-height: 1.6; margin-top: 10px; }

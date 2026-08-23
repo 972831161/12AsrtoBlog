@@ -392,6 +392,14 @@
             <button class="filter-chip" data-filter="mastered">✅ 已掌握 (<span id="count-mastered">0</span>)</button>
           </div>
 
+          <!-- 题型专属筛选条 (单选 / 多选 / 判断) -->
+          <div class="mistakes-type-tabs" id="mistakes-type-tabs" style="display:flex; gap:6px; margin-bottom:8px; overflow-x:auto;">
+            <button class="type-filter-chip active" data-type="all">全部题型</button>
+            <button class="type-filter-chip" data-type="single">🔘 单选题</button>
+            <button class="type-filter-chip" data-type="multiple">☑️ 多选题</button>
+            <button class="type-filter-chip" data-type="judge">⚖️ 判断题</button>
+          </div>
+
           <div class="mistakes-cat-tabs" id="mistakes-cat-tabs">
             <button class="cat-filter-chip active" data-cat="all">全部板块</button>
             <button class="cat-filter-chip" data-cat="习近平新时代中国特色社会主义思想与时政">🚩 习思想与时政</button>
@@ -407,68 +415,73 @@
 
     </main>
 
-    <!-- 弹窗 1：AI 一键智能错题录入 Modal -->
+    <!-- 弹窗 1：AI 一键智能错题录入 / 编辑 Modal -->
     <div id="modal-ai-add-mistake" class="modal-overlay hidden">
       <div class="modal-card modal-lg">
         <div class="modal-header">
-          <h3>✨ AI 一键智能录入错题</h3>
+          <h3 id="modal-mistake-title">✨ AI 一键智能录入 / 编辑错题</h3>
           <button class="btn-close" onclick="closeAiAddMistakeModal()">✕</button>
         </div>
         <div class="modal-body">
-          <div class="form-group">
+          <input type="hidden" id="editing-mistake-id" value="">
+          
+          <div class="form-group" id="raw-input-group">
             <label style="display:flex; justify-content:space-between;">
               <span>原始题目文本 (直接粘贴完整题干+选项+答案+解析)</span>
               <a href="javascript:void(0)" style="font-size:0.8rem; color:var(--primary);" onclick="fillSampleMistakeText()">📥 载入示例错题测试</a>
             </label>
-            <textarea id="raw-mistake-input" rows="6" class="form-control" placeholder="在此粘贴复制的错题，例如：
-下列哪一类行政处罚只能由法律设定？
-A. 限制人身自由的行政处罚
-B. 责令停产停业
-C. 没收违法所得
-D. 较大数额罚款
-正确答案：A
-我的答案：B
-解析：《行政处罚法》明确规定，限制人身自由的行政处罚只能由法律设定……"></textarea>
+            <textarea id="raw-mistake-input" rows="5" class="form-control" placeholder="在此粘贴复制的错题，支持单选/多选/判断题..."></textarea>
+            <div style="margin-top:8px;">
+              <button class="btn btn-primary btn-sm" id="btn-parse-mistake" onclick="executeAiParseMistake()">🚀 AI 智能提取并结构化</button>
+            </div>
           </div>
-
-          <button class="btn btn-primary" id="btn-parse-mistake" onclick="executeAiParseMistake()">🚀 AI 智能提取并结构化</button>
 
           <!-- 提取回显预览区 -->
           <div id="ai-parsed-preview" class="ai-preview-box hidden">
             <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:10px;">
-              <h4 style="font-size:0.9rem; color:var(--primary);">📋 结构化提取结果（可直接修改微调）</h4>
+              <h4 style="font-size:0.9rem; color:var(--primary);" id="preview-box-title">📋 结构化考点（可直接修改微调）</h4>
               <span class="engine-tag-pill" id="parsed-engine-source-pill">🟢 解析引擎：本地千问 2.5-3B</span>
             </div>
             
-            <div class="form-group">
-              <label>自动归类板块</label>
-              <select id="parsed-cat-select" class="form-control">
-                <option value="习近平新时代中国特色社会主义思想与时政">习近平新时代中国特色社会主义思想与时政</option>
-                <option value="法律常识">法律常识 (行政法/宪法/刑法/民法)</option>
-                <option value="非法律公基">非法律公基 (经济/政治/党史/省情)</option>
-                <option value="公文写作与改错">公文写作与改错</option>
-                <option value="行测专项">行测专项 (言语/资料/图推)</option>
-              </select>
+            <div style="display:grid; grid-template-columns:1fr 1fr; gap:10px;">
+              <div class="form-group">
+                <label>考查板块</label>
+                <select id="parsed-cat-select" class="form-control">
+                  <option value="习近平新时代中国特色社会主义思想与时政">习近平新时代中国特色社会主义思想与时政</option>
+                  <option value="法律常识">法律常识 (行政法/宪法/刑法/民法)</option>
+                  <option value="非法律公基">非法律公基 (经济/文史/科技/省情)</option>
+                  <option value="公文写作与改错">公文写作与改错</option>
+                  <option value="行测专项">行测专项 (言语/资料/图推)</option>
+                </select>
+              </div>
+              <div class="form-group">
+                <label>题目类型</label>
+                <select id="parsed-type-select" class="form-control">
+                  <option value="single">🔘 单项选择题 (Single)</option>
+                  <option value="multiple">☑️ 多项选择题 (Multiple)</option>
+                  <option value="judge">⚖️ 判断题 (Judge)</option>
+                </select>
+              </div>
             </div>
 
             <div class="form-group">
-              <label>题干</label>
+              <label>题干文本</label>
               <textarea id="parsed-q-input" rows="2" class="form-control"></textarea>
             </div>
 
             <div class="form-group">
-              <label>选项列表 (每行一个)</label>
+              <label>选项列表 (每行一个选项，如 A. 选项内容)</label>
               <textarea id="parsed-opts-input" rows="4" class="form-control"></textarea>
             </div>
 
             <div style="display:grid; grid-template-columns:1fr 1fr 1fr; gap:10px;">
               <div class="form-group">
-                <label>正确答案</label>
+                <label>正确答案 (多选如 ABC, 判断如 A)</label>
                 <input type="text" id="parsed-ans-input" class="form-control" placeholder="如 A 或 ABC">
               </div>
               <div class="form-group">
                 <label>当时错选</label>
-                <input type="text" id="parsed-my-input" class="form-control" placeholder="如 B">
+                <input type="text" id="parsed-my-input" class="form-control" placeholder="如 B 或 AB">
               </div>
               <div class="form-group">
                 <label>核心考点关键词</label>
@@ -477,7 +490,7 @@ D. 较大数额罚款
             </div>
 
             <div class="form-group">
-              <label>解析与速记口诀</label>
+              <label>深度解析与速记口诀</label>
               <textarea id="parsed-exp-input" rows="2" class="form-control"></textarea>
             </div>
           </div>
