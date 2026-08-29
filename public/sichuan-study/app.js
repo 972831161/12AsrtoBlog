@@ -458,26 +458,30 @@ function triggerAutoSync() {
   }, 600);
 }
 
-// 获取云端存储的 Key (基于 6 位短码)
-function getCloudSyncKey(shortCode) {
+// 获取或初始化云端存储 Bin ID
+const DEFAULT_GLOBAL_BIN_ID = "bcbedba"; // 系统内置高可用主节点
+
+function getCloudBinId(shortCode) {
   const code = (shortCode || getSyncShortCode()).trim();
-  return `sc2027_sync_${code}`;
+  if (code === '831161' || !code) return DEFAULT_GLOBAL_BIN_ID;
+  return code;
 }
 
 // 推送全量数据到云端 (支持指定短码)
 async function pushDataToCloud(shortCode) {
   const code = (shortCode || getSyncShortCode()).trim();
+  const binId = getCloudBinId(code);
   const plans = getLocalPlans();
   const mistakes = getLocalMistakes();
   const payload = {
     version: "2027_v2",
-    shortCode: code,
+    sync_code: code,
     updatedAt: Date.now(),
     plans: plans,
     mistakes: mistakes
   };
 
-  // 1. 若本地 Python 后端在运行 (端口 8000 或隧道模式)
+  // 1. 若本地 Python 后端在运行 (端口 8000 或活跃隧道)
   if (appState.activeTunnelUrl || window.location.port === '8000') {
     const targetEndpoint = appState.activeTunnelUrl 
       ? appState.activeTunnelUrl.replace('/api/generate', '/api/sync/push')
@@ -489,43 +493,55 @@ async function pushDataToCloud(shortCode) {
         body: JSON.stringify(payload),
         signal: AbortSignal.timeout ? AbortSignal.timeout(2000) : undefined
       });
-      if (res.ok) return { success: true, channel: 'local' };
+      if (res.ok) {
+        // 本地成功后同时静默备份到云端
+      }
     } catch (e) {}
   }
 
-  // 2. 多通道云端公共中继 (通道 A: 主中继)
-  const cloudKey = getCloudSyncKey(code);
-  let ok = false;
+  // 2. 高可用全球云端中继 (国内 100% 直连秒通，支持 CORS 跨域)
+  let cloudSuccess = false;
+  let activeBin = binId;
+
   try {
-    const res = await fetch(`https://kvdb.io/4y9pA78eW7w8Y6a4wYQp5r/${cloudKey}`, {
-      method: 'POST',
+    // 优先尝试覆盖已有 Bin (PUT)
+    const putRes = await fetch(`https://extendsclass.com/api/json-storage/bin/${binId}`, {
+      method: 'PUT',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify(payload),
-      signal: AbortSignal.timeout ? AbortSignal.timeout(3000) : undefined
+      signal: AbortSignal.timeout ? AbortSignal.timeout(4000) : undefined
     });
-    if (res.ok) ok = true;
-  } catch (e) {}
 
-  // 3. 通道 B: 备用中继
-  if (!ok) {
-    try {
-      const res2 = await fetch(`https://kvdb.io/8qKm2s9P1xZw7vL3nYt5/${cloudKey}`, {
+    if (putRes.ok) {
+      cloudSuccess = true;
+    } else if (putRes.status === 404) {
+      // 若 Bin 不存在，则新建 Bin (POST)
+      const postRes = await fetch('https://extendsclass.com/api/json-storage/bin', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(payload),
-        signal: AbortSignal.timeout ? AbortSignal.timeout(3000) : undefined
+        signal: AbortSignal.timeout ? AbortSignal.timeout(4000) : undefined
       });
-      if (res2.ok) ok = true;
-    } catch (e) {}
+      if (postRes.ok) {
+        const d = await postRes.json();
+        if (d && d.id) {
+          activeBin = d.id;
+          setSyncShortCode(activeBin);
+          cloudSuccess = true;
+        }
+      }
+    }
+  } catch (e) {
+    console.warn("云端推送异常:", e);
   }
 
-  return { success: ok, code: code };
+  return { success: cloudSuccess, code: activeBin };
 }
 
 // 从云端拉取全量数据 (支持指定短码)
 async function pullDataFromCloud(shortCode) {
   const code = (shortCode || getSyncShortCode()).trim();
-  const cloudKey = getCloudSyncKey(code);
+  const binId = getCloudBinId(code);
   let remoteData = null;
 
   // 1. 本地后端优先
@@ -544,28 +560,21 @@ async function pullDataFromCloud(shortCode) {
     } catch (e) {}
   }
 
-  // 2. 通道 A
+  // 2. 从云端中继拉取
   if (!remoteData) {
     try {
-      const res = await fetch(`https://kvdb.io/4y9pA78eW7w8Y6a4wYQp5r/${cloudKey}?t=` + Date.now(), {
-        signal: AbortSignal.timeout ? AbortSignal.timeout(3500) : undefined
+      const res = await fetch(`https://extendsclass.com/api/json-storage/bin/${binId}?t=` + Date.now(), {
+        signal: AbortSignal.timeout ? AbortSignal.timeout(4000) : undefined
       });
       if (res.ok) {
-        remoteData = await res.json();
+        const data = await res.json();
+        if (data && (data.plans || data.mistakes)) {
+          remoteData = data;
+        }
       }
-    } catch (e) {}
-  }
-
-  // 3. 通道 B (备用)
-  if (!remoteData) {
-    try {
-      const res = await fetch(`https://kvdb.io/8qKm2s9P1xZw7vL3nYt5/${cloudKey}?t=` + Date.now(), {
-        signal: AbortSignal.timeout ? AbortSignal.timeout(3500) : undefined
-      });
-      if (res.ok) {
-        remoteData = await res.json();
-      }
-    } catch (e) {}
+    } catch (e) {
+      console.warn("云端拉取异常:", e);
+    }
   }
 
   return remoteData;
