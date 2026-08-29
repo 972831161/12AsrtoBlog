@@ -58,8 +58,27 @@ const STORAGE_KEYS = {
   PLANS_MASTER: 'sichuan_study_plans_master',
   MISTAKES_MASTER: 'sichuan_study_mistakes_master',
   SETTINGS: 'sichuan_ai_settings_master',
-  THEME: 'sichuan_study_theme'
+  THEME: 'sichuan_study_theme',
+  SYNC_SHORT_CODE: 'sichuan_study_sync_short_code'
 };
+
+function getSyncShortCode() {
+  let code = localStorage.getItem(STORAGE_KEYS.SYNC_SHORT_CODE);
+  if (!code) {
+    code = '831161';
+    localStorage.setItem(STORAGE_KEYS.SYNC_SHORT_CODE, code);
+  }
+  return code;
+}
+
+function setSyncShortCode(code) {
+  const clean = (code || '').trim().replace(/[^a-zA-Z0-9_-]/g, '').slice(0, 12);
+  if (clean) {
+    localStorage.setItem(STORAGE_KEYS.SYNC_SHORT_CODE, clean);
+    appState.syncShortCode = clean;
+  }
+  return clean || getSyncShortCode();
+}
 
 let appState = {
   currentDateStr: getRealCurrentDateStr(),
@@ -73,7 +92,8 @@ let appState = {
   activeMistakeTypeFilter: 'all',
   multiSelections: {},
   parsedMistakeData: null,
-  ollamaRunning: false
+  ollamaRunning: false,
+  syncShortCode: getSyncShortCode()
 };
 
 function getRealCurrentDateStr() {
@@ -95,7 +115,7 @@ function formatChineseDate(dateStr) {
 }
 
 document.addEventListener('DOMContentLoaded', async () => {
-  checkUrlSyncPayload();
+  await checkUrlSyncPayload();
   initTheme();
   initRealDateDisplay();
   initTabs();
@@ -115,10 +135,30 @@ document.addEventListener('visibilitychange', () => {
   }
 });
 
-// 检查 URL 中是否有扫码传入的极速同步数据
-function checkUrlSyncPayload() {
+// 检查 URL 中是否有扫码传入的极速 6 位短码或全量数据
+async function checkUrlSyncPayload() {
   try {
     const params = new URLSearchParams(window.location.search);
+
+    // 1. 优先处理极简 6 位短码 (?code=831161)
+    const codeParam = params.get('code');
+    if (codeParam) {
+      const cleanCode = setSyncShortCode(codeParam);
+      const cleanUrl = window.location.origin + window.location.pathname;
+      window.history.replaceState({}, document.title, cleanUrl);
+      
+      // 立即从云端拉取该短码下的历史数据
+      const remoteData = await pullDataFromCloud(cleanCode);
+      if (remoteData) {
+        mergeRemoteDataSafely(remoteData);
+        setTimeout(() => {
+          alert(`🎉 成功连接 6 位专属云端同步码【${cleanCode}】！\n历史打卡与错题已全部拉取并同步。`);
+        }, 400);
+      }
+      return;
+    }
+
+    // 2. 兼容旧版 Base64 扫码
     const syncB64 = params.get('sync');
     if (syncB64) {
       const jsonStr = decodeURIComponent(atob(syncB64));
@@ -129,7 +169,6 @@ function checkUrlSyncPayload() {
       if (data.mistakes) {
         localStorage.setItem(STORAGE_KEYS.MISTAKES_MASTER, JSON.stringify(data.mistakes));
       }
-      // 清除 URL 里的长参数，保持地址栏干净
       const cleanUrl = window.location.origin + window.location.pathname;
       window.history.replaceState({}, document.title, cleanUrl);
       setTimeout(() => {
@@ -408,7 +447,7 @@ function saveLocalMistakes(mistakes) {
 }
 
 /* ==========================================================================
-   全自动实时无感跨端双向同步引擎 (Auto-Sync on Change)
+   全自动实时无感跨端双向同步引擎 (6位专属短码 + 多通道高可用云中继)
    ========================================================================== */
 
 let autoSyncTimer = null;
@@ -419,65 +458,97 @@ function triggerAutoSync() {
   }, 600);
 }
 
-// 自动静默推送到云端/服务器
-async function performAutoSyncPush() {
-  const plans = getLocalPlans();
-  const mistakes = getLocalMistakes();
-  const payload = { plans, mistakes };
-
-  // 1. 本地直连或活跃隧道模式
-  const targetEndpoint = appState.activeTunnelUrl 
-    ? appState.activeTunnelUrl.replace('/api/generate', '/api/sync/push')
-    : '/api/sync/push';
-
-  try {
-    const res = await fetch(targetEndpoint, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(payload),
-      signal: AbortSignal.timeout ? AbortSignal.timeout(2000) : undefined
-    });
-    if (res.ok) {
-      showAutoSyncIndicator('☁️ 已自动实时同步');
-      return;
-    }
-  } catch (e) {}
-
-  // 2. 免费轻量公共云中继保障 (确保手机端在外网且Mac关机时也能自动保存同步)
-  try {
-    const cloudSyncId = 'sichuan_study_2027_sync_master';
-    await fetch(`https://kvdb.io/4y9pA78eW7w8Y6a4wYQp5r/${cloudSyncId}`, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(payload),
-      signal: AbortSignal.timeout ? AbortSignal.timeout(2000) : undefined
-    });
-    showAutoSyncIndicator('☁️ 云端已实时同步');
-  } catch (e) {}
+// 获取云端存储的 Key (基于 6 位短码)
+function getCloudSyncKey(shortCode) {
+  const code = (shortCode || getSyncShortCode()).trim();
+  return `sc2027_sync_${code}`;
 }
 
-// 自动在后台静默拉取远端最新数据
-async function autoPullRemoteSync() {
-  const pullEndpoint = appState.activeTunnelUrl 
-    ? appState.activeTunnelUrl.replace('/api/generate', '/api/sync/pull')
-    : '/api/sync/pull';
+// 推送全量数据到云端 (支持指定短码)
+async function pushDataToCloud(shortCode) {
+  const code = (shortCode || getSyncShortCode()).trim();
+  const plans = getLocalPlans();
+  const mistakes = getLocalMistakes();
+  const payload = {
+    version: "2027_v2",
+    shortCode: code,
+    updatedAt: Date.now(),
+    plans: plans,
+    mistakes: mistakes
+  };
 
-  let remoteData = null;
+  // 1. 若本地 Python 后端在运行 (端口 8000 或隧道模式)
+  if (appState.activeTunnelUrl || window.location.port === '8000') {
+    const targetEndpoint = appState.activeTunnelUrl 
+      ? appState.activeTunnelUrl.replace('/api/generate', '/api/sync/push')
+      : '/api/sync/push';
+    try {
+      const res = await fetch(targetEndpoint, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(payload),
+        signal: AbortSignal.timeout ? AbortSignal.timeout(2000) : undefined
+      });
+      if (res.ok) return { success: true, channel: 'local' };
+    } catch (e) {}
+  }
+
+  // 2. 多通道云端公共中继 (通道 A: 主中继)
+  const cloudKey = getCloudSyncKey(code);
+  let ok = false;
   try {
-    const res = await fetch(pullEndpoint, {
-      signal: AbortSignal.timeout ? AbortSignal.timeout(2000) : undefined
+    const res = await fetch(`https://kvdb.io/4y9pA78eW7w8Y6a4wYQp5r/${cloudKey}`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(payload),
+      signal: AbortSignal.timeout ? AbortSignal.timeout(3000) : undefined
     });
-    if (res.ok) {
-      const data = await res.json();
-      if (data && (data.plans || data.mistakes)) remoteData = data;
-    }
+    if (res.ok) ok = true;
   } catch (e) {}
 
+  // 3. 通道 B: 备用中继
+  if (!ok) {
+    try {
+      const res2 = await fetch(`https://kvdb.io/8qKm2s9P1xZw7vL3nYt5/${cloudKey}`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(payload),
+        signal: AbortSignal.timeout ? AbortSignal.timeout(3000) : undefined
+      });
+      if (res2.ok) ok = true;
+    } catch (e) {}
+  }
+
+  return { success: ok, code: code };
+}
+
+// 从云端拉取全量数据 (支持指定短码)
+async function pullDataFromCloud(shortCode) {
+  const code = (shortCode || getSyncShortCode()).trim();
+  const cloudKey = getCloudSyncKey(code);
+  let remoteData = null;
+
+  // 1. 本地后端优先
+  if (appState.activeTunnelUrl || window.location.port === '8000') {
+    const pullEndpoint = appState.activeTunnelUrl 
+      ? appState.activeTunnelUrl.replace('/api/generate', '/api/sync/pull')
+      : '/api/sync/pull';
+    try {
+      const res = await fetch(pullEndpoint, {
+        signal: AbortSignal.timeout ? AbortSignal.timeout(2000) : undefined
+      });
+      if (res.ok) {
+        const data = await res.json();
+        if (data && (data.plans || data.mistakes)) remoteData = data;
+      }
+    } catch (e) {}
+  }
+
+  // 2. 通道 A
   if (!remoteData) {
     try {
-      const cloudSyncId = 'sichuan_study_2027_sync_master';
-      const res = await fetch(`https://kvdb.io/4y9pA78eW7w8Y6a4wYQp5r/${cloudSyncId}?t=` + Date.now(), {
-        signal: AbortSignal.timeout ? AbortSignal.timeout(2000) : undefined
+      const res = await fetch(`https://kvdb.io/4y9pA78eW7w8Y6a4wYQp5r/${cloudKey}?t=` + Date.now(), {
+        signal: AbortSignal.timeout ? AbortSignal.timeout(3500) : undefined
       });
       if (res.ok) {
         remoteData = await res.json();
@@ -485,6 +556,32 @@ async function autoPullRemoteSync() {
     } catch (e) {}
   }
 
+  // 3. 通道 B (备用)
+  if (!remoteData) {
+    try {
+      const res = await fetch(`https://kvdb.io/8qKm2s9P1xZw7vL3nYt5/${cloudKey}?t=` + Date.now(), {
+        signal: AbortSignal.timeout ? AbortSignal.timeout(3500) : undefined
+      });
+      if (res.ok) {
+        remoteData = await res.json();
+      }
+    } catch (e) {}
+  }
+
+  return remoteData;
+}
+
+// 自动静默推送
+async function performAutoSyncPush() {
+  const res = await pushDataToCloud();
+  if (res && res.success) {
+    showAutoSyncIndicator(`☁️ 已自动同步 (${getSyncShortCode()})`);
+  }
+}
+
+// 自动在后台静默拉取远端最新数据
+async function autoPullRemoteSync() {
+  const remoteData = await pullDataFromCloud();
   if (remoteData) {
     mergeRemoteDataSafely(remoteData);
   }
@@ -533,7 +630,7 @@ function mergeRemoteDataSafely(remoteData) {
           mistakeUpdated = true;
         } else {
           const lm = map.get(qKey);
-          if ((rm.attempt_count || 0) > (lm.attempt_count || 0)) {
+          if ((rm.attempt_count || 0) > (lm.attempt_count || 0) || (rm.is_mastered && !lm.is_mastered)) {
             map.set(qKey, rm);
             mistakeUpdated = true;
           }
@@ -1082,15 +1179,162 @@ async function saveDateModal() {
 }
 
 /* ==========================================================================
-   2. 数据备份、导出/导入与跨端同步工具
+   2. 数据备份、导出/导入与跨端同步工具 (6位专属短码版)
    ========================================================================== */
 
 function openBackupSyncModal() {
+  const codeEl = document.getElementById('display-short-sync-code');
+  if (codeEl) codeEl.textContent = getSyncShortCode();
+  
+  const switchInput = document.getElementById('input-switch-sync-code');
+  if (switchInput) switchInput.value = '';
+
+  const qrContainer = document.getElementById('qr-sync-container');
+  if (qrContainer) qrContainer.style.display = 'none';
+
   document.getElementById('modal-backup-sync').classList.remove('hidden');
 }
 
 function closeBackupSyncModal() {
   document.getElementById('modal-backup-sync').classList.add('hidden');
+}
+
+// 复制 6 位短同步码
+function copyShortSyncCode() {
+  const code = getSyncShortCode();
+  navigator.clipboard.writeText(code).then(() => {
+    alert(`📋 6 位专属云端同步码【${code}】已复制到剪贴板！\n在其他设备输入该短码即可一键同步。`);
+  }).catch(() => {
+    alert(`您的 6 位专属云端同步码为：${code}`);
+  });
+}
+
+// 自定义 6 位专属短码
+function editShortSyncCode() {
+  const cur = getSyncShortCode();
+  const input = prompt('请输入您想自定义的专属短码 (建议 6 位数字或字母，如生日/手机后6位)：', cur);
+  if (input !== null) {
+    const clean = input.trim().replace(/[^a-zA-Z0-9_-]/g, '').slice(0, 12);
+    if (!clean) {
+      alert('短码不能为空，且只能包含字母或数字！');
+      return;
+    }
+    setSyncShortCode(clean);
+    const codeEl = document.getElementById('display-short-sync-code');
+    if (codeEl) codeEl.textContent = clean;
+    alert(`🎉 专属短码已成功修改为【${clean}】！\n建议立即点击“☁️ 立即上传备份”将数据保存到新短码下。`);
+  }
+}
+
+// 手动上传数据到云端
+async function manualPushCloudData() {
+  const btn = document.getElementById('btn-manual-push-cloud');
+  const code = getSyncShortCode();
+  if (btn) {
+    btn.textContent = '☁️ 正在上传...';
+    btn.disabled = true;
+  }
+
+  const res = await pushDataToCloud(code);
+
+  if (btn) {
+    btn.textContent = '☁️ 立即上传备份';
+    btn.disabled = false;
+  }
+
+  if (res && res.success) {
+    alert(`✅ 上传成功！当前全部打卡与错题已安全备份至云端。\n\n📱 在手机端打开网页，输入 6 位短码【${code}】即可一键同步！`);
+    showAutoSyncIndicator(`☁️ 已备份 (${code})`);
+  } else {
+    alert(`⚠️ 云端中继暂时离线或网络波动。数据已在当前设备完好保存，您也可以使用底部的“导出JSON文件”备份。`);
+  }
+}
+
+// 手动从云端拉取并合并数据
+async function manualPullCloudData() {
+  const btn = document.getElementById('btn-manual-pull-cloud');
+  const code = getSyncShortCode();
+  if (btn) {
+    btn.textContent = '📥 正在拉取...';
+    btn.disabled = true;
+  }
+
+  const remoteData = await pullDataFromCloud(code);
+
+  if (btn) {
+    btn.textContent = '📥 立即拉取合并';
+    btn.disabled = false;
+  }
+
+  if (remoteData && (remoteData.plans || remoteData.mistakes)) {
+    mergeRemoteDataSafely(remoteData);
+    alert(`🎉 成功从云端短码【${code}】拉取最新数据！\n历史进度与错题已与当前设备安全合并。`);
+  } else {
+    alert(`ℹ️ 云端短码【${code}】下暂无更新数据，或网络连接超时。请确认另一台设备是否已点击“立即上传备份”。`);
+  }
+}
+
+// 切换并拉取新短码
+async function switchAndPullSyncCode() {
+  const inputEl = document.getElementById('input-switch-sync-code');
+  const raw = inputEl.value.trim();
+  if (!raw) {
+    alert('请先输入要连接的 6 位短同步码！');
+    return;
+  }
+  const cleanCode = setSyncShortCode(raw);
+  const codeEl = document.getElementById('display-short-sync-code');
+  if (codeEl) codeEl.textContent = cleanCode;
+
+  // 尝试拉取数据
+  const remoteData = await pullDataFromCloud(cleanCode);
+  if (remoteData && (remoteData.plans || remoteData.mistakes)) {
+    mergeRemoteDataSafely(remoteData);
+    alert(`🎉 成功绑定短码【${cleanCode}】并同步完成！\n历史进度与错题已成功恢复到当前设备。`);
+  } else {
+    alert(`🔗 已成功绑定短码【${cleanCode}】！后续数据将自动向此短码同步。`);
+  }
+}
+
+// 展示极简二维码
+function showQrSyncCodeModal() {
+  const container = document.getElementById('qr-sync-container');
+  const canvas = document.getElementById('qr-sync-canvas');
+  if (!container) return;
+
+  if (container.style.display === 'block') {
+    container.style.display = 'none';
+    return;
+  }
+
+  const code = getSyncShortCode();
+  const baseUrl = (window.location.hostname === '127.0.0.1' || window.location.hostname === 'localhost')
+    ? 'https://www.bettercall12.cc/sichuan-study/'
+    : window.location.origin + window.location.pathname;
+
+  const shortSyncUrl = `${baseUrl}?code=${encodeURIComponent(code)}`;
+
+  if (typeof QRCode !== 'undefined' && QRCode.toCanvas && canvas) {
+    QRCode.toCanvas(canvas, shortSyncUrl, {
+      width: 160,
+      margin: 2,
+      color: { dark: '#0f172a', light: '#ffffff' }
+    }, (err) => {
+      if (err) {
+        container.innerHTML = `
+          <img src="https://api.qrserver.com/v1/create-qr-code/?size=160x160&data=${encodeURIComponent(shortSyncUrl)}" alt="同步二维码" style="max-width:160px; margin:0 auto; display:block; border-radius:4px;" />
+          <div style="font-size:0.75rem; color:var(--primary); margin-top:6px; font-weight:600;">用微信/相机扫码，打开即可自动绑定短码【${code}】</div>
+        `;
+      }
+      container.style.display = 'block';
+    });
+  } else {
+    container.innerHTML = `
+      <img src="https://api.qrserver.com/v1/create-qr-code/?size=160x160&data=${encodeURIComponent(shortSyncUrl)}" alt="同步二维码" style="max-width:160px; margin:0 auto; display:block; border-radius:4px;" />
+      <div style="font-size:0.75rem; color:var(--primary); margin-top:6px; font-weight:600;">用微信/相机扫码，打开即可自动绑定短码【${code}】</div>
+    `;
+    container.style.display = 'block';
+  }
 }
 
 // 导出全量 JSON 备份
@@ -1102,6 +1346,7 @@ function exportStudyDataJSON() {
   const exportObj = {
     app: "2027_sichuan_study_system",
     export_at: new Date().toISOString(),
+    sync_code: getSyncShortCode(),
     plans: plans,
     mistakes: mistakes,
     settings: settings
@@ -1134,6 +1379,9 @@ function importStudyDataJSON(file) {
       if (data.settings) {
         saveAiSettingsData(data.settings);
       }
+      if (data.sync_code) {
+        setSyncShortCode(data.sync_code);
+      }
       alert('🎉 备份数据导入成功！页面将自动刷新并展示最新进度。');
       window.location.reload();
     } catch (err) {
@@ -1141,98 +1389,6 @@ function importStudyDataJSON(file) {
     }
   };
   reader.readAsText(file);
-}
-
-// 生成手机扫码一秒同步二维码
-function generateQrSyncCode() {
-  const container = document.getElementById('qr-sync-container');
-  const canvas = document.getElementById('qr-sync-canvas');
-  if (!container) return;
-
-  const plans = getLocalPlans();
-  const mistakes = getLocalMistakes();
-  const payload = { plans, mistakes };
-
-  try {
-    const jsonStr = JSON.stringify(payload);
-    const b64 = btoa(encodeURIComponent(jsonStr));
-    
-    // 如果当前是在本地运行，二维码链接指向线上域名以便手机微信直接打开同步
-    const baseUrl = (window.location.hostname === '127.0.0.1' || window.location.hostname === 'localhost')
-      ? 'https://www.bettercall12.cc/sichuan-study/'
-      : window.location.origin + window.location.pathname;
-
-    const syncUrl = `${baseUrl}?sync=${encodeURIComponent(b64)}`;
-
-    if (typeof QRCode !== 'undefined' && QRCode.toCanvas && canvas) {
-      QRCode.toCanvas(canvas, syncUrl, {
-        width: 180,
-        margin: 2,
-        color: { dark: '#0f172a', light: '#ffffff' }
-      }, (err) => {
-        if (err) {
-          container.innerHTML = `
-            <img src="https://api.qrserver.com/v1/create-qr-code/?size=180x180&data=${encodeURIComponent(syncUrl)}" alt="同步二维码" style="max-width:180px; margin:0 auto; display:block; border-radius:4px;" />
-            <div style="font-size:0.75rem; color:var(--primary); margin-top:6px; font-weight:600;">请使用手机微信 / 相机扫码即可完成全量同步</div>
-          `;
-        }
-        container.style.display = 'block';
-      });
-    } else {
-      container.innerHTML = `
-        <img src="https://api.qrserver.com/v1/create-qr-code/?size=180x180&data=${encodeURIComponent(syncUrl)}" alt="同步二维码" style="max-width:180px; margin:0 auto; display:block; border-radius:4px;" />
-        <div style="font-size:0.75rem; color:var(--primary); margin-top:6px; font-weight:600;">请使用手机微信 / 相机扫码即可完成全量同步</div>
-      `;
-      container.style.display = 'block';
-    }
-  } catch (e) {
-    alert('生成同步二维码失败：' + e.message);
-  }
-}
-
-// 复制跨端同步码
-function copySyncCode() {
-  const plans = getLocalPlans();
-  const mistakes = getLocalMistakes();
-  const payload = {
-    plans: plans,
-    mistakes: mistakes
-  };
-  try {
-    const jsonStr = JSON.stringify(payload);
-    const b64 = btoa(encodeURIComponent(jsonStr));
-    navigator.clipboard.writeText(b64).then(() => {
-      alert('📋 同步码已成功复制到剪贴板！\n可直接粘贴发送到手机端进行数据同步。');
-    }).catch(() => {
-      document.getElementById('sync-code-input').value = b64;
-      alert('请手动复制文本框内的同步码：');
-    });
-  } catch (e) {
-    alert('生成同步码失败：' + e.message);
-  }
-}
-
-// 应用跨端同步码
-function applySyncCode() {
-  const code = document.getElementById('sync-code-input').value.trim();
-  if (!code) {
-    alert('请先粘贴同步码！');
-    return;
-  }
-  try {
-    const jsonStr = decodeURIComponent(atob(code));
-    const data = JSON.parse(jsonStr);
-    if (data.plans) {
-      localStorage.setItem(STORAGE_KEYS.PLANS_MASTER, JSON.stringify(data.plans));
-    }
-    if (data.mistakes) {
-      localStorage.setItem(STORAGE_KEYS.MISTAKES_MASTER, JSON.stringify(data.mistakes));
-    }
-    alert('🎉 跨端数据同步成功！页面将自动刷新。');
-    window.location.reload();
-  } catch (e) {
-    alert('❌ 同步码解析失败，请确保复制完整！');
-  }
 }
 
 function renderKnowledgeArticle(target) {

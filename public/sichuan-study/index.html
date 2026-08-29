@@ -590,55 +590,80 @@
       </div>
     </div>
 
-    <!-- 弹窗 4：数据备份与跨端同步 Modal -->
+    <!-- 弹窗 4：数据备份与跨端同步 Modal (6位极简短码) -->
     <div id="modal-backup-sync" class="modal-overlay hidden">
       <div class="modal-card">
         <div class="modal-header">
-          <h3>💾 备考数据备份与跨端同步</h3>
+          <h3>☁️ 备考数据多端同步与云备份</h3>
           <button class="btn-close" onclick="closeBackupSyncModal()">✕</button>
         </div>
         <div class="modal-body">
-          <p style="font-size:0.82rem; color:var(--text-secondary);">
-            系统支持<b>自动防丢与版本平滑迁移</b>。通过本面板，您可以轻松将电脑上的打卡/错题同步到手机，或定期导出备份文件，防止浏览器意外清理缓存。
+          <p style="font-size:0.82rem; color:var(--text-secondary); margin-bottom:12px;">
+            系统支持<b>多设备实时云同步与历史记录防丢</b>。在手机和电脑上使用相同的 <b>6 位专属短码</b>，即可全自动实现打卡与错题无缝互通！
           </p>
 
-          <div style="background:var(--bg-subtle); padding:12px; border-radius:var(--radius-sm); margin-top:8px;">
-            <h4 style="font-size:0.85rem; margin-bottom:8px;">📁 方式一：本地文件备份与还原 (JSON)</h4>
-            <div style="display:flex; gap:10px; flex-wrap:wrap;">
-              <button class="btn btn-primary btn-sm" onclick="exportStudyDataJSON()">📤 导出全量备份 (下载JSON)</button>
-              <label class="btn btn-outline btn-sm" style="cursor:pointer; margin:0;">
-                📥 导入备份文件
+          <!-- 专属 6 位短同步码展示与操作 -->
+          <div class="sync-code-card" style="background:linear-gradient(135deg, rgba(37,99,235,0.08), rgba(147,51,234,0.08)); border:1px solid rgba(37,99,235,0.25); padding:16px; border-radius:var(--radius-sm); text-align:center; margin-bottom:14px;">
+            <div style="font-size:0.75rem; color:var(--text-secondary); margin-bottom:4px;">当前设备绑定的 6 位专属云端同步码</div>
+            <div style="display:flex; justify-content:center; align-items:center; gap:8px; margin:8px 0;">
+              <span id="display-short-sync-code" style="font-size:1.8rem; font-weight:900; letter-spacing:4px; color:var(--primary); font-family:monospace; background:var(--bg-surface); padding:4px 16px; border-radius:8px; border:1px dashed var(--primary);">831161</span>
+            </div>
+            <div style="display:flex; justify-content:center; gap:8px; flex-wrap:wrap; margin-top:8px;">
+              <button class="btn btn-outline btn-sm" onclick="copyShortSyncCode()">📋 复制 6 位短码</button>
+              <button class="btn btn-outline btn-sm" onclick="editShortSyncCode()">✏️ 自定义专属短码</button>
+              <button class="btn btn-outline btn-sm" onclick="showQrSyncCodeModal()">📷 查看同步二维码</button>
+            </div>
+          </div>
+
+          <!-- 一键云端上传与拉取 -->
+          <div style="display:grid; grid-template-columns:1fr 1fr; gap:10px; margin-bottom:14px;">
+            <div style="background:var(--bg-subtle); padding:12px; border-radius:var(--radius-sm); display:flex; flex-direction:column; justify-content:space-between;">
+              <div>
+                <div style="font-weight:700; font-size:0.85rem; color:var(--primary); margin-bottom:4px;">📤 本地 ➔ 云端备份</div>
+                <div style="font-size:0.72rem; color:var(--text-muted);">将当前设备的全部打卡与错题上传到该短码云端</div>
+              </div>
+              <button class="btn btn-primary btn-sm" style="margin-top:10px; width:100%;" id="btn-manual-push-cloud" onclick="manualPushCloudData()">☁️ 立即上传备份</button>
+            </div>
+
+            <div style="background:var(--bg-subtle); padding:12px; border-radius:var(--radius-sm); display:flex; flex-direction:column; justify-content:space-between;">
+              <div>
+                <div style="font-weight:700; font-size:0.85rem; color:var(--accent-green); margin-bottom:4px;">📥 云端 ➔ 本地恢复</div>
+                <div style="font-size:0.72rem; color:var(--text-muted);">从该短码云端下载历史记录并合并到当前设备</div>
+              </div>
+              <button class="btn btn-outline btn-sm" style="margin-top:10px; width:100%; border-color:var(--accent-green); color:var(--accent-green);" id="btn-manual-pull-cloud" onclick="manualPullCloudData()">📥 立即拉取合并</button>
+            </div>
+          </div>
+
+          <!-- 在新设备上快速换绑/输入同步码 -->
+          <div style="background:var(--bg-subtle); padding:12px; border-radius:var(--radius-sm); margin-bottom:14px;">
+            <div style="font-size:0.82rem; font-weight:700; margin-bottom:6px;">🔄 在新设备上输入其他设备的 6 位短码</div>
+            <div style="display:flex; gap:8px;">
+              <input type="text" id="input-switch-sync-code" class="form-control" placeholder="输入 6 位短码 (如 831161)" maxlength="12" style="text-align:center; font-weight:700; letter-spacing:2px; font-family:monospace;">
+              <button class="btn btn-primary btn-sm" style="white-space:nowrap;" onclick="switchAndPullSyncCode()">🔗 绑定并拉取</button>
+            </div>
+          </div>
+
+          <!-- 扫码弹窗区域 (默认折叠) -->
+          <div id="qr-sync-container" style="display:none; text-align:center; padding:12px; background:var(--bg-card); border-radius:var(--radius-sm); margin-bottom:12px; border:1px dashed var(--border-subtle);">
+            <canvas id="qr-sync-canvas" style="max-width:160px; margin:0 auto;"></canvas>
+            <div style="font-size:0.75rem; color:var(--primary); margin-top:6px; font-weight:600;">用手机微信/相机扫码，打开即可自动绑定短码并完成同步</div>
+          </div>
+
+          <!-- 方式二：本地文件备份与还原 (JSON) -->
+          <div style="border-top:1px dashed var(--border-subtle); padding-top:10px; display:flex; justify-content:space-between; align-items:center;">
+            <span style="font-size:0.75rem; color:var(--text-muted);">离线文件备份：</span>
+            <div style="display:flex; gap:8px;">
+              <button class="btn btn-outline btn-sm" style="font-size:0.72rem; padding:2px 8px;" onclick="exportStudyDataJSON()">📤 导出JSON文件</button>
+              <label class="btn btn-outline btn-sm" style="font-size:0.72rem; padding:2px 8px; cursor:pointer; margin:0;">
+                📥 导入JSON文件
                 <input type="file" id="backup-file-input" accept=".json" style="display:none;" onchange="importStudyDataJSON(this.files[0])">
               </label>
             </div>
           </div>
 
-          <!-- 方式二：扫码与极速同步 -->
-          <div style="background:var(--bg-subtle); padding:12px; border-radius:var(--radius-sm); margin-top:12px;">
-            <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:6px;">
-              <h4 style="font-size:0.85rem; margin:0;">📲 方式二：极速扫码 / 跨端同步码 (手机 ↔ 电脑秒传)</h4>
-              <button class="btn btn-outline btn-sm" onclick="generateQrSyncCode()" style="padding:2px 8px; font-size:0.72rem;">📷 生成同步二维码</button>
-            </div>
-            <p style="font-size:0.75rem; color:var(--text-muted); margin-bottom:8px;">
-              在电脑端点击<b>“生成同步二维码”</b>，用手机微信/相机直接扫一扫，手机端网页将<b>1秒自动加载并保存电脑上的所有打卡和错题</b>！
-            </p>
-            
-            <div id="qr-sync-container" style="display:none; text-align:center; padding:12px; background:var(--bg-card); border-radius:var(--radius-sm); margin-bottom:10px; border:1px dashed var(--border-subtle);">
-              <canvas id="qr-sync-canvas" style="max-width:180px; margin:0 auto;"></canvas>
-              <div style="font-size:0.75rem; color:var(--primary); margin-top:6px; font-weight:600;">请使用手机微信 / 相机扫码即可完成全量同步</div>
-            </div>
-
-            <div style="display:flex; gap:8px; margin-bottom:8px;">
-              <button class="btn btn-outline btn-sm" onclick="copySyncCode()">📋 复制当前全量同步码</button>
-            </div>
-            <textarea id="sync-code-input" rows="2" class="form-control" placeholder="在此粘贴另一台设备复制的同步码..."></textarea>
-            <div style="display:flex; justify-content:flex-end; margin-top:8px;">
-              <button class="btn btn-primary btn-sm" onclick="applySyncCode()">📥 应用同步码并合并数据</button>
-            </div>
-          </div>
         </div>
         <div class="modal-footer">
-          <button class="btn btn-outline" onclick="closeBackupSyncModal()">关闭</button>
+          <button class="btn btn-primary" onclick="closeBackupSyncModal()">完成</button>
         </div>
       </div>
     </div>
