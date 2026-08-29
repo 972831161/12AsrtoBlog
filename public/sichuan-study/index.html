@@ -649,6 +649,34 @@
             <div style="font-size:0.75rem; color:var(--primary); margin-top:6px; font-weight:600;">用手机微信/相机扫码，打开即可自动绑定短码并完成同步</div>
           </div>
 
+          <!-- Supabase 云数据库配置 (支持用户私有数据库) -->
+          <div style="background:var(--bg-subtle); padding:12px; border-radius:var(--radius-sm); margin-bottom:14px; border:1px solid var(--border-subtle);">
+            <div style="display:flex; justify-content:space-between; align-items:center; cursor:pointer;" onclick="toggleSupabaseConfigPanel()">
+              <div style="font-size:0.82rem; font-weight:700; color:var(--primary); display:flex; align-items:center; gap:4px;">
+                <span>⚡️ Supabase 私有云数据库 (推荐 · 永不失效)</span>
+              </div>
+              <span id="supabase-config-toggle-icon" style="font-size:0.75rem; color:var(--text-muted);">▶ 点击展开配置</span>
+            </div>
+
+            <div id="supabase-config-panel" style="display:none; margin-top:10px; border-top:1px dashed var(--border-subtle); padding-top:10px;">
+              <p style="font-size:0.75rem; color:var(--text-secondary); margin-bottom:8px;">
+                填入您的 Supabase 项目信息，系统将<b>100% 直接连接您的专属云数据库</b>进行毫秒级自动双向同步：
+              </p>
+              <div class="form-group" style="margin-bottom:8px;">
+                <label style="font-size:0.75rem;">Supabase Project URL (项目地址)</label>
+                <input type="text" id="setting-supabase-url" class="form-control" placeholder="如 https://your-project.supabase.co" style="font-size:0.8rem;">
+              </div>
+              <div class="form-group" style="margin-bottom:8px;">
+                <label style="font-size:0.75rem;">Supabase Anon Key (公开访问密钥)</label>
+                <input type="password" id="setting-supabase-key" class="form-control" placeholder="在此粘贴 anon key (eyJhbGci...)" style="font-size:0.8rem;">
+              </div>
+              <div style="display:flex; justify-content:space-between; align-items:center; margin-top:10px;">
+                <a href="javascript:void(0)" onclick="copySupabaseTableSql()" style="font-size:0.75rem; color:var(--primary);">📋 复制一键建表 SQL</a>
+                <button class="btn btn-primary btn-sm" onclick="saveAndTestSupabaseConfig()">💾 保存并测试连接</button>
+              </div>
+            </div>
+          </div>
+
           <!-- 方式二：本地文件备份与还原 (JSON) -->
           <div style="border-top:1px dashed var(--border-subtle); padding-top:10px; display:flex; justify-content:space-between; align-items:center;">
             <span style="font-size:0.75rem; color:var(--text-muted);">离线文件备份：</span>

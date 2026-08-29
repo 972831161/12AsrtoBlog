@@ -59,8 +59,26 @@ const STORAGE_KEYS = {
   MISTAKES_MASTER: 'sichuan_study_mistakes_master',
   SETTINGS: 'sichuan_ai_settings_master',
   THEME: 'sichuan_study_theme',
-  SYNC_SHORT_CODE: 'sichuan_study_sync_short_code'
+  SYNC_SHORT_CODE: 'sichuan_study_sync_short_code',
+  SUPABASE: 'sichuan_study_supabase_config'
 };
+
+function getSupabaseConfig() {
+  const raw = localStorage.getItem(STORAGE_KEYS.SUPABASE);
+  if (raw) {
+    try { return JSON.parse(raw); } catch (e) {}
+  }
+  return { url: '', key: '' };
+}
+
+function saveSupabaseConfig(url, key) {
+  const cfg = {
+    url: (url || '').trim().replace(/\/+$/, ''),
+    key: (key || '').trim()
+  };
+  localStorage.setItem(STORAGE_KEYS.SUPABASE, JSON.stringify(cfg));
+  return cfg;
+}
 
 function getSyncShortCode() {
   let code = localStorage.getItem(STORAGE_KEYS.SYNC_SHORT_CODE);
@@ -481,30 +499,53 @@ async function pushDataToCloud(shortCode) {
     mistakes: mistakes
   };
 
-  // 1. 若本地 Python 后端在运行 (端口 8000 或活跃隧道)
+  // 1. 最高优先级：若用户配置了 Supabase 专属私有云数据库 (企业级高可靠)
+  const sbCfg = getSupabaseConfig();
+  if (sbCfg.url && sbCfg.key) {
+    try {
+      const sbRes = await fetch(`${sbCfg.url}/rest/v1/sc_study_sync`, {
+        method: 'POST',
+        headers: {
+          'apikey': sbCfg.key,
+          'Authorization': `Bearer ${sbCfg.key}`,
+          'Content-Type': 'application/json',
+          'Prefer': 'resolution=merge-duplicates'
+        },
+        body: JSON.stringify({
+          short_code: code,
+          data: payload,
+          updated_at: new Date().toISOString()
+        }),
+        signal: AbortSignal.timeout ? AbortSignal.timeout(3500) : undefined
+      });
+      if (sbRes.ok || sbRes.status === 201 || sbRes.status === 204) {
+        return { success: true, channel: 'supabase', code: code };
+      }
+    } catch (e) {
+      console.warn("Supabase 同步异常，尝试备用通道:", e);
+    }
+  }
+
+  // 2. 若本地 Python 后端在运行 (端口 8000 或活跃隧道)
   if (appState.activeTunnelUrl || window.location.port === '8000') {
     const targetEndpoint = appState.activeTunnelUrl 
       ? appState.activeTunnelUrl.replace('/api/generate', '/api/sync/push')
       : '/api/sync/push';
     try {
-      const res = await fetch(targetEndpoint, {
+      await fetch(targetEndpoint, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(payload),
         signal: AbortSignal.timeout ? AbortSignal.timeout(2000) : undefined
       });
-      if (res.ok) {
-        // 本地成功后同时静默备份到云端
-      }
     } catch (e) {}
   }
 
-  // 2. 高可用全球云端中继 (国内 100% 直连秒通，支持 CORS 跨域)
+  // 3. 全球高可用公共云端中继 (国内 100% 直连秒通，支持 CORS 跨域)
   let cloudSuccess = false;
   let activeBin = binId;
 
   try {
-    // 优先尝试覆盖已有 Bin (PUT)
     const putRes = await fetch(`https://extendsclass.com/api/json-storage/bin/${binId}`, {
       method: 'PUT',
       headers: { 'Content-Type': 'application/json' },
@@ -515,7 +556,6 @@ async function pushDataToCloud(shortCode) {
     if (putRes.ok) {
       cloudSuccess = true;
     } else if (putRes.status === 404) {
-      // 若 Bin 不存在，则新建 Bin (POST)
       const postRes = await fetch('https://extendsclass.com/api/json-storage/bin', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
@@ -544,7 +584,29 @@ async function pullDataFromCloud(shortCode) {
   const binId = getCloudBinId(code);
   let remoteData = null;
 
-  // 1. 本地后端优先
+  // 1. 最高优先级：若配置了 Supabase 云数据库
+  const sbCfg = getSupabaseConfig();
+  if (sbCfg.url && sbCfg.key) {
+    try {
+      const sbRes = await fetch(`${sbCfg.url}/rest/v1/sc_study_sync?short_code=eq.${encodeURIComponent(code)}&select=*`, {
+        headers: {
+          'apikey': sbCfg.key,
+          'Authorization': `Bearer ${sbCfg.key}`
+        },
+        signal: AbortSignal.timeout ? AbortSignal.timeout(3500) : undefined
+      });
+      if (sbRes.ok) {
+        const list = await sbRes.json();
+        if (Array.isArray(list) && list.length > 0 && list[0].data) {
+          return list[0].data;
+        }
+      }
+    } catch (e) {
+      console.warn("Supabase 拉取异常，尝试备用通道:", e);
+    }
+  }
+
+  // 2. 本地后端优先
   if (appState.activeTunnelUrl || window.location.port === '8000') {
     const pullEndpoint = appState.activeTunnelUrl 
       ? appState.activeTunnelUrl.replace('/api/generate', '/api/sync/pull')
@@ -560,7 +622,7 @@ async function pullDataFromCloud(shortCode) {
     } catch (e) {}
   }
 
-  // 2. 从云端中继拉取
+  // 3. 从全球公共云端中继拉取
   if (!remoteData) {
     try {
       const res = await fetch(`https://extendsclass.com/api/json-storage/bin/${binId}?t=` + Date.now(), {
@@ -1201,11 +1263,92 @@ function openBackupSyncModal() {
   const qrContainer = document.getElementById('qr-sync-container');
   if (qrContainer) qrContainer.style.display = 'none';
 
+  // 回填 Supabase 配置
+  const sbCfg = getSupabaseConfig();
+  const sbUrlInput = document.getElementById('setting-supabase-url');
+  const sbKeyInput = document.getElementById('setting-supabase-key');
+  if (sbUrlInput) sbUrlInput.value = sbCfg.url || '';
+  if (sbKeyInput) sbKeyInput.value = sbCfg.key || '';
+
   document.getElementById('modal-backup-sync').classList.remove('hidden');
 }
 
 function closeBackupSyncModal() {
   document.getElementById('modal-backup-sync').classList.add('hidden');
+}
+
+// 切换展开/折叠 Supabase 配置面板
+function toggleSupabaseConfigPanel() {
+  const panel = document.getElementById('supabase-config-panel');
+  const icon = document.getElementById('supabase-config-toggle-icon');
+  if (!panel) return;
+  const isHidden = panel.style.display === 'none';
+  panel.style.display = isHidden ? 'block' : 'none';
+  if (icon) icon.textContent = isHidden ? '▼ 收起配置' : '▶ 点击展开配置';
+}
+
+// 保存并测试 Supabase 连接
+async function saveAndTestSupabaseConfig() {
+  const url = (document.getElementById('setting-supabase-url').value || '').trim();
+  const key = (document.getElementById('setting-supabase-key').value || '').trim();
+
+  if (!url || !key) {
+    saveSupabaseConfig('', '');
+    alert('已清空 Supabase 配置，系统将切换回默认云端备用通道。');
+    return;
+  }
+
+  const cleanUrl = url.replace(/\/+$/, '');
+  
+  try {
+    // 发起探测测试
+    const res = await fetch(`${cleanUrl}/rest/v1/sc_study_sync?limit=1`, {
+      headers: {
+        'apikey': key,
+        'Authorization': `Bearer ${key}`
+      }
+    });
+
+    if (res.ok || res.status === 200 || res.status === 206) {
+      saveSupabaseConfig(cleanUrl, key);
+      alert('🎉 恭喜！Supabase 专属云数据库连接成功！\n现在数据将直接同步到您的私人云数据库中。');
+      // 立即触发一次全量上传
+      await manualPushCloudData();
+    } else if (res.status === 404 || (res.status >= 400 && res.status < 500)) {
+      const errJson = await res.json().catch(() => ({}));
+      if (errJson.message && errJson.message.includes('relation "public.sc_study_sync" does not exist')) {
+        alert('⚠️ 连接成功，但在您的 Supabase 数据库中未找到 sc_study_sync 表！\n请点击左下方“复制一键建表 SQL”，并在 Supabase 控制台 SQL Editor 中运行一次即可！');
+        saveSupabaseConfig(cleanUrl, key);
+      } else {
+        alert(`⚠️ Supabase 校验返回：${res.status} (${errJson.message || '请检查 URL 和 Key 是否正确'})`);
+      }
+    } else {
+      alert(`⚠️ Supabase 连接测试失败 (HTTP ${res.status})，请检查项目地址是否正确。`);
+    }
+  } catch (e) {
+    alert('❌ 无法连接到该 Supabase 地址：' + e.message);
+  }
+}
+
+// 复制一键建表 SQL
+function copySupabaseTableSql() {
+  const sql = `-- 在 Supabase 控制台的 SQL Editor 中粘贴并点击 Run 运行即可
+create table if not exists sc_study_sync (
+  short_code text primary key,
+  data jsonb not null,
+  updated_at timestamp with time zone default timezone('utc'::text, now()) not null
+);
+
+-- 开启公共匿名读写策略 (适用于个人跨端备考同步)
+alter table sc_study_sync enable row level security;
+drop policy if exists "Allow all operations for anon" on sc_study_sync;
+create policy "Allow all operations for anon" on sc_study_sync for all using (true) with check (true);
+`;
+  navigator.clipboard.writeText(sql).then(() => {
+    alert('📋 一键建表 SQL 已成功复制到剪贴板！\n请登录 Supabase 控制台 ➔ 打开 SQL Editor ➔ 粘贴并点击 Run 即可完成建表！');
+  }).catch(() => {
+    alert('请手动在 Supabase 控制台中创建表 sc_study_sync');
+  });
 }
 
 // 复制 6 位短同步码
