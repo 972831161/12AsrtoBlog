@@ -1101,6 +1101,137 @@ function bindEvents() {
   document.getElementById('kb-search-input').addEventListener('input', (e) => {
     filterKnowledgeMenu(e.target.value);
   });
+
+  // 错题弹窗支持全局快捷键直接粘贴截图 (Cmd+V / Ctrl+V)
+  const mistakeModal = document.getElementById('modal-ai-add-mistake');
+  if (mistakeModal) {
+    mistakeModal.addEventListener('paste', async (e) => {
+      const clipboardData = e.clipboardData || window.clipboardData;
+      if (!clipboardData || !clipboardData.items) return;
+      for (const item of clipboardData.items) {
+        if (item.type && item.type.indexOf('image') !== -1) {
+          const file = item.getAsFile();
+          if (file) {
+            try {
+              const dataUrl = await compressImageFile(file);
+              setMistakeImage(dataUrl);
+            } catch (err) {
+              console.warn('截图粘贴处理异常:', err);
+            }
+          }
+        }
+      }
+    });
+  }
+}
+
+/* ==========================================================================
+   题目配图 (图形推理 / 图表题) 引擎：Canvas 自动等比无损压缩与全屏灯箱
+   ========================================================================== */
+
+function compressImageFile(file, maxWidth = 800, quality = 0.75) {
+  return new Promise((resolve, reject) => {
+    if (!file || !file.type.startsWith('image/')) {
+      return reject(new Error('请提供有效的图片文件'));
+    }
+    const reader = new FileReader();
+    reader.onload = (e) => {
+      const img = new Image();
+      img.onload = () => {
+        let width = img.width;
+        let height = img.height;
+        if (width > maxWidth) {
+          height = Math.round((height * maxWidth) / width);
+          width = maxWidth;
+        }
+        const canvas = document.createElement('canvas');
+        canvas.width = width;
+        canvas.height = height;
+        const ctx = canvas.getContext('2d');
+        ctx.drawImage(img, 0, 0, width, height);
+        const dataUrl = canvas.toDataURL('image/jpeg', quality);
+        resolve(dataUrl);
+      };
+      img.onerror = () => reject(new Error('图片加载解析失败'));
+      img.src = e.target.result;
+    };
+    reader.onerror = () => reject(new Error('文件读取失败'));
+    reader.readAsDataURL(file);
+  });
+}
+
+async function handleMistakeImageFileSelect(input) {
+  if (!input.files || !input.files[0]) return;
+  const file = input.files[0];
+  try {
+    const dataUrl = await compressImageFile(file);
+    setMistakeImage(dataUrl);
+  } catch (err) {
+    alert('图片压缩处理失败: ' + err.message);
+  }
+}
+
+function promptMistakeImageUrl() {
+  const current = document.getElementById('parsed-img-data').value || '';
+  const url = prompt('请输入题目插图网络链接 (URL):', current);
+  if (url && url.trim()) {
+    setMistakeImage(url.trim());
+  }
+}
+
+function setMistakeImage(src) {
+  const imgDataInput = document.getElementById('parsed-img-data');
+  const previewWrap = document.getElementById('mistake-img-preview-wrap');
+  const previewImg = document.getElementById('mistake-img-preview');
+  const statusEl = document.getElementById('mistake-img-status');
+  const removeBtn = document.getElementById('btn-remove-mistake-img');
+
+  if (src && src.trim()) {
+    imgDataInput.value = src.trim();
+    previewImg.src = src.trim();
+    previewWrap.style.display = 'block';
+    if (statusEl) {
+      statusEl.textContent = '🟢 已添加配图';
+      statusEl.style.color = 'var(--accent-green)';
+    }
+    if (removeBtn) removeBtn.style.display = 'inline-block';
+  } else {
+    removeMistakeImage();
+  }
+}
+
+function removeMistakeImage() {
+  const imgDataInput = document.getElementById('parsed-img-data');
+  const previewWrap = document.getElementById('mistake-img-preview-wrap');
+  const previewImg = document.getElementById('mistake-img-preview');
+  const statusEl = document.getElementById('mistake-img-status');
+  const removeBtn = document.getElementById('btn-remove-mistake-img');
+  const fileInput = document.getElementById('mistake-image-file-input');
+
+  if (imgDataInput) imgDataInput.value = '';
+  if (previewImg) previewImg.src = '';
+  if (previewWrap) previewWrap.style.display = 'none';
+  if (fileInput) fileInput.value = '';
+  if (statusEl) {
+    statusEl.textContent = '未配图';
+    statusEl.style.color = 'var(--text-muted)';
+  }
+  if (removeBtn) removeBtn.style.display = 'none';
+}
+
+function previewMistakeImage(src) {
+  if (!src) return;
+  const modal = document.getElementById('modal-image-lightbox');
+  const img = document.getElementById('lightbox-img');
+  if (modal && img) {
+    img.src = src;
+    modal.classList.remove('hidden');
+  }
+}
+
+function closeImageLightbox() {
+  const modal = document.getElementById('modal-image-lightbox');
+  if (modal) modal.classList.add('hidden');
 }
 
 function renderCalendar() {
@@ -2336,6 +2467,12 @@ function renderMistakes() {
 
       <div class="mistake-q-title">${escapeHtml(m.question)}</div>
 
+      ${m.image ? `
+        <div class="mistake-q-image-wrap">
+          <img src="${escapeHtml(m.image)}" class="mistake-q-image" alt="题目配图" title="点击放大查看大图" onclick="previewMistakeImage(this.src)">
+        </div>
+      ` : ''}
+
       <div class="practice-options-grid" id="practice-opts-${m.id}">
         ${optionsHtml}
       </div>
@@ -2579,6 +2716,13 @@ function openEditMistakeModal(id) {
   document.getElementById('parsed-kp-input').value = item.key_point || '';
   document.getElementById('parsed-exp-input').value = item.correct_analysis || '';
 
+  // 回填题目配图
+  if (item.image) {
+    setMistakeImage(item.image);
+  } else {
+    removeMistakeImage();
+  }
+
   const pill = document.getElementById('parsed-engine-source-pill');
   if (pill) pill.textContent = '✏️ 正在编辑已有错题';
 
@@ -2595,6 +2739,7 @@ function openAiAddMistakeModal() {
   document.getElementById('raw-input-group').classList.remove('hidden');
   document.getElementById('raw-mistake-input').value = '';
   document.getElementById('ai-parsed-preview').classList.add('hidden');
+  removeMistakeImage();
   
   const saveBtn = document.getElementById('btn-save-parsed-mistake');
   saveBtn.textContent = '💾 确认入库';
@@ -2960,6 +3105,7 @@ function confirmSaveParsedMistake() {
   const myAns = document.getElementById('parsed-my-input').value.trim().toUpperCase();
   const kp = document.getElementById('parsed-kp-input').value.trim();
   const exp = document.getElementById('parsed-exp-input').value.trim();
+  const img = (document.getElementById('parsed-img-data').value || '').trim();
 
   if (!q) {
     alert('题干不能为空！');
@@ -2977,6 +3123,7 @@ function confirmSaveParsedMistake() {
         question_type: qType,
         title: q.slice(0, 20),
         question: q,
+        image: img,
         options: options.length > 0 ? options : (qType === 'judge' ? ["A. 正确", "B. 错误"] : ["A. 选项A", "B. 选项B"]),
         correct_answer: ans || "A",
         user_answer: myAns,
@@ -2998,6 +3145,7 @@ function confirmSaveParsedMistake() {
     title: q.slice(0, 20),
     question_type: qType,
     question: q,
+    image: img,
     options: options.length > 0 ? options : (qType === 'judge' ? ["A. 正确", "B. 错误"] : ["A. 选项A", "B. 选项B"]),
     correct_answer: ans || "A",
     user_answer: myAns,

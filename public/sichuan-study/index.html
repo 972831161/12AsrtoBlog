@@ -469,6 +469,27 @@
               <textarea id="parsed-q-input" rows="2" class="form-control"></textarea>
             </div>
 
+            <!-- 题目配图 (图形推理 / 图表题) -->
+            <div class="form-group">
+              <label style="display:flex; justify-content:space-between; align-items:center;">
+                <span>🖼️ 题目配图 (图形推理/资料图表 · 支持直接按 Cmd+V 粘贴截图)</span>
+                <span id="mistake-img-status" style="font-size:0.75rem; color:var(--text-muted);">未配图</span>
+              </label>
+              <div class="mistake-img-uploader-box" id="mistake-img-uploader-box">
+                <input type="file" id="mistake-image-file-input" accept="image/*" style="display:none;" onchange="handleMistakeImageFileSelect(this)">
+                <div class="img-upload-actions" style="display:flex; gap:8px; align-items:center; flex-wrap:wrap;">
+                  <button type="button" class="btn btn-outline btn-sm" onclick="document.getElementById('mistake-image-file-input').click()">📁 选择本地图片</button>
+                  <button type="button" class="btn btn-outline btn-sm" onclick="promptMistakeImageUrl()">🔗 输入图片链接</button>
+                  <button type="button" class="btn btn-outline btn-sm text-danger" id="btn-remove-mistake-img" style="display:none; color:var(--accent-red);" onclick="removeMistakeImage()">🗑️ 移除配图</button>
+                </div>
+                <div id="mistake-img-preview-wrap" style="display:none; margin-top:8px; position:relative;">
+                  <img id="mistake-img-preview" src="" alt="题目插图预览" style="max-height:160px; max-width:100%; border-radius:6px; border:1px solid var(--border-color); object-fit:contain; background:var(--bg-secondary); cursor:pointer;" onclick="previewMistakeImage(this.src)">
+                  <small style="display:block; color:var(--text-muted); font-size:0.72rem; margin-top:3px;">点击可查看大图。提交时将自动轻量无损压缩保存。</small>
+                </div>
+                <input type="hidden" id="parsed-img-data" value="">
+              </div>
+            </div>
+
             <div class="form-group">
               <label>选项列表 (每行一个选项，如 A. 选项内容)</label>
               <textarea id="parsed-opts-input" rows="4" class="form-control"></textarea>
@@ -693,6 +714,14 @@
         <div class="modal-footer">
           <button class="btn btn-primary" onclick="closeBackupSyncModal()">完成</button>
         </div>
+      </div>
+    </div>
+
+    <!-- 全屏大图预览遮罩 Modal -->
+    <div id="modal-image-lightbox" class="modal-overlay hidden" onclick="closeImageLightbox()">
+      <div style="max-width:92vw; max-height:92vh; display:flex; flex-direction:column; align-items:center; justify-content:center; position:relative;" onclick="event.stopPropagation()">
+        <img id="lightbox-img" src="" alt="大图预览" style="max-width:92vw; max-height:86vh; border-radius:8px; box-shadow:0 12px 40px rgba(0,0,0,0.6); object-fit:contain; background:var(--bg-card, #fff);">
+        <button style="position:absolute; top:-40px; right:0; background:rgba(0,0,0,0.6); color:#fff; border:none; border-radius:50%; width:34px; height:34px; font-size:20px; cursor:pointer; display:flex; align-items:center; justify-content:center;" onclick="closeImageLightbox()">✕</button>
       </div>
     </div>
 

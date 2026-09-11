@@ -1064,3 +1064,35 @@ body {
   .modal-overlay { padding: 0; align-items: flex-end; }
   .modal-card { border-bottom-left-radius: 0; border-bottom-right-radius: 0; max-height: 85vh; width: 100%; }
 }
+
+/* 题目配图 (图形推理 / 资料图表) 样式 */
+.mistake-img-uploader-box {
+  border: 1px dashed var(--border-color);
+  border-radius: var(--radius-sm);
+  padding: 10px 12px;
+  background: var(--bg-surface);
+  transition: border-color 0.2s;
+}
+.mistake-img-uploader-box.dragover {
+  border-color: var(--primary);
+  background: rgba(37, 99, 235, 0.05);
+}
+
+.mistake-q-image-wrap {
+  margin: 10px 0 14px;
+  text-align: left;
+}
+.mistake-q-image {
+  max-width: 100%;
+  max-height: 260px;
+  border-radius: var(--radius-sm);
+  border: 1px solid var(--border-color);
+  object-fit: contain;
+  background: var(--bg-surface);
+  cursor: zoom-in;
+  transition: transform 0.2s, box-shadow 0.2s;
+}
+.mistake-q-image:hover {
+  transform: scale(1.01);
+  box-shadow: 0 4px 14px rgba(0, 0, 0, 0.1);
+}
