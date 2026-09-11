@@ -2693,6 +2693,16 @@ async function executeAiParseMistake() {
   if (parsed) {
     parsed.category = refineParsedCategory(parsed.category, rawText);
     parsed.question_type = parsed.question_type || detectMistakeQuestionType(rawText, parsed.correct_answer);
+
+    // 5. 原文深度解析保真引擎：若粘贴文本自带解析，100%保留原文全文，严禁任何删减或模型总结
+    const rawExpMatch = rawText.match(/(?:(?:【(?:解析|答案解析|深度解析|试题解析)】)|(?:(?:深度解析|答案解析|试题解析|解析)[：:\s]))([\s\S]+)$/i);
+    if (rawExpMatch && rawExpMatch[1] && rawExpMatch[1].trim().length > 6) {
+      const rawExpClean = rawExpMatch[1].trim();
+      // 若模型未提取、或模型提取字数明显小于原文解析（被模型擅自删减总结），直接强制使用原文解析全文
+      if (!parsed.correct_analysis || parsed.correct_analysis.length < rawExpClean.length * 0.9) {
+        parsed.correct_analysis = rawExpClean;
+      }
+    }
   }
 
   btn.textContent = '🚀 AI 智能提取并结构化';
@@ -2784,6 +2794,9 @@ async function callCloudLlmParseMistake(rawText, settings) {
 4. 公文写作与改错：【仅且仅当考查公文格式要素规则本身】（如发文字号六角括号、主送机关规范、15种法定文种适用范围、请示与报告区别、成文日期数字、GB/T 9704-2012公文条例）。⚠️ 凡题干仅以某部门《通知/意见/通报》作为背景考查实质内容的，严禁归入公文！
 5. 行测专项：【仅限纯行测题型】：选词填空/中心主旨、数量关系、资料分析、判断推理(图推/类比/定义)。⚠️ 常识选择题绝非行测！
 
+【针对 correct_analysis 深度解析字段的绝对原则】:
+⚠️ 若原始文本中包含解析（如“解析/深度解析/答案解析”），你必须【100% 逐字原样提取】，严禁任何删减、浓缩、精简或总结！只有在原文无解析时才允许自行补充。
+
 【必须返回严格合法的单一 JSON 对象，不要输出任何 Markdown 标记或多余文字】:
 {
   "category": "所属板块名称(严格为上述5个之一)",
@@ -2793,7 +2806,7 @@ async function callCloudLlmParseMistake(rawText, settings) {
   "options": ["A. 选项A内容", "B. 选项B内容", "C. 选项C内容", "D. 选项D内容"],
   "correct_answer": "正确选项(如 A 或 ABC)",
   "user_answer": "当时错选项(如 B，若无留空)",
-  "correct_analysis": "核心考点解析与关键法条/理论口诀",
+  "correct_analysis": "输入文本中的解析全文(严禁删减或浓缩概括，100%完整保留原文所有展开论述)",
   "key_point": "考点关键词"
 }
 
@@ -2838,6 +2851,9 @@ async function callDirectOllamaParseMistake(rawText, settings) {
 4. 公文写作与改错：【仅且仅当考查公文格式要素规则本身】（如发文字号六角括号、主送机关规范、15种法定文种适用范围、请示与报告区别、成文日期数字、GB/T 9704-2012公文条例）。⚠️ 凡题干仅以某部门《通知/意见/通报》作为背景考查实质内容的，严禁归入公文！
 5. 行测专项：【仅限纯行测题型】：选词填空/中心主旨、数量关系、资料分析、判断推理(图推/类比/定义)。⚠️ 常识选择题绝非行测！
 
+【针对 correct_analysis 深度解析字段的绝对原则】:
+⚠️ 若题目文本中包含解析（如“【解析】/解析/深度解析/答案解析”），你必须【100% 逐字原样提取】，严禁任何删减、精简、浓缩或二次总结！只有在原文完全无解析时才允许自行补充。
+
 必须返回合法的单一 JSON 对象，不要输出任何多余标记:
 {
   "category": "所属板块名称(严格为上述5个之一)",
@@ -2847,7 +2863,7 @@ async function callDirectOllamaParseMistake(rawText, settings) {
   "options": ["A. 选项A内容", "B. 选项B内容", "C. 选项C内容", "D. 选项D内容"],
   "correct_answer": "正确选项(如 A 或 ABC)",
   "user_answer": "当时错选(如 B，若无留空)",
-  "correct_analysis": "核心考点解析",
+  "correct_analysis": "题目文本中的解析全文(绝对严禁删减或做概括浓缩，100%保留输入中的解析原文展开所有语句)",
   "key_point": "考点关键词"
 }
 【题目文本】:
