@@ -284,11 +284,12 @@
               <div class="chat-header">
                 <div class="chat-avatar">🤖</div>
                 <div class="chat-title-group">
-                  <div style="display:flex; align-items:center; gap:8px;">
+                  <div style="display:flex; align-items:center; gap:8px; flex-wrap:wrap;">
                     <h4>四川紧缺选调智能备考助教</h4>
-                    <span class="engine-tag-pill" id="chat-engine-status-tag">🟢 本地千问 2.5-3B (Ollama)</span>
+                    <span class="engine-tag-pill" id="chat-engine-status-tag" style="cursor:pointer;" onclick="openAiSettingsModal()" title="点击切换/配置 AI 模型">🟢 本地千问 2.5-3B (Ollama)</span>
+                    <button class="btn btn-outline btn-xs" onclick="openAiSettingsModal()" style="padding: 2px 8px; font-size: 0.75rem; border-radius: 12px; cursor: pointer;">⚙️ 设置引擎/Key</button>
                   </div>
-                  <p>回答时将明确标注是由【本地千问大模型实时推理】还是【本地精准知识库检索】</p>
+                  <p>回答时将明确标注是由【云端/本地大模型实时推理】还是【本地精准知识库检索】</p>
                 </div>
               </div>
 
@@ -579,9 +580,15 @@
             </div>
           </div>
         </div>
-        <div class="modal-footer">
-          <button class="btn btn-outline" onclick="closeAiSettingsModal()">取消</button>
-          <button class="btn btn-primary" onclick="saveAiSettings()">保存配置</button>
+        <div class="modal-footer" style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:8px;">
+          <div style="display:flex; align-items:center; gap:8px;">
+            <button class="btn btn-outline" id="btn-test-ai-conn" type="button" onclick="testAiConnection()">⚡ 测试连通</button>
+            <span id="api-test-status" style="font-size:0.8rem;"></span>
+          </div>
+          <div style="display:flex; gap:8px;">
+            <button class="btn btn-outline" type="button" onclick="closeAiSettingsModal()">取消</button>
+            <button class="btn btn-primary" type="button" onclick="saveAiSettings()">💾 保存配置</button>
+          </div>
         </div>
       </div>
     </div>
@@ -729,6 +736,6 @@
 
   <script src="https://cdn.jsdelivr.net/npm/qrcode@1.5.3/build/qrcode.min.js"></script>
   <script src="historical_data.js"></script>
-  <script src="app.js"></script>
+  <script src="app.js?v=20261010_5"></script>
 </body>
 </html>

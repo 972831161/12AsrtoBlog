@@ -205,14 +205,34 @@ async function detectOllamaStatus() {
   const chatTag = document.getElementById('chat-engine-status-tag');
   const s = getAiSettings();
 
-  // 0. 若配置了云端大模型 API (SiliconFlow / DeepSeek / DashScope)
-  if (s.engine_type === 'openai' && s.api_key) {
+  // 0. 若选择云端 API 模式
+  if (s.engine_type === 'openai') {
     const modelLabel = s.api_model ? s.api_model.split('/').pop() : 'Qwen';
-    if (badgeText) badgeText.textContent = `云端大模型 (${modelLabel}) 在线`;
-    if (dot) { dot.className = 'status-dot green-dot'; }
+    if (s.api_key) {
+      if (badgeText) badgeText.textContent = `云端大模型 (${modelLabel}) 在线`;
+      if (dot) { dot.className = 'status-dot green-dot'; }
+      if (chatTag) {
+        chatTag.textContent = `🟢 云端大模型 (${modelLabel} 实时推理)`;
+        chatTag.className = 'engine-tag-pill source-llm';
+      }
+    } else {
+      if (badgeText) badgeText.textContent = '云端 API (待配置 Key)';
+      if (dot) { dot.className = 'status-dot yellow-dot'; }
+      if (chatTag) {
+        chatTag.textContent = '🟡 云端 API (点击配置 Key)';
+        chatTag.className = 'engine-tag-pill source-kb';
+      }
+    }
+    return;
+  }
+
+  // 若选择内置极速离线规则
+  if (s.engine_type === 'builtin') {
+    if (badgeText) badgeText.textContent = '内置考情知识库模式';
+    if (dot) { dot.className = 'status-dot blue-dot'; }
     if (chatTag) {
-      chatTag.textContent = `🟢 云端大模型 (${modelLabel} 实时推理)`;
-      chatTag.className = 'engine-tag-pill source-llm';
+      chatTag.textContent = '🔵 内置极速备考知识库模式';
+      chatTag.className = 'engine-tag-pill source-kb';
     }
     return;
   }
@@ -764,9 +784,9 @@ function getAiSettings() {
     engine_type: "ollama",
     ollama_url: "http://localhost:11434/api/generate",
     ollama_model: "qwen2.5:3b",
-    api_url: "https://api.deepseek.com/v1/chat/completions",
+    api_url: "https://api.siliconflow.cn/v1/chat/completions",
     api_key: "",
-    api_model: "deepseek-chat"
+    api_model: "Qwen/Qwen2.5-7B-Instruct"
   };
 }
 
@@ -1748,28 +1768,94 @@ async function submitChat() {
   const settings = getAiSettings();
   let aiAnswer = null;
 
-  // 1. 优先尝试本地后端 /api/chat
-  try {
-    const res = await fetch('/api/chat', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ query: text })
-    });
-    if (res.ok) {
-      const data = await res.json();
-      if (data && data.content) {
+  // 1. 若当前配置为云端大模型 API 模式
+  if (settings.engine_type === 'openai') {
+    if (!settings.api_key) {
+      aiAnswer = {
+        title: "⚠️ 尚未配置云端 API Key",
+        content: `您当前处于【云端 API 模式】，但尚未填写密钥。\n\n💡 请点击上方【⚙️ 设置引擎/Key】并填入您的 API Key。\n\n已为您自动转接本地精准考情知识库进行解答：\n\n${(searchLocalKnowledgeBase(text) || {}).content || ''}`,
+        engine_source: "cloud_api_failed",
+        engine_label: "🟡 云端未填密钥 (已转知识库)"
+      };
+    } else {
+      try {
+        const apiUrl = settings.api_url || 'https://api.siliconflow.cn/v1/chat/completions';
+        const apiModel = settings.api_model || 'Qwen/Qwen2.5-7B-Instruct';
+        const res = await fetch(apiUrl, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${settings.api_key}`
+          },
+          body: JSON.stringify({
+            model: apiModel,
+            messages: [
+              { role: 'system', content: '你是专业的四川省紧缺专业选调生备考指导名师。请回答条理清晰、紧扣四川定向选调考情。' },
+              { role: 'user', content: text }
+            ]
+          })
+        });
+
+        if (res.ok) {
+          const data = await res.json();
+          const content = data.choices && data.choices[0] && data.choices[0].message ? data.choices[0].message.content.trim() : JSON.stringify(data);
+          const modelName = apiModel.split('/').pop();
+          aiAnswer = {
+            title: `云端大模型 (${modelName}) 深度解答`,
+            content: content,
+            engine_source: "cloud_api",
+            engine_label: `☁️ 云端大模型 (${modelName})`
+          };
+        } else {
+          const errDetail = await res.text();
+          let msg = `HTTP ${res.status}`;
+          try {
+            const ej = JSON.parse(errDetail);
+            if (ej.message) msg += `: ${ej.message}`;
+            else if (ej.error && ej.error.message) msg += `: ${ej.error.message}`;
+          } catch(e) {}
+          aiAnswer = {
+            title: `⚠️ 云端大模型调用未成功 (${msg})`,
+            content: `接口返回异常：${msg}\n\n💡 解决排查：\n1. 请点击上方【⚙️ 设置引擎/Key】；\n2. 检查常用服务商是否选对（例如 SiliconFlow 密钥需选【硅基流动】）；\n3. 确认接口地址是否匹配。\n\n已为您自动转接本地精准考情知识库进行解答：\n\n${(searchLocalKnowledgeBase(text) || {}).content || ''}`,
+            engine_source: "cloud_api_failed",
+            engine_label: `⚠️ 云端调用未成功 (${res.status})`
+          };
+        }
+      } catch (err) {
         aiAnswer = {
-          title: data.title || "助教解答",
-          content: data.content,
-          engine_source: data.engine_source || "ollama_qwen",
-          engine_label: data.engine_label || "🟢 本地千问 2.5-3B 大模型 (Ollama 实时推理)"
+          title: "⚠️ 云端网络请求异常",
+          content: `网络连接异常：${err.message}\n\n已为您自动转接本地精准考情知识库进行解答：\n\n${(searchLocalKnowledgeBase(text) || {}).content || ''}`,
+          engine_source: "cloud_api_failed",
+          engine_label: "⚠️ 网络请求异常"
         };
       }
     }
-  } catch (e) {}
+  }
 
-  // 2. 若处于在线静态端（无后端），尝试前端直连 Ollama 安全隧道或本地端口
-  if (!aiAnswer && (appState.activeTunnelUrl || (settings.engine_type === 'ollama' && settings.ollama_url))) {
+  // 2. 否则若是本地 Ollama 模式，优先尝试本地后端 /api/chat 与安全隧道
+  if (!aiAnswer && settings.engine_type !== 'builtin') {
+    try {
+      const res = await fetch('/api/chat', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ query: text })
+      });
+      if (res.ok) {
+        const data = await res.json();
+        if (data && data.content) {
+          aiAnswer = {
+            title: data.title || "助教解答",
+            content: data.content,
+            engine_source: data.engine_source || "ollama_qwen",
+            engine_label: data.engine_label || "🟢 本地千问 2.5-3B 大模型 (Ollama 实时推理)"
+          };
+        }
+      }
+    } catch (e) {}
+  }
+
+  // 3. 在线静态端直接连 Ollama 隧道或本地端口
+  if (!aiAnswer && settings.engine_type === 'ollama' && (appState.activeTunnelUrl || settings.ollama_url)) {
     const targetUrl = appState.activeTunnelUrl || settings.ollama_url || 'http://localhost:11434/api/generate';
     try {
       const prompt = `你是一名资深的四川省紧缺专业选调生备考指导名师（精通金标尺、吴飞法律、于玉时政、白杨公文以及四川定向选调100分机考考情，针对中山大学测绘工程专硕考生）。
@@ -1796,36 +1882,6 @@ async function submitChat() {
             engine_label: `🟢 本地千问 2.5-3B (Mac实时算力)`
           };
         }
-      }
-    } catch (e) {}
-  }
-
-  // 3. 若配置了云端大模型 API (DeepSeek/Qwen)
-  if (!aiAnswer && settings.engine_type === 'openai' && settings.api_key) {
-    try {
-      const res = await fetch(settings.api_url || 'https://api.deepseek.com/v1/chat/completions', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          'Authorization': `Bearer ${settings.api_key}`
-        },
-        body: JSON.stringify({
-          model: settings.api_model || 'deepseek-chat',
-          messages: [
-            { role: 'system', content: '你是专业的四川定向选调备考指导名师。请回答条理清晰、紧扣四川选调考情。' },
-            { role: 'user', content: text }
-          ]
-        })
-      });
-      if (res.ok) {
-        const data = await res.json();
-        const content = data.choices[0].message.content.trim();
-        aiAnswer = {
-          title: `云端大模型 (${settings.api_model || 'DeepSeek'}) 深度解答`,
-          content: content,
-          engine_source: "cloud_api",
-          engine_label: `☁️ 云端大模型 (${settings.api_model || 'DeepSeek'})`
-        };
       }
     } catch (e) {}
   }
@@ -3193,9 +3249,23 @@ function openAiSettingsModal() {
   document.getElementById('setting-engine-type').value = s.engine_type || "ollama";
   document.getElementById('setting-ollama-url').value = s.ollama_url || "http://localhost:11434/api/generate";
   document.getElementById('setting-ollama-model').value = s.ollama_model || "qwen2.5:3b";
-  document.getElementById('setting-api-url').value = s.api_url || "https://api.deepseek.com/v1/chat/completions";
+  document.getElementById('setting-api-url').value = s.api_url || "https://api.siliconflow.cn/v1/chat/completions";
   document.getElementById('setting-api-key').value = s.api_key || "";
-  document.getElementById('setting-api-model').value = s.api_model || "deepseek-chat";
+  document.getElementById('setting-api-model').value = s.api_model || "Qwen/Qwen2.5-7B-Instruct";
+
+  // 智能回显服务商预设下拉框
+  const presetSelect = document.getElementById('setting-provider-preset');
+  if (presetSelect && s.api_url) {
+    if (s.api_url.includes('siliconflow')) presetSelect.value = 'siliconflow';
+    else if (s.api_url.includes('dashscope')) presetSelect.value = 'qwen';
+    else if (s.api_url.includes('moonshot')) presetSelect.value = 'kimi';
+    else if (s.api_url.includes('openai.com')) presetSelect.value = 'openai';
+    else if (s.api_url.includes('deepseek')) presetSelect.value = 'deepseek';
+    else presetSelect.value = 'custom';
+  }
+
+  const testStatus = document.getElementById('api-test-status');
+  if (testStatus) testStatus.textContent = '';
 
   toggleEngineSettings();
   document.getElementById('modal-ai-settings').classList.remove('hidden');
@@ -3209,15 +3279,15 @@ function applyProviderPreset(preset) {
   const urlInput = document.getElementById('setting-api-url');
   const modelInput = document.getElementById('setting-api-model');
   
-  if (preset === 'deepseek') {
+  if (preset === 'siliconflow') {
+    urlInput.value = 'https://api.siliconflow.cn/v1/chat/completions';
+    modelInput.value = 'Qwen/Qwen2.5-7B-Instruct';
+  } else if (preset === 'deepseek') {
     urlInput.value = 'https://api.deepseek.com/v1/chat/completions';
     modelInput.value = 'deepseek-chat';
   } else if (preset === 'qwen') {
     urlInput.value = 'https://dashscope.aliyuncs.com/compatible-mode/v1/chat/completions';
     modelInput.value = 'qwen-plus';
-  } else if (preset === 'siliconflow') {
-    urlInput.value = 'https://api.siliconflow.cn/v1/chat/completions';
-    modelInput.value = 'Qwen/Qwen2.5-7B-Instruct';
   } else if (preset === 'kimi') {
     urlInput.value = 'https://api.moonshot.cn/v1/chat/completions';
     modelInput.value = 'moonshot-v1-8k';
@@ -3237,6 +3307,60 @@ function toggleEngineSettings() {
 
   if (type === 'ollama') ollamaGroup.classList.remove('hidden');
   if (type === 'openai') openaiGroup.classList.remove('hidden');
+}
+
+async function testAiConnection() {
+  const testBtn = document.getElementById('btn-test-ai-conn');
+  const testStatus = document.getElementById('api-test-status');
+  const engineType = document.getElementById('setting-engine-type').value;
+
+  if (testStatus) testStatus.innerHTML = '<span style="color:var(--text-secondary)">🔄 正在请求验证...</span>';
+  if (testBtn) testBtn.disabled = true;
+
+  try {
+    if (engineType === 'openai') {
+      const url = document.getElementById('setting-api-url').value.trim();
+      const key = document.getElementById('setting-api-key').value.trim();
+      const model = document.getElementById('setting-api-model').value.trim();
+
+      if (!key) {
+        if (testStatus) testStatus.innerHTML = '<span style="color:var(--accent-red)">❌ 请先粘贴 API Key</span>';
+        if (testBtn) testBtn.disabled = false;
+        return;
+      }
+
+      const res = await fetch(url, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${key}`
+        },
+        body: JSON.stringify({
+          model: model,
+          messages: [{ role: 'user', content: 'hi' }]
+        })
+      });
+
+      if (res.ok) {
+        if (testStatus) testStatus.innerHTML = '<span style="color:var(--accent-green); font-weight:bold;">✅ 测试成功！大模型已就绪</span>';
+      } else {
+        const txt = await res.text();
+        let errMsg = `HTTP ${res.status}`;
+        try {
+          const ej = JSON.parse(txt);
+          if (ej.message) errMsg += `: ${ej.message}`;
+          else if (ej.error && ej.error.message) errMsg += `: ${ej.error.message}`;
+        } catch(e) {}
+        if (testStatus) testStatus.innerHTML = `<span style="color:var(--accent-red)">❌ 失败: ${escapeHtml(errMsg.substring(0, 50))}</span>`;
+      }
+    } else {
+      if (testStatus) testStatus.innerHTML = '<span style="color:var(--accent-green)">ℹ️ 本地/内置引擎无需测试云端</span>';
+    }
+  } catch (err) {
+    if (testStatus) testStatus.innerHTML = `<span style="color:var(--accent-red)">❌ 连接异常: ${escapeHtml(err.message)}</span>`;
+  } finally {
+    if (testBtn) testBtn.disabled = false;
+  }
 }
 
 function saveAiSettings() {
