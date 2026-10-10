@@ -203,6 +203,19 @@ async function detectOllamaStatus() {
   const badgeText = document.getElementById('status-badge-text');
   const dot = document.querySelector('#global-ai-status-badge .status-dot');
   const chatTag = document.getElementById('chat-engine-status-tag');
+  const s = getAiSettings();
+
+  // 0. 若配置了云端大模型 API (SiliconFlow / DeepSeek / DashScope)
+  if (s.engine_type === 'openai' && s.api_key) {
+    const modelLabel = s.api_model ? s.api_model.split('/').pop() : 'Qwen';
+    if (badgeText) badgeText.textContent = `云端大模型 (${modelLabel}) 在线`;
+    if (dot) { dot.className = 'status-dot green-dot'; }
+    if (chatTag) {
+      chatTag.textContent = `🟢 云端大模型 (${modelLabel} 实时推理)`;
+      chatTag.className = 'engine-tag-pill source-llm';
+    }
+    return;
+  }
 
   // 1. 本地直连探测
   try {
