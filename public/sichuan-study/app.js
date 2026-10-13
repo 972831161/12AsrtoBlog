@@ -2779,7 +2779,8 @@ function openEditMistakeModal(id) {
   document.getElementById('parsed-cat-select').value = item.category || '非法律公基';
   document.getElementById('parsed-type-select').value = item.question_type || 'single';
   document.getElementById('parsed-q-input').value = item.question || '';
-  document.getElementById('parsed-opts-input').value = (item.options || []).join('\n');
+  const itemOpts = (item.question_type === 'judge' && (!item.options || item.options.length === 0 || item.options.every(o => o.includes('选项')))) ? ["A. 正确", "B. 错误"] : (item.options || []);
+  document.getElementById('parsed-opts-input').value = itemOpts.join('\n');
   document.getElementById('parsed-ans-input').value = item.correct_answer || 'A';
   document.getElementById('parsed-my-input').value = item.user_answer || '';
   document.getElementById('parsed-kp-input').value = item.key_point || '';
@@ -2842,9 +2843,34 @@ function detectMistakeQuestionType(rawText, ans) {
   if (low.includes("多选题") || low.includes("多项选择") || low.includes("【多选】") || low.includes("至少有两项")) return "multiple";
 
   // 2. 如果答案为对/错/正确/错误或文本包含判断题
-  if (low.includes("判断题") || low.includes("判断正误") || cleanAns === "对" || cleanAns === "错" || cleanAns === "正确" || cleanAns === "错误") return "judge";
+  if (
+    low.includes("判断题") || 
+    low.includes("判断正误") || 
+    low.includes("判断下列") ||
+    /^(?:正确|错误|对|错|√|×|T|F)$/i.test(cleanAns) ||
+    cleanAns === "对" || cleanAns === "错" || cleanAns === "正确" || cleanAns === "错误" || cleanAns === "√" || cleanAns === "×"
+  ) return "judge";
 
   return "single";
+}
+
+// 手动切换题目类型下拉框时联动填充
+function handleParsedTypeChange(type) {
+  const optsInput = document.getElementById('parsed-opts-input');
+  if (!optsInput) return;
+  if (type === 'judge') {
+    optsInput.value = "A. 正确\nB. 错误";
+    const ansInput = document.getElementById('parsed-ans-input');
+    if (ansInput) {
+      const v = ansInput.value.trim().toUpperCase();
+      if (v === '对' || v === '正确' || v === '√') ansInput.value = 'A';
+      else if (v === '错' || v === '错误' || v === '×') ansInput.value = 'B';
+    }
+  } else if (type === 'single' || type === 'multiple') {
+    if (optsInput.value.trim() === "A. 正确\nB. 错误") {
+      optsInput.value = "";
+    }
+  }
 }
 
 async function executeAiParseMistake() {
@@ -2906,7 +2932,18 @@ async function executeAiParseMistake() {
   // 4. 执行高精度板块双重校正引擎与题型自动识别
   if (parsed) {
     parsed.category = refineParsedCategory(parsed.category, rawText);
-    parsed.question_type = parsed.question_type || detectMistakeQuestionType(rawText, parsed.correct_answer);
+    const detectedType = detectMistakeQuestionType(rawText, parsed.correct_answer);
+    if (parsed.question_type === 'judge' || detectedType === 'judge') {
+      parsed.question_type = 'judge';
+      // 判定为判断题，自动将选项列表填充为：A 正确 B 错误
+      parsed.options = ["A. 正确", "B. 错误"];
+      if (parsed.correct_answer === "对" || parsed.correct_answer === "正确" || parsed.correct_answer === "√") parsed.correct_answer = "A";
+      if (parsed.correct_answer === "错" || parsed.correct_answer === "错误" || parsed.correct_answer === "×") parsed.correct_answer = "B";
+      if (parsed.user_answer === "对" || parsed.user_answer === "正确" || parsed.user_answer === "√") parsed.user_answer = "A";
+      if (parsed.user_answer === "错" || parsed.user_answer === "错误" || parsed.user_answer === "×") parsed.user_answer = "B";
+    } else {
+      parsed.question_type = parsed.question_type || detectedType;
+    }
 
     // 5. 原文深度解析保真引擎：若粘贴文本自带解析，100%保留原文全文，严禁任何删减或模型总结
     const rawExpMatch = rawText.match(/(?:(?:【(?:解析|答案解析|深度解析|试题解析)】)|(?:(?:深度解析|答案解析|试题解析|解析)[：:\s]))([\s\S]+)$/i);
@@ -3137,12 +3174,14 @@ function localRuleBasedParseMistake(raw) {
   let options = [];
   let question = clean;
 
-  if (optMatches && optMatches.length >= 2) {
+  if (qType === "judge") {
+    options = ["A. 正确", "B. 错误"];
+  } else if (optMatches && optMatches.length >= 2) {
     options = optMatches.map(o => o.trim());
     const firstOptIdx = clean.indexOf(optMatches[0]);
     question = clean.substring(0, firstOptIdx).trim();
   } else {
-    options = qType === "judge" ? ["A. 正确", "B. 错误"] : ["A. 选项A", "B. 选项B", "C. 选项C", "D. 选项D"];
+    options = ["A. 选项A", "B. 选项B", "C. 选项C", "D. 选项D"];
   }
 
   question = question.replace(/^(?:【[^】]+】|\d+[\.、\s]*)/, '').trim();
@@ -3170,8 +3209,8 @@ function confirmSaveParsedMistake() {
   const qType = document.getElementById('parsed-type-select').value || 'single';
   const q = document.getElementById('parsed-q-input').value.trim();
   const optsRaw = document.getElementById('parsed-opts-input').value.trim();
-  const ans = document.getElementById('parsed-ans-input').value.trim().toUpperCase();
-  const myAns = document.getElementById('parsed-my-input').value.trim().toUpperCase();
+  let ans = document.getElementById('parsed-ans-input').value.trim().toUpperCase();
+  let myAns = document.getElementById('parsed-my-input').value.trim().toUpperCase();
   const kp = document.getElementById('parsed-kp-input').value.trim();
   const exp = document.getElementById('parsed-exp-input').value.trim();
   const img = (document.getElementById('parsed-img-data').value || '').trim();
@@ -3181,7 +3220,18 @@ function confirmSaveParsedMistake() {
     return;
   }
 
-  const options = optsRaw.split('\n').map(s => s.trim()).filter(s => s);
+  // 针对判断题，标准化答案输入与选项填充
+  if (qType === 'judge') {
+    if (ans === '对' || ans === '正确' || ans === '√') ans = 'A';
+    if (ans === '错' || ans === '错误' || ans === '×') ans = 'B';
+    if (myAns === '对' || myAns === '正确' || myAns === '√') myAns = 'A';
+    if (myAns === '错' || myAns === '错误' || myAns === '×') myAns = 'B';
+  }
+
+  let options = optsRaw.split('\n').map(s => s.trim()).filter(s => s);
+  if (qType === 'judge' && (options.length === 0 || options.every(o => o.includes('选项')))) {
+    options = ["A. 正确", "B. 错误"];
+  }
 
   if (isEditing) {
     const idx = appState.mistakes.findIndex(m => m.id == editId);

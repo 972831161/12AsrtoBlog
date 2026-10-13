@@ -457,7 +457,7 @@
               </div>
               <div class="form-group">
                 <label>题目类型</label>
-                <select id="parsed-type-select" class="form-control">
+                <select id="parsed-type-select" class="form-control" onchange="handleParsedTypeChange(this.value)">
                   <option value="single">🔘 单项选择题 (Single)</option>
                   <option value="multiple">☑️ 多项选择题 (Multiple)</option>
                   <option value="judge">⚖️ 判断题 (Judge)</option>
@@ -736,6 +736,6 @@
 
   <script src="https://cdn.jsdelivr.net/npm/qrcode@1.5.3/build/qrcode.min.js"></script>
   <script src="historical_data.js"></script>
-  <script src="app.js?v=20261010_5"></script>
+  <script src="app.js?v=20261013_1"></script>
 </body>
 </html>
