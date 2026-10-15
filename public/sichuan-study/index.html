@@ -373,44 +373,125 @@
       </section>
 
       <!-- 5. 智能错题 & 交互重做 -->
+      <!-- 5. 智能错题 & 交互重做 -->
       <section id="tab-mistakes" class="tab-pane">
         <div class="card">
-          <div class="card-header">
+          <div class="card-header" style="flex-wrap:wrap; gap:12px;">
             <div>
-              <h3 class="card-title">📝 智能错题本 · AI 一键解析与复现重练</h3>
-              <p class="card-subtitle">直接粘贴做题软件/真题文本即可 AI 自动归类录入；支持在卡片上重新作答，答对自动标记“已掌握”！</p>
+              <h3 class="card-title">📝 智能错题本 · 艾宾浩斯抗遗忘训练</h3>
+              <p class="card-subtitle">一页一题随机沉浸速练，答对累积连对达成掌握；保留题库全景视图方便查阅与编辑。</p>
             </div>
-            <div style="display:flex; gap:8px; flex-wrap:wrap;">
+            <!-- 双模式切换胶囊器 + 操作按钮 -->
+            <div style="display:flex; gap:8px; align-items:center; flex-wrap:wrap;">
+              <div class="mistake-mode-switcher" id="mistake-mode-switcher">
+                <button type="button" class="mode-switch-btn active" id="btn-mode-duo" onclick="switchMistakeViewMode('duo')">
+                  ⚡ 沉浸刷题
+                </button>
+                <button type="button" class="mode-switch-btn" id="btn-mode-list" onclick="switchMistakeViewMode('list')">
+                  📋 题库全景 (<span id="mode-list-total-count">0</span>)
+                </button>
+              </div>
               <button class="btn btn-outline btn-sm" onclick="openAiSettingsModal()">⚙️ AI 模型设置</button>
               <button class="btn btn-primary btn-sm" onclick="openAiAddMistakeModal()">✨ AI 一键录入错题</button>
             </div>
           </div>
 
-          <!-- 分类筛选与状态筛选 -->
-          <div class="mistakes-filter-bar">
-            <button class="filter-chip active" data-filter="all">全部错题 (<span id="count-all">0</span>)</button>
-            <button class="filter-chip" data-filter="unmastered">⏳ 待复习 (<span id="count-unmastered">0</span>)</button>
-            <button class="filter-chip" data-filter="mastered">✅ 已掌握 (<span id="count-mastered">0</span>)</button>
+          <!-- 模式 A：沉浸卡片式刷题模式 (Duolingo / 闪卡风) -->
+          <div id="duo-practice-view" class="duo-practice-container">
+            <!-- 沉浸刷题顶部控制面板 -->
+            <div class="duo-top-toolbar">
+              <div class="duo-pool-selectors">
+                <div class="duo-select-group">
+                  <label for="duo-scope-select">🎯 刷题范围：</label>
+                  <select id="duo-scope-select" class="form-control form-control-sm" onchange="changeDuoScope(this.value)">
+                    <option value="unmastered">⏳ 待复习 (<span id="duo-unmastered-num">0</span>题)</option>
+                    <option value="all">📚 全部错题库 (<span id="duo-all-num">0</span>题)</option>
+                    <option value="习近平新时代中国特色社会主义思想与时政">🚩 习思想与时政</option>
+                    <option value="法律常识">⚖️ 法律常识</option>
+                    <option value="非法律公基">📈 非法律公基</option>
+                    <option value="公文写作与改错">📝 公文写作</option>
+                    <option value="行测专项">📊 行测专项</option>
+                  </select>
+                </div>
+                <div class="duo-select-group">
+                  <label for="duo-type-select">题型：</label>
+                  <select id="duo-type-select" class="form-control form-control-sm" onchange="changeDuoType(this.value)">
+                    <option value="all">全部题型</option>
+                    <option value="single">🔘 单选</option>
+                    <option value="multiple">☑️ 多选</option>
+                    <option value="judge">⚖️ 判断</option>
+                  </select>
+                </div>
+              </div>
+
+              <div class="duo-stats-group">
+                <div class="duo-session-stat">
+                  <span>本次已刷: <strong id="duo-session-counter">0</strong> 题</span>
+                  <span class="duo-correct-rate" id="duo-accuracy-rate">(正确率 100%)</span>
+                </div>
+                <label class="duo-auto-toggle" title="开启后，单选/判断答对时将在1.2秒后自动切入下一题">
+                  <input type="checkbox" id="duo-auto-next-checkbox" onchange="toggleDuoAutoNext(this.checked)">
+                  <span>⚡ 自动跳题</span>
+                </label>
+                <button type="button" class="btn btn-outline btn-xs" onclick="skipToNextDuoQuestion()" title="跳过此题，随机下一道 (快捷键 S 或 Tab)">
+                  🎲 换一题
+                </button>
+              </div>
+            </div>
+
+            <!-- 主刷题卡片 -->
+            <div id="duo-card-stage" class="duo-card-stage">
+              <!-- 由 renderDuoQuestion 动态渲染单题 -->
+            </div>
+
+            <!-- 底部沉浸反馈底栏 (Duolingo Feedback Sheet) -->
+            <div id="duo-feedback-sheet" class="duo-feedback-sheet hidden">
+              <div class="duo-feedback-content">
+                <div class="duo-feedback-icon" id="duo-feedback-icon">🎉</div>
+                <div class="duo-feedback-text-wrap">
+                  <h4 class="duo-feedback-title" id="duo-feedback-title">回答正确！</h4>
+                  <p class="duo-feedback-desc" id="duo-feedback-desc">艾宾浩斯抗遗忘阶梯: 连对 1/3 次</p>
+                </div>
+              </div>
+              <div class="duo-feedback-actions">
+                <button type="button" class="btn btn-outline btn-sm" id="btn-duo-toggle-analysis" onclick="toggleDuoAnalysis()">
+                  👁️ 展开解析
+                </button>
+                <button type="button" class="btn btn-primary duo-next-btn" id="btn-duo-next" onclick="nextDuoQuestion()">
+                  下一题 ➔ <span class="shortcut-hint">(空格/Enter)</span>
+                </button>
+              </div>
+            </div>
           </div>
 
-          <!-- 题型专属筛选条 (单选 / 多选 / 判断) -->
-          <div class="mistakes-type-tabs" id="mistakes-type-tabs" style="display:flex; gap:6px; margin-bottom:8px; overflow-x:auto;">
-            <button class="type-filter-chip active" data-type="all">全部题型</button>
-            <button class="type-filter-chip" data-type="single">🔘 单选题</button>
-            <button class="type-filter-chip" data-type="multiple">☑️ 多选题</button>
-            <button class="type-filter-chip" data-type="judge">⚖️ 判断题</button>
-          </div>
+          <!-- 模式 B：题库全景列表模式 (原列表视图) -->
+          <div id="list-practice-view" class="list-practice-container hidden">
+            <!-- 分类筛选与状态筛选 -->
+            <div class="mistakes-filter-bar">
+              <button class="filter-chip active" data-filter="all">全部错题 (<span id="count-all">0</span>)</button>
+              <button class="filter-chip" data-filter="unmastered">⏳ 待复习 (<span id="count-unmastered">0</span>)</button>
+              <button class="filter-chip" data-filter="mastered">✅ 已掌握 (<span id="count-mastered">0</span>)</button>
+            </div>
 
-          <div class="mistakes-cat-tabs" id="mistakes-cat-tabs">
-            <button class="cat-filter-chip active" data-cat="all">全部板块</button>
-            <button class="cat-filter-chip" data-cat="习近平新时代中国特色社会主义思想与时政">🚩 习思想与时政</button>
-            <button class="cat-filter-chip" data-cat="法律常识">⚖️ 法律常识</button>
-            <button class="cat-filter-chip" data-cat="非法律公基">📈 非法律公基</button>
-            <button class="cat-filter-chip" data-cat="公文写作与改错">📝 公文写作</button>
-            <button class="cat-filter-chip" data-cat="行测专项">📊 行测专项</button>
-          </div>
+            <!-- 题型专属筛选条 (单选 / 多选 / 判断) -->
+            <div class="mistakes-type-tabs" id="mistakes-type-tabs" style="display:flex; gap:6px; margin-bottom:8px; overflow-x:auto;">
+              <button class="type-filter-chip active" data-type="all">全部题型</button>
+              <button class="type-filter-chip" data-type="single">🔘 单选题</button>
+              <button class="type-filter-chip" data-type="multiple">☑️ 多选题</button>
+              <button class="type-filter-chip" data-type="judge">⚖️ 判断题</button>
+            </div>
 
-          <div class="mistakes-list" id="mistakes-container"></div>
+            <div class="mistakes-cat-tabs" id="mistakes-cat-tabs">
+              <button class="cat-filter-chip active" data-cat="all">全部板块</button>
+              <button class="cat-filter-chip" data-cat="习近平新时代中国特色社会主义思想与时政">🚩 习思想与时政</button>
+              <button class="cat-filter-chip" data-cat="法律常识">⚖️ 法律常识</button>
+              <button class="cat-filter-chip" data-cat="非法律公基">📈 非法律公基</button>
+              <button class="cat-filter-chip" data-cat="公文写作与改错">📝 公文写作</button>
+              <button class="cat-filter-chip" data-cat="行测专项">📊 行测专项</button>
+            </div>
+
+            <div class="mistakes-list" id="mistakes-container"></div>
+          </div>
         </div>
       </section>
 
@@ -736,6 +817,6 @@
 
   <script src="https://cdn.jsdelivr.net/npm/qrcode@1.5.3/build/qrcode.min.js"></script>
   <script src="historical_data.js"></script>
-  <script src="app.js?v=20261013_1"></script>
+  <script src="app.js?v=20261015_1"></script>
 </body>
 </html>

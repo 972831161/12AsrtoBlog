@@ -111,7 +111,17 @@ let appState = {
   multiSelections: {},
   parsedMistakeData: null,
   ollamaRunning: false,
-  syncShortCode: getSyncShortCode()
+  syncShortCode: getSyncShortCode(),
+  mistakeViewMode: localStorage.getItem('mistake_view_mode') || 'duo',
+  duoScope: 'unmastered',
+  duoType: 'all',
+  duoCurrentItem: null,
+  duoHistoryIds: [],
+  duoSessionCount: 0,
+  duoSessionCorrect: 0,
+  duoAutoNext: localStorage.getItem('duo_auto_next') === 'true',
+  duoAnswered: false,
+  duoMultiSelected: []
 };
 
 function getRealCurrentDateStr() {
@@ -2386,8 +2396,9 @@ function renderDocGradeResultDOM(r) {
 
 function loadMistakes() {
   appState.mistakes = getLocalMistakes();
-  renderMistakes();
+  initDuoPractice();
   updateMistakeCounters();
+  switchMistakeViewMode(appState.mistakeViewMode || 'duo');
 }
 
 function updateMistakeCounters() {
@@ -2399,11 +2410,512 @@ function updateMistakeCounters() {
   const elUn = document.getElementById('count-unmastered');
   const elMas = document.getElementById('count-mastered');
   const elStat = document.getElementById('stat-mistakes');
+  const elListTotal = document.getElementById('mode-list-total-count');
+  const elDuoUn = document.getElementById('duo-unmastered-num');
+  const elDuoAll = document.getElementById('duo-all-num');
 
   if (elAll) elAll.textContent = allCount;
   if (elUn) elUn.textContent = unmasteredCount;
   if (elMas) elMas.textContent = masteredCount;
   if (elStat) elStat.textContent = unmasteredCount;
+  if (elListTotal) elListTotal.textContent = allCount;
+  if (elDuoUn) elDuoUn.textContent = unmasteredCount;
+  if (elDuoAll) elDuoAll.textContent = allCount;
+}
+
+/* ==========================================================================
+   沉浸单题刷题流引擎 (Duolingo 闪卡交互 + 随机抽题 + 键盘快捷键)
+   ========================================================================== */
+
+function initDuoPractice() {
+  const autoCb = document.getElementById('duo-auto-next-checkbox');
+  if (autoCb) autoCb.checked = appState.duoAutoNext;
+
+  const scopeSel = document.getElementById('duo-scope-select');
+  if (scopeSel) scopeSel.value = appState.duoScope;
+
+  const typeSel = document.getElementById('duo-type-select');
+  if (typeSel) typeSel.value = appState.duoType;
+
+  // 绑定全局快捷键（仅在错题标签页且单题沉浸模式激活时生效）
+  if (!window._duoKeyBound) {
+    window._duoKeyBound = true;
+    window.addEventListener('keydown', handleDuoKeydown);
+  }
+}
+
+function switchMistakeViewMode(mode) {
+  appState.mistakeViewMode = mode;
+  localStorage.setItem('mistake_view_mode', mode);
+
+  const duoView = document.getElementById('duo-practice-view');
+  const listView = document.getElementById('list-practice-view');
+  const btnDuo = document.getElementById('btn-mode-duo');
+  const btnList = document.getElementById('btn-mode-list');
+
+  if (mode === 'duo') {
+    if (duoView) duoView.classList.remove('hidden');
+    if (listView) listView.classList.add('hidden');
+    if (btnDuo) btnDuo.classList.add('active');
+    if (btnList) btnList.classList.remove('active');
+    if (!appState.duoCurrentItem) {
+      pickAndRenderDuoQuestion();
+    }
+  } else {
+    if (duoView) duoView.classList.add('hidden');
+    if (listView) listView.classList.remove('hidden');
+    if (btnDuo) btnDuo.classList.remove('active');
+    if (btnList) btnList.classList.add('active');
+    renderMistakes();
+  }
+}
+
+function changeDuoScope(scope) {
+  appState.duoScope = scope;
+  appState.duoHistoryIds = [];
+  pickAndRenderDuoQuestion(true);
+}
+
+function changeDuoType(type) {
+  appState.duoType = type;
+  appState.duoHistoryIds = [];
+  pickAndRenderDuoQuestion(true);
+}
+
+function toggleDuoAutoNext(checked) {
+  appState.duoAutoNext = Boolean(checked);
+  localStorage.setItem('duo_auto_next', String(appState.duoAutoNext));
+}
+
+function skipToNextDuoQuestion() {
+  if (appState.duoCurrentItem) {
+    if (!appState.duoHistoryIds.includes(appState.duoCurrentItem.id)) {
+      appState.duoHistoryIds.push(appState.duoCurrentItem.id);
+    }
+  }
+  pickAndRenderDuoQuestion(true);
+}
+
+function nextDuoQuestion() {
+  pickAndRenderDuoQuestion(true);
+}
+
+function toggleDuoAnalysis() {
+  const drawer = document.getElementById('duo-card-analysis-drawer');
+  const btn = document.getElementById('btn-duo-toggle-analysis');
+  if (!drawer) return;
+  if (drawer.style.display === 'none' || !drawer.style.display) {
+    drawer.style.display = 'block';
+    if (btn) btn.textContent = '🙈 收起解析';
+  } else {
+    drawer.style.display = 'none';
+    if (btn) btn.textContent = '👁️ 展开解析';
+  }
+}
+
+function getDuoCandidatePool() {
+  let list = appState.mistakes || [];
+
+  // 1. 范围筛选
+  if (appState.duoScope === 'unmastered') {
+    list = list.filter(m => (m.is_mastered || 0) === 0);
+  } else if (appState.duoScope !== 'all') {
+    list = list.filter(m => m.category && (m.category.includes(appState.duoScope) || appState.duoScope.includes(m.category)));
+  }
+
+  // 2. 题型筛选
+  if (appState.duoType !== 'all') {
+    list = list.filter(m => (m.question_type || 'single') === appState.duoType);
+  }
+
+  return list;
+}
+
+function pickAndRenderDuoQuestion(forceNew = false) {
+  const stage = document.getElementById('duo-card-stage');
+  const sheet = document.getElementById('duo-feedback-sheet');
+  if (!stage) return;
+
+  if (sheet) sheet.classList.add('hidden');
+  appState.duoAnswered = false;
+  appState.duoMultiSelected = [];
+
+  const candidates = getDuoCandidatePool();
+  if (candidates.length === 0) {
+    appState.duoCurrentItem = null;
+    stage.innerHTML = `
+      <div style="text-align:center; padding:44px 20px; background:var(--bg-surface); border:1px solid var(--border-subtle); border-radius:var(--radius-md);">
+        <div style="font-size:2.2rem; margin-bottom:10px;">🎉</div>
+        <h4 style="margin-bottom:8px; font-weight:700;">当前刷题池中暂无待复习题目！</h4>
+        <p style="color:var(--text-secondary); font-size:0.85rem; margin-bottom:16px;">您已把当前范围内的错题全部拿下，太棒了！</p>
+        <div style="display:flex; justify-content:center; gap:10px;">
+          <button class="btn btn-outline btn-sm" onclick="changeDuoScope('all')">📚 切换为【全部错题库】重新刷</button>
+          <button class="btn btn-primary btn-sm" onclick="openAiAddMistakeModal()">✨ AI 录入新错题</button>
+        </div>
+      </div>
+    `;
+    return;
+  }
+
+  // 避免连续重复抽到刚刷过的题（抽题历史队列机制）
+  let available = candidates.filter(m => !appState.duoHistoryIds.includes(m.id));
+  if (available.length === 0) {
+    appState.duoHistoryIds = [];
+    available = candidates;
+  }
+
+  if (!forceNew && appState.duoCurrentItem && candidates.some(m => m.id === appState.duoCurrentItem.id)) {
+    // 保持当前
+  } else {
+    const randomIndex = Math.floor(Math.random() * available.length);
+    appState.duoCurrentItem = available[randomIndex];
+    appState.duoHistoryIds.push(appState.duoCurrentItem.id);
+  }
+
+  renderDuoQuestionCard(appState.duoCurrentItem);
+}
+
+function renderDuoQuestionCard(item) {
+  const stage = document.getElementById('duo-card-stage');
+  if (!stage || !item) return;
+
+  const isMastered = (item.is_mastered || 0) === 1;
+  const streak = item.correct_streak || 0;
+  const threshold = item.mastery_threshold || 3;
+  const qType = item.question_type || 'single';
+  const isMultiple = (qType === 'multiple');
+
+  let typeBadgeHtml = `<span class="type-badge type-badge-single">🔘 单选题</span>`;
+  if (qType === 'multiple') {
+    typeBadgeHtml = `<span class="type-badge type-badge-multiple">☑️ 多选题</span>`;
+  } else if (qType === 'judge') {
+    typeBadgeHtml = `<span class="type-badge type-badge-judge">⚖️ 判断题</span>`;
+  }
+
+  let flameIcons = '';
+  for (let i = 1; i <= threshold; i++) {
+    if (i <= streak) {
+      flameIcons += `<span style="color:#ef4444; text-shadow:0 0 6px rgba(239,68,68,0.5);" title="第${i}次答对">🔥</span>`;
+    } else {
+      flameIcons += `<span style="opacity:0.25; filter:grayscale(1);" title="还需答对">🔥</span>`;
+    }
+  }
+
+  const options = Array.isArray(item.options) && item.options.length > 0 
+    ? item.options 
+    : (qType === 'judge' ? ["A. 正确", "B. 错误"] : ["A. 选项A", "B. 选项B", "C. 选项C", "D. 选项D"]);
+
+  const optionsHtml = options.map((opt) => {
+    const optLetter = opt.trim().charAt(0).toUpperCase();
+    const cleanContent = opt.replace(/^[A-Da-d][.、\s]+/, '').trim();
+    if (isMultiple) {
+      return `
+        <button class="duo-opt-btn" id="duo-opt-btn-${optLetter}" onclick="toggleDuoMultiOption('${optLetter}')">
+          <div style="display:flex; align-items:center;">
+            <span class="duo-opt-badge">${optLetter}</span>
+            <span class="duo-opt-text">${escapeHtml(cleanContent || opt)}</span>
+          </div>
+          <span class="duo-opt-checkbox" id="duo-opt-cb-${optLetter}" style="font-size:1.1rem; opacity:0.6;">⬜</span>
+        </button>
+      `;
+    } else {
+      return `
+        <button class="duo-opt-btn" id="duo-opt-btn-${optLetter}" onclick="attemptDuoChoice('${optLetter}')">
+          <div style="display:flex; align-items:center;">
+            <span class="duo-opt-badge">${optLetter}</span>
+            <span class="duo-opt-text">${escapeHtml(cleanContent || opt)}</span>
+          </div>
+          <span class="shortcut-key-label" style="font-size:0.75rem; color:var(--text-muted); opacity:0.6;">[${optLetter}]</span>
+        </button>
+      `;
+    }
+  }).join('');
+
+  stage.innerHTML = `
+    <div class="duo-question-card" id="duo-current-card-${item.id}">
+      <div class="duo-q-header">
+        <div style="display:flex; align-items:center; gap:8px; flex-wrap:wrap;">
+          ${typeBadgeHtml}
+          <span class="kp-tag">【${escapeHtml(item.category)}】</span>
+          ${item.key_point ? `<span class="kp-tag" style="background:rgba(217,119,6,0.1); color:var(--accent-amber);">🏷️ ${escapeHtml(item.key_point)}</span>` : ''}
+          <div style="display:inline-flex; align-items:center; gap:3px; font-size:0.8rem; margin-left:4px;" title="艾宾浩斯抗遗忘连对进度">
+            <span>掌握度:</span> ${flameIcons}
+            <span style="font-weight:700; color:var(--primary); font-size:0.75rem;">(${streak}/${threshold})</span>
+          </div>
+        </div>
+        <div style="display:flex; gap:6px;">
+          <button class="btn btn-outline btn-xs" style="color:var(--primary);" onclick="openEditMistakeModal(${item.id})">✏️ 编辑</button>
+          <button class="btn btn-outline btn-xs" onclick="toggleMistakeMasterStatus(${item.id}); pickAndRenderDuoQuestion(true);">
+            ${isMastered ? '设为待复习' : '直接掌握'}
+          </button>
+        </div>
+      </div>
+
+      <div class="duo-q-title">${escapeHtml(item.question)}</div>
+
+      ${item.image ? `
+        <div class="mistake-q-image-wrap" style="margin-bottom:16px;">
+          <img src="${escapeHtml(item.image)}" class="mistake-q-image" alt="题目配图" title="点击放大查看大图" onclick="previewMistakeImage(this.src)">
+        </div>
+      ` : ''}
+
+      <div class="duo-opt-grid" id="duo-options-container">
+        ${optionsHtml}
+      </div>
+
+      ${isMultiple ? `
+        <div style="margin-top:6px; margin-bottom:8px;" id="duo-multi-submit-wrap">
+          <button class="btn btn-primary" style="width:100%; padding:10px; font-weight:700;" id="btn-duo-submit-multi" onclick="submitDuoMultiChoice()">
+            📝 确认提交多选作答 (已选: 无)
+          </button>
+        </div>
+      ` : ''}
+
+      <div class="mistake-analysis-drawer" id="duo-card-analysis-drawer" style="display:none; margin-top:12px;">
+        <div style="margin-bottom:4px;">
+          <strong>【参考答案】：</strong><span style="color:var(--accent-green); font-weight:700;">${item.correct_answer || 'A'}</span>
+          ${item.user_answer ? `<span style="color:var(--accent-red); margin-left:12px;">（历史曾错选：${item.user_answer}）</span>` : ''}
+        </div>
+        <div><strong>【深度解析】：</strong>${escapeHtml(item.correct_analysis || '暂无解析')}</div>
+      </div>
+    </div>
+  `;
+}
+
+function attemptDuoChoice(choiceLetter) {
+  if (appState.duoAnswered) return;
+  const item = appState.duoCurrentItem;
+  if (!item) return;
+
+  appState.duoAnswered = true;
+  const correctAns = (item.correct_answer || "A").trim().toUpperCase();
+  const userChoice = choiceLetter.trim().toUpperCase();
+  const isCorrect = (userChoice === correctAns);
+  const threshold = item.mastery_threshold || 3;
+
+  const container = document.getElementById('duo-options-container');
+  if (container) {
+    container.querySelectorAll('.duo-opt-btn').forEach(btn => {
+      btn.classList.add('locked');
+      const letter = btn.id.replace('duo-opt-btn-', '').toUpperCase();
+      if (letter === correctAns) {
+        btn.classList.add('correct-choice');
+      } else if (letter === userChoice && !isCorrect) {
+        btn.classList.add('wrong-choice');
+      }
+    });
+  }
+
+  appState.duoSessionCount++;
+  item.attempt_count = (item.attempt_count || 0) + 1;
+
+  if (isCorrect) {
+    appState.duoSessionCorrect++;
+    item.correct_count = (item.correct_count || 0) + 1;
+    item.correct_streak = (item.correct_streak || 0) + 1;
+    if (item.correct_streak >= threshold) {
+      item.is_mastered = 1;
+    }
+  } else {
+    item.correct_streak = 0;
+    item.is_mastered = 0;
+  }
+
+  saveLocalMistakes(appState.mistakes);
+  updateMistakeCounters();
+  updateDuoSessionStatsUI();
+
+  showDuoFeedbackSheet(isCorrect, correctAns, item.correct_streak, threshold, item.correct_analysis);
+
+  if (isCorrect && appState.duoAutoNext) {
+    setTimeout(() => {
+      if (appState.duoCurrentItem && appState.duoCurrentItem.id === item.id) {
+        nextDuoQuestion();
+      }
+    }, 1200);
+  }
+}
+
+function toggleDuoMultiOption(optLetter) {
+  if (appState.duoAnswered) return;
+  const list = appState.duoMultiSelected;
+  const idx = list.indexOf(optLetter);
+  if (idx > -1) list.splice(idx, 1);
+  else list.push(optLetter);
+
+  const btn = document.getElementById(`duo-opt-btn-${optLetter}`);
+  const cb = document.getElementById(`duo-opt-cb-${optLetter}`);
+  if (btn) {
+    const isChecked = list.includes(optLetter);
+    btn.classList.toggle('duo-selected', isChecked);
+    if (cb) cb.textContent = isChecked ? '☑️' : '⬜';
+  }
+
+  const submitBtn = document.getElementById('btn-duo-submit-multi');
+  if (submitBtn) {
+    submitBtn.textContent = `📝 确认提交多选作答 ${list.length > 0 ? `(已选: ${list.slice().sort().join('')})` : '(已选: 无)'}`;
+  }
+}
+
+function submitDuoMultiChoice() {
+  if (appState.duoAnswered) return;
+  const item = appState.duoCurrentItem;
+  if (!item) return;
+
+  const selectedList = appState.duoMultiSelected;
+  if (selectedList.length === 0) {
+    alert('请先至少勾选一个选项再提交作答！');
+    return;
+  }
+
+  appState.duoAnswered = true;
+  const userAns = selectedList.slice().sort().join('');
+  const correctAns = (item.correct_answer || "ABC").toUpperCase().replace(/[^A-D]/g, '').split('').sort().join('');
+  const isCorrect = (userAns === correctAns);
+  const threshold = item.mastery_threshold || 3;
+
+  const container = document.getElementById('duo-options-container');
+  if (container) {
+    container.querySelectorAll('.duo-opt-btn').forEach(btn => {
+      btn.classList.add('locked');
+      const letter = btn.id.replace('duo-opt-btn-', '').toUpperCase();
+      const inCorrect = correctAns.includes(letter);
+      const inUser = userAns.includes(letter);
+
+      if (inCorrect && inUser) {
+        btn.classList.add('correct-choice');
+      } else if (!inCorrect && inUser) {
+        btn.classList.add('wrong-choice');
+      } else if (inCorrect && !inUser) {
+        btn.classList.add('missed-choice');
+      }
+    });
+  }
+
+  appState.duoSessionCount++;
+  item.attempt_count = (item.attempt_count || 0) + 1;
+
+  if (isCorrect) {
+    appState.duoSessionCorrect++;
+    item.correct_count = (item.correct_count || 0) + 1;
+    item.correct_streak = (item.correct_streak || 0) + 1;
+    if (item.correct_streak >= threshold) {
+      item.is_mastered = 1;
+    }
+  } else {
+    item.correct_streak = 0;
+    item.is_mastered = 0;
+  }
+
+  saveLocalMistakes(appState.mistakes);
+  updateMistakeCounters();
+  updateDuoSessionStatsUI();
+
+  showDuoFeedbackSheet(isCorrect, correctAns, item.correct_streak, threshold, item.correct_analysis);
+
+  if (isCorrect && appState.duoAutoNext) {
+    setTimeout(() => {
+      if (appState.duoCurrentItem && appState.duoCurrentItem.id === item.id) {
+        nextDuoQuestion();
+      }
+    }, 1200);
+  }
+}
+
+function updateDuoSessionStatsUI() {
+  const counterEl = document.getElementById('duo-session-counter');
+  const accEl = document.getElementById('duo-accuracy-rate');
+  if (counterEl) counterEl.textContent = appState.duoSessionCount;
+  if (accEl) {
+    const rate = appState.duoSessionCount > 0 
+      ? Math.round((appState.duoSessionCorrect / appState.duoSessionCount) * 100) 
+      : 100;
+    accEl.textContent = `(正确率 ${rate}%)`;
+  }
+}
+
+function showDuoFeedbackSheet(isCorrect, correctAns, streak, threshold, analysisText) {
+  const sheet = document.getElementById('duo-feedback-sheet');
+  const icon = document.getElementById('duo-feedback-icon');
+  const title = document.getElementById('duo-feedback-title');
+  const desc = document.getElementById('duo-feedback-desc');
+  const drawer = document.getElementById('duo-card-analysis-drawer');
+  const toggleBtn = document.getElementById('btn-duo-toggle-analysis');
+
+  if (!sheet) return;
+
+  sheet.classList.remove('hidden');
+  sheet.classList.remove('correct-sheet', 'wrong-sheet');
+
+  if (isCorrect) {
+    sheet.classList.add('correct-sheet');
+    if (icon) icon.textContent = '🎉';
+    if (title) title.textContent = streak >= threshold ? '太棒了！达成艾宾浩斯抗遗忘认证！' : '回答正确！';
+    if (desc) {
+      desc.textContent = streak >= threshold 
+        ? `🔥 已连续答对 ${streak} 次，达成科学长期记忆！` 
+        : `🔥 连对进度: ${streak}/${threshold} 次（再连对 ${threshold - streak} 次即可真正掌握）`;
+    }
+  } else {
+    sheet.classList.add('wrong-sheet');
+    if (icon) icon.textContent = '💡';
+    if (title) title.textContent = `遗憾答错！正确答案是【${correctAns}】`;
+    if (desc) desc.textContent = `连对进度已清零。下方已自动为您展开深度解析，请仔细复盘！`;
+    if (drawer) drawer.style.display = 'block';
+    if (toggleBtn) toggleBtn.textContent = '🙈 收起解析';
+  }
+}
+
+function handleDuoKeydown(e) {
+  const mistakesTab = document.getElementById('tab-mistakes');
+  if (!mistakesTab || !mistakesTab.classList.contains('active')) return;
+  if (appState.mistakeViewMode !== 'duo') return;
+
+  const tag = (document.activeElement && document.activeElement.tagName) || '';
+  if (['INPUT', 'TEXTAREA', 'SELECT'].includes(tag)) return;
+  const modalAdd = document.getElementById('modal-ai-add-mistake');
+  const modalSettings = document.getElementById('modal-ai-settings');
+  if ((modalAdd && !modalAdd.classList.contains('hidden')) || (modalSettings && !modalSettings.classList.contains('hidden'))) {
+    return;
+  }
+
+  const key = e.key;
+
+  if (key === ' ' || key === 'Enter') {
+    if (appState.duoAnswered) {
+      e.preventDefault();
+      nextDuoQuestion();
+      return;
+    }
+    if (appState.duoCurrentItem && appState.duoCurrentItem.question_type === 'multiple') {
+      e.preventDefault();
+      submitDuoMultiChoice();
+      return;
+    }
+  }
+
+  if (key === 'Tab' || key === 's' || key === 'S') {
+    e.preventDefault();
+    skipToNextDuoQuestion();
+    return;
+  }
+
+  if (!appState.duoAnswered && appState.duoCurrentItem) {
+    let letter = null;
+    if (key === 'a' || key === 'A' || key === '1') letter = 'A';
+    else if (key === 'b' || key === 'B' || key === '2') letter = 'B';
+    else if (key === 'c' || key === 'C' || key === '3') letter = 'C';
+    else if (key === 'd' || key === 'D' || key === '4') letter = 'D';
+
+    if (letter) {
+      e.preventDefault();
+      if (appState.duoCurrentItem.question_type === 'multiple') {
+        toggleDuoMultiOption(letter);
+      } else {
+        attemptDuoChoice(letter);
+      }
+    }
+  }
 }
 
 function renderMistakes() {
