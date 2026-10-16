@@ -4,7 +4,7 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>2027四川紧缺选调生 · 智能备考全栈系统</title>
-  <link rel="stylesheet" href="style.css">
+  <link rel="stylesheet" href="style.css?v=20261016_docmat">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=Noto+Sans+SC:wght@300;400;500;700;900&display=swap" rel="stylesheet">
@@ -71,6 +71,9 @@
       </button>
       <button class="tab-btn" data-tab="mistakes">
         <span class="tab-icon">📝</span> 智能错题 & 重做
+      </button>
+      <button class="tab-btn" data-tab="materials">
+        <span class="tab-icon">📜</span> 公文写作素材库
       </button>
     </nav>
 
@@ -495,6 +498,155 @@
         </div>
       </section>
 
+      <!-- 6. 公文写作素材库 & AI 百宝箱 -->
+      <section id="tab-materials" class="tab-pane">
+        <div class="card">
+          <div class="card-header" style="flex-wrap:wrap; gap:12px;">
+            <div>
+              <h3 class="card-title">📜 公文写作素材库 · AI 智能分类与升华百宝箱</h3>
+              <p class="card-subtitle">汇聚高频政策金句、提纲对仗小标题、首尾模板与材料转换对；支持 AI 一键萃取真题、大白话升华与闪卡抽背。</p>
+            </div>
+            <div style="display:flex; gap:8px; align-items:center; flex-wrap:wrap;">
+              <button class="btn btn-outline btn-sm" onclick="exportMaterialsJSON()">📤 导出素材</button>
+              <label class="btn btn-outline btn-sm" style="cursor:pointer; margin:0;">
+                📥 导入
+                <input type="file" id="mat-import-file" accept=".json" style="display:none;" onchange="importMaterialsJSON(this.files[0])">
+              </label>
+              <button class="btn btn-primary btn-sm" onclick="openAiAddMaterialModal()">✨ AI 录入素材/试题</button>
+            </div>
+          </div>
+
+          <!-- 子导航：三大核心功能视图 -->
+          <div class="sub-nav" style="margin-bottom:16px;">
+            <button class="sub-nav-btn active" data-sub="mat-gallery">💎 佳句与提纲全景 (<span id="mat-total-count">0</span>)</button>
+            <button class="sub-nav-btn" data-sub="mat-flashcard">⚡ 闪卡卡片抽背</button>
+            <button class="sub-nav-btn" data-sub="mat-toolbox">🪄 AI 公文百宝箱 (大白话升华/拟提纲)</button>
+          </div>
+
+          <!-- 子模块 1: 佳句与提纲全景卡片库 -->
+          <div id="sub-mat-gallery" class="sub-pane active">
+            <!-- 搜索与快捷操作 -->
+            <div style="display:flex; gap:10px; margin-bottom:12px; flex-wrap:wrap;">
+              <div style="flex:1; min-width:240px;">
+                <input type="text" id="mat-search-input" class="form-control" placeholder="🔍 搜索金句、提纲小标题、论据关键词..." oninput="handleMaterialSearch(this.value)">
+              </div>
+              <button class="btn btn-outline btn-sm" onclick="filterFavoriteMaterials(this)" id="btn-mat-filter-fav">
+                ⭐ 仅看收藏 (<span id="mat-fav-count">0</span>)
+              </button>
+            </div>
+
+            <!-- 主题分类胶囊栏 -->
+            <div class="materials-cat-tabs" id="mat-cat-tabs" style="display:flex; gap:6px; margin-bottom:10px; overflow-x:auto;">
+              <button class="cat-filter-chip active" data-cat="all">全部主题</button>
+              <button class="cat-filter-chip" data-cat="治蜀兴川与四川省情">🏔️ 治蜀兴川省情</button>
+              <button class="cat-filter-chip" data-cat="新质生产力与经济">⚡ 新质生产力</button>
+              <button class="cat-filter-chip" data-cat="基层治理与乡村振兴">🌾 基层治理乡村</button>
+              <button class="cat-filter-chip" data-cat="干部作风与廉洁担当">🛡️ 作风建设担当</button>
+              <button class="cat-filter-chip" data-cat="营商环境与政务服务">🏢 营商政务服务</button>
+              <button class="cat-filter-chip" data-cat="生态文明与绿色低碳">🌿 生态绿色发展</button>
+            </div>
+
+            <!-- 类型分类胶囊栏 -->
+            <div class="materials-type-tabs" id="mat-type-tabs" style="display:flex; gap:6px; margin-bottom:16px; overflow-x:auto;">
+              <button class="type-filter-chip active" data-type="all">全部形式</button>
+              <button class="type-filter-chip" data-type="heading">📌 对仗小标题/提纲</button>
+              <button class="type-filter-chip" data-type="golden">💎 政策点睛金句</button>
+              <button class="type-filter-chip" data-type="template">📑 开头结尾规范模板</button>
+              <button class="type-filter-chip" data-type="mapping">🔄 材料转规范公文词</button>
+            </div>
+
+            <!-- 素材卡片流 -->
+            <div class="materials-grid" id="materials-container">
+              <!-- 由 renderMaterialGallery 动态填充 -->
+            </div>
+          </div>
+
+          <!-- 子模块 2: 闪卡卡片抽背 (Duolingo/Anki 风) -->
+          <div id="sub-mat-flashcard" class="sub-pane">
+            <div class="mat-flashcard-stage">
+              <div class="mat-flashcard-toolbar">
+                <div style="display:flex; align-items:center; gap:8px;">
+                  <label>背诵分类：</label>
+                  <select id="flashcard-cat-select" class="form-control form-control-sm" onchange="changeFlashcardCategory(this.value)">
+                    <option value="all">📚 全部门类</option>
+                    <option value="治蜀兴川与四川省情">🏔️ 治蜀兴川省情</option>
+                    <option value="新质生产力与经济">⚡ 新质生产力</option>
+                    <option value="基层治理与乡村振兴">🌾 基层治理乡村</option>
+                    <option value="干部作风与廉洁担当">🛡️ 作风建设担当</option>
+                    <option value="营商环境与政务服务">🏢 营商政务服务</option>
+                  </select>
+                </div>
+                <div style="font-size:0.8rem; color:var(--text-secondary);">
+                  已背卡片：<strong id="flashcard-learned-count" style="color:var(--primary);">0</strong> 张
+                </div>
+              </div>
+
+              <!-- 主闪卡容器 -->
+              <div id="flashcard-card-box" class="flashcard-card-box">
+                <!-- 动态渲染 -->
+              </div>
+            </div>
+          </div>
+
+          <!-- 子模块 3: AI 公文百宝箱 -->
+          <div id="sub-mat-toolbox" class="sub-pane">
+            <div class="mat-toolbox-grid">
+              <!-- 工具 1: 大白话 ➔ 地道公文升华器 -->
+              <div class="toolbox-card">
+                <div class="toolbox-card-header">
+                  <div>
+                    <h4 style="font-size:1.02rem; font-weight:700; margin-bottom:4px;">🪄 大白话 ➔ 地道公文语言升华器</h4>
+                    <p style="font-size:0.8rem; color:var(--text-secondary); margin:0;">将脑海里通俗的大白话/口语，一键升华为地道公文对仗句、四字排比句与政策规范表述。</p>
+                  </div>
+                </div>
+                <div class="form-group" style="margin-top:12px;">
+                  <label>输入您想表达的通俗想法或大白话：</label>
+                  <textarea id="toolbox-colloquial-input" rows="3" class="form-control" placeholder="例如：我们要把老百姓的事情抓紧办好，不能偷懒推脱，要多去现场看看实际困难..."></textarea>
+                </div>
+                <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:14px; flex-wrap:wrap; gap:8px;">
+                  <div style="display:flex; align-items:center; gap:6px; font-size:0.8rem;">
+                    <span>风格倾向：</span>
+                    <select id="toolbox-polish-style" class="form-control form-control-sm">
+                      <option value="balance">⚖️ 经典四字对仗与排比 (最推荐)</option>
+                      <option value="action">🚀 抓实干强落实动宾结构</option>
+                      <option value="philosophy">🧠 结合总书记论述与金句引申</option>
+                    </select>
+                  </div>
+                  <button class="btn btn-primary btn-sm" id="btn-run-polish" onclick="runColloquialPolish()">🚀 AI 智能升华</button>
+                </div>
+                <div id="toolbox-polish-results" class="toolbox-results-box hidden"></div>
+              </div>
+
+              <!-- 工具 2: 对仗提纲小标题拟制器 -->
+              <div class="toolbox-card">
+                <div class="toolbox-card-header">
+                  <div>
+                    <h4 style="font-size:1.02rem; font-weight:700; margin-bottom:4px;">📐 对仗提纲小标题拟制器</h4>
+                    <p style="font-size:0.8rem; color:var(--text-secondary); margin:0;">输入写作主题或公文任务，快速拟定工整对仗的三段式/四段式高分一级标题提纲。</p>
+                  </div>
+                </div>
+                <div class="form-group" style="margin-top:12px;">
+                  <label>输入公文主题或大题材料任务：</label>
+                  <input type="text" id="toolbox-outline-topic" class="form-control" placeholder="例如：某市关于优化法治化营商环境的实施方案 / 驻村干部激发乡村内生动力讲话稿">
+                </div>
+                <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:14px; flex-wrap:wrap; gap:8px;">
+                  <div style="display:flex; align-items:center; gap:6px; font-size:0.8rem;">
+                    <span>提纲架构：</span>
+                    <select id="toolbox-outline-struct" class="form-control form-control-sm">
+                      <option value="triplet">🏛️ 三段并列对仗 (如：强基固本.../聚链成势.../赋能提质...)</option>
+                      <option value="step">🪜 递进推进式 (思想认识 ➔ 机制保障 ➔ 狠抓实干)</option>
+                      <option value="doc">📑 标准方案式 (总体要求 ➔ 重点攻坚 ➔ 保障举措)</option>
+                    </select>
+                  </div>
+                  <button class="btn btn-primary btn-sm" id="btn-run-outline" onclick="runOutlineGenerate()">⚡ 生成对仗小标题</button>
+                </div>
+                <div id="toolbox-outline-results" class="toolbox-results-box hidden"></div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
     </main>
 
     <!-- 弹窗 1：AI 一键智能错题录入 / 编辑 Modal -->
@@ -805,6 +957,107 @@
       </div>
     </div>
 
+    <!-- 弹窗 4：AI 公文素材录入 / 真题大题结构化萃取 Modal -->
+    <div id="modal-ai-add-material" class="modal-overlay hidden">
+      <div class="modal-card modal-lg">
+        <div class="modal-header">
+          <h3 id="modal-mat-title">✨ AI 公文素材录入与试题萃取</h3>
+          <button class="btn-close" onclick="closeAiAddMaterialModal()">✕</button>
+        </div>
+        <div class="modal-body">
+          <input type="hidden" id="editing-material-id" value="">
+
+          <!-- 录入模式切换 Tab -->
+          <div class="modal-mode-tabs" style="display:flex; gap:8px; border-bottom:1px solid var(--border-subtle); padding-bottom:10px; margin-bottom:12px;">
+            <button type="button" class="btn btn-primary btn-sm" id="btn-mat-mode-quote" onclick="switchMaterialInputMode('quote')">📝 单条金句/段落提取</button>
+            <button type="button" class="btn btn-outline btn-sm" id="btn-mat-mode-exam" onclick="switchMaterialInputMode('exam')">📑 模考/真题整道大题萃取</button>
+          </div>
+
+          <!-- 模式 1: 单条短文提取 -->
+          <div id="mat-mode-quote-pane">
+            <div class="form-group">
+              <label style="display:flex; justify-content:space-between;">
+                <span>粘贴讲话节选、金句、小标题或文章段落：</span>
+                <a href="javascript:void(0)" style="font-size:0.75rem; color:var(--primary);" onclick="fillSampleMaterialText()">📥 载入四川时政金句示例</a>
+              </label>
+              <textarea id="raw-material-input" rows="4" class="form-control" placeholder="在此粘贴文本，AI 将自动识别主题分类、素材形态、提炼标题与金句..."></textarea>
+            </div>
+            <div style="margin-top:6px; margin-bottom:12px;">
+              <button class="btn btn-primary btn-sm" id="btn-parse-material" onclick="executeAiParseMaterial()">🚀 AI 智能提取并结构化</button>
+            </div>
+          </div>
+
+          <!-- 模式 2: 整道大题结构化萃取 -->
+          <div id="mat-mode-exam-pane" class="hidden">
+            <div class="form-group">
+              <label>1. 题干任务与文种要求：</label>
+              <input type="text" id="raw-exam-stem" class="form-control" placeholder="例如：根据给定材料，拟写一份关于推进文旅深度融合发展的实施方案">
+            </div>
+            <div class="form-group">
+              <label>2. 背景材料节选 (长文材料)：</label>
+              <textarea id="raw-exam-materials" rows="4" class="form-control" placeholder="粘贴试题中给出的背景事实、群众反映、存在的问题与调研情况材料..."></textarea>
+            </div>
+            <div class="form-group">
+              <label style="display:flex; justify-content:space-between;">
+                <span>3. 机构参考答案或高分范文：</span>
+                <a href="javascript:void(0)" style="font-size:0.75rem; color:var(--primary);" onclick="fillSampleExamExtract()">📥 载入金标尺模考题示例</a>
+              </label>
+              <textarea id="raw-exam-answer" rows="4" class="form-control" placeholder="粘贴机构提供的参考答案、高分范文或官方参考要点..."></textarea>
+            </div>
+            <div style="margin-top:6px; margin-bottom:12px;">
+              <button class="btn btn-primary btn-sm" id="btn-extract-exam" onclick="executeAiExtractDocExam()">🧠 AI 深度萃取 (提纲+金句+材料对照)</button>
+            </div>
+          </div>
+
+          <!-- 萃取结果预览回填区 -->
+          <div id="mat-parsed-preview" class="hidden" style="background:var(--bg-subtle); border:1px solid var(--border-subtle); border-radius:var(--radius-sm); padding:14px; margin-top:10px;">
+            <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:10px;">
+              <strong style="color:var(--primary);">📋 结构化解析结果 (可按需微调)</strong>
+              <span class="engine-tag-pill source-llm" id="mat-engine-pill">AI 智能提取</span>
+            </div>
+            <div style="display:grid; grid-template-columns:1fr 1fr; gap:10px;">
+              <div class="form-group">
+                <label>所属主题分类</label>
+                <select id="parsed-mat-category" class="form-control">
+                  <option value="治蜀兴川与四川省情">🏔️ 治蜀兴川与四川省情</option>
+                  <option value="新质生产力与经济">⚡ 新质生产力与经济发展</option>
+                  <option value="基层治理与乡村振兴">🌾 基层治理与乡村振兴</option>
+                  <option value="干部作风与廉洁担当">🛡️ 干部作风与廉洁担当</option>
+                  <option value="营商环境与政务服务">🏢 营商环境与政务服务</option>
+                  <option value="生态文明与绿色低碳">🌿 生态文明与绿色低碳</option>
+                </select>
+              </div>
+              <div class="form-group">
+                <label>素材形态类型</label>
+                <select id="parsed-mat-type" class="form-control">
+                  <option value="heading">📌 对仗小标题 / 提纲</option>
+                  <option value="golden">💎 政策点睛金句</option>
+                  <option value="template">📑 开头结尾规范模板</option>
+                  <option value="mapping">🔄 材料转规范公文词</option>
+                </select>
+              </div>
+            </div>
+            <div class="form-group">
+              <label>素材标题 / 核心概括</label>
+              <input type="text" id="parsed-mat-title" class="form-control">
+            </div>
+            <div class="form-group">
+              <label>核心金句 / 提纲内容 / 对照文本</label>
+              <textarea id="parsed-mat-content" rows="4" class="form-control"></textarea>
+            </div>
+            <div class="form-group">
+              <label>适用场景 / 范例说明 / 记忆点</label>
+              <input type="text" id="parsed-mat-note" class="form-control" placeholder="如：用于实施方案或讲话稿第二部分措施段">
+            </div>
+          </div>
+        </div>
+        <div class="modal-footer">
+          <button class="btn btn-outline" onclick="closeAiAddMaterialModal()">取消</button>
+          <button class="btn btn-primary" id="btn-save-parsed-material" onclick="confirmSaveParsedMaterial()" disabled>💾 存入素材库</button>
+        </div>
+      </div>
+    </div>
+
     <!-- 全屏大图预览遮罩 Modal -->
     <div id="modal-image-lightbox" class="modal-overlay hidden" onclick="closeImageLightbox()">
       <div style="max-width:92vw; max-height:92vh; display:flex; flex-direction:column; align-items:center; justify-content:center; position:relative;" onclick="event.stopPropagation()">
@@ -817,6 +1070,6 @@
 
   <script src="https://cdn.jsdelivr.net/npm/qrcode@1.5.3/build/qrcode.min.js"></script>
   <script src="historical_data.js"></script>
-  <script src="app.js?v=20261015_1"></script>
+  <script src="app.js?v=20261016_docmat"></script>
 </body>
 </html>

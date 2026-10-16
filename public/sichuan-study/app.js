@@ -57,6 +57,7 @@ const EXAM_DATE = "2026-10-25";
 const STORAGE_KEYS = {
   PLANS_MASTER: 'sichuan_study_plans_master',
   MISTAKES_MASTER: 'sichuan_study_mistakes_master',
+  DOC_MATERIALS: 'sichuan_study_doc_materials_master',
   SETTINGS: 'sichuan_ai_settings_master',
   THEME: 'sichuan_study_theme',
   SYNC_SHORT_CODE: 'sichuan_study_sync_short_code',
@@ -121,7 +122,18 @@ let appState = {
   duoSessionCorrect: 0,
   duoAutoNext: localStorage.getItem('duo_auto_next') === 'true',
   duoAnswered: false,
-  duoMultiSelected: []
+  duoMultiSelected: [],
+  // 📜 公文写作素材库状态
+  materials: [],
+  activeMatCategory: 'all',
+  activeMatType: 'all',
+  activeMatSearch: '',
+  activeMatOnlyFav: false,
+  flashcardScope: 'all',
+  flashcardCurrentItem: null,
+  flashcardRevealed: false,
+  flashcardLearnedIds: JSON.parse(localStorage.getItem('sc_mat_flashcard_learned') || '[]'),
+  parsedMaterialDraft: null
 };
 
 function getRealCurrentDateStr() {
@@ -507,6 +519,29 @@ function saveLocalMistakes(mistakes) {
   triggerAutoSync(); // 自动无感静默同步！
 }
 
+function getLocalMaterials() {
+  let masterRaw = localStorage.getItem(STORAGE_KEYS.DOC_MATERIALS);
+  let masterMaterials = null;
+  if (masterRaw) {
+    try { masterMaterials = JSON.parse(masterRaw); } catch (e) {}
+  }
+
+  if (!masterMaterials || !Array.isArray(masterMaterials) || masterMaterials.length === 0) {
+    masterMaterials = (typeof DEFAULT_DOC_MATERIALS !== 'undefined' && Array.isArray(DEFAULT_DOC_MATERIALS)) 
+      ? JSON.parse(JSON.stringify(DEFAULT_DOC_MATERIALS)) 
+      : [];
+    localStorage.setItem(STORAGE_KEYS.DOC_MATERIALS, JSON.stringify(masterMaterials));
+  }
+
+  return masterMaterials;
+}
+
+function saveLocalMaterials(materials) {
+  localStorage.setItem(STORAGE_KEYS.DOC_MATERIALS, JSON.stringify(materials));
+  appState.materials = materials;
+  triggerAutoSync(); // 自动无感静默同步！
+}
+
 /* ==========================================================================
    全自动实时无感跨端双向同步引擎 (6位专属短码 + 多通道高可用云中继)
    ========================================================================== */
@@ -534,12 +569,14 @@ async function pushDataToCloud(shortCode) {
   const binId = getCloudBinId(code);
   const plans = getLocalPlans();
   const mistakes = getLocalMistakes();
+  const materials = getLocalMaterials();
   const payload = {
     version: "2027_v2",
     sync_code: code,
     updatedAt: Date.now(),
     plans: plans,
-    mistakes: mistakes
+    mistakes: mistakes,
+    materials: materials
   };
 
   // 1. 最高优先级：若用户配置了 Supabase 专属私有云数据库 (企业级高可靠)
@@ -760,11 +797,46 @@ function mergeRemoteDataSafely(remoteData) {
     }
   }
 
+  // 3. 合并公文素材
+  if (remoteData.materials && Array.isArray(remoteData.materials)) {
+    const localMaterials = getLocalMaterials();
+    const map = new Map();
+    localMaterials.forEach(m => {
+      if (m && m.id) map.set(String(m.id), m);
+    });
+
+    let matUpdated = false;
+    remoteData.materials.forEach(rm => {
+      if (rm && rm.id) {
+        const idKey = String(rm.id);
+        if (!map.has(idKey)) {
+          map.set(idKey, rm);
+          matUpdated = true;
+        } else {
+          const lm = map.get(idKey);
+          if ((rm.updatedAt || 0) > (lm.updatedAt || 0)) {
+            map.set(idKey, rm);
+            matUpdated = true;
+          }
+        }
+      }
+    });
+
+    if (matUpdated) {
+      const mergedList = Array.from(map.values());
+      localStorage.setItem(STORAGE_KEYS.DOC_MATERIALS, JSON.stringify(mergedList));
+      appState.materials = mergedList;
+      hasUpdate = true;
+    }
+  }
+
   if (hasUpdate) {
     calculateAndRenderDashboard();
     renderCalendar();
     renderMistakes();
     updateMistakeCounters();
+    if (typeof renderMaterialGallery === 'function') renderMaterialGallery();
+    if (typeof renderMaterialFlashcard === 'function') renderMaterialFlashcard();
     showAutoSyncIndicator('☁️ 已自动同步最新');
   }
 }
@@ -900,6 +972,7 @@ async function loadData() {
   calculateAndRenderDashboard();
   renderCalendar();
   loadMistakes();
+  loadMaterials();
 }
 
 function calculateAndRenderDashboard() {
@@ -3945,30 +4018,1335 @@ function escapeHtml(str) {
   return String(str).replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;").replace(/'/g, "&#039;");
 }
 
-document.querySelectorAll('.filter-chip').forEach(chip => {
+// 错题库专属筛选标签绑定（作用域限定，避免与素材库冲突）
+document.querySelectorAll('#mistake-filter-chips .filter-chip, #tab-mistakes .filter-chip').forEach(chip => {
   chip.addEventListener('click', () => {
-    document.querySelectorAll('.filter-chip').forEach(c => c.classList.remove('active'));
+    document.querySelectorAll('#tab-mistakes .filter-chip').forEach(c => c.classList.remove('active'));
     chip.classList.add('active');
     appState.activeMistakeFilter = chip.getAttribute('data-filter');
     renderMistakes();
   });
 });
 
-// 绑定题型专属筛选标签点击事件
-document.querySelectorAll('.type-filter-chip').forEach(chip => {
+document.querySelectorAll('#mistake-type-filter-chips .type-filter-chip, #tab-mistakes .type-filter-chip').forEach(chip => {
   chip.addEventListener('click', () => {
-    document.querySelectorAll('.type-filter-chip').forEach(c => c.classList.remove('active'));
+    document.querySelectorAll('#tab-mistakes .type-filter-chip').forEach(c => c.classList.remove('active'));
     chip.classList.add('active');
     appState.activeMistakeTypeFilter = chip.getAttribute('data-type');
     renderMistakes();
   });
 });
 
-document.querySelectorAll('.cat-filter-chip').forEach(chip => {
+document.querySelectorAll('#mistake-cat-filter-chips .cat-filter-chip, #tab-mistakes .cat-filter-chip').forEach(chip => {
   chip.addEventListener('click', () => {
-    document.querySelectorAll('.cat-filter-chip').forEach(c => c.classList.remove('active'));
+    document.querySelectorAll('#tab-mistakes .cat-filter-chip').forEach(c => c.classList.remove('active'));
     chip.classList.add('active');
     appState.activeMistakeCategory = chip.getAttribute('data-cat');
     renderMistakes();
   });
 });
+
+/* ==========================================================================
+   📜 公文写作素材库 · AI 分类提炼与百宝箱全套业务引擎
+   ========================================================================== */
+
+// 预置四川省考 32 条精编高频素材（治蜀兴川、新质生产力、基层治理、干部作风、营商环境、生态文明、法定公文模板、口语转公文）
+const DEFAULT_DOC_MATERIALS = [
+  {
+    id: 'mat-01',
+    category: '治蜀兴川与四川省情',
+    type: 'heading',
+    title: '推进“四化同步、城乡融合、五区共兴”总体布局',
+    content: '一、推动新型工业化由大到强、信息化深度赋能、城镇化提质增效、农业现代化强基固本；\n二、以县域为切入点破除城乡二元结构，健全城乡融合发展体制机制；\n三、推动成都平原经济区协同领跑，促进五大经济区差异化协同共兴。',
+    note: '用于四川省考大作文/策论文总体战略与宏观举措段落，四化同步是总抓手，五区共兴是空间格局。',
+    tags: ['治蜀兴川', '四化同步', '城乡融合', '五区共兴'],
+    is_star: 1,
+    source: '省委十二届历次全会决议',
+    updatedAt: 1718000001
+  },
+  {
+    id: 'mat-02',
+    category: '治蜀兴川与四川省情',
+    type: 'golden',
+    title: '擦亮农业大省金字招牌 · 打造新时代更高水平“天府粮仓”',
+    content: '严守耕地保护红线与粮食安全底线，抓好高标准农田建设，落实“藏粮于地、藏粮于技”，坚决遏制耕地“非农化”、严格管控“非粮化”，牢牢把中国人的饭碗端在自己手中。',
+    note: '乡村振兴、三农工作、粮食安全综合分析与方案题点睛必背金句。',
+    tags: ['天府粮仓', '耕地红线', '藏粮于地', '粮食安全'],
+    is_star: 1,
+    source: '总书记来川视察重要指示精神',
+    updatedAt: 1718000002
+  },
+  {
+    id: 'mat-03',
+    category: '治蜀兴川与四川省情',
+    type: 'template',
+    title: '省级重要战略方案与通知贯彻开头模板',
+    content: '为深入贯彻落实习近平总书记对四川工作系列重要指示精神，全面落实省委十二届历次全会决策部署，紧扣“四化同步、城乡融合、五区共兴”发展战略，完整、准确、全面贯彻新发展理念，结合我区（市、县）实际，特制定本实施方案。',
+    note: '适用于各类实施方案、通知、工作意见的起草开头，标准贯标引领。',
+    tags: ['方案开头', '法定公文', '贯标开头'],
+    is_star: 1,
+    source: '四川省人民政府公报规范范例',
+    updatedAt: 1718000003
+  },
+  {
+    id: 'mat-04',
+    category: '新质生产力与经济',
+    type: 'heading',
+    title: '因地制宜发展新质生产力“三维发力”',
+    content: '一、聚力科技创新“策源点”，攻坚关键核心技术与前沿研发；\n二、夯实产业转型“支撑点”，以“智改数转”赋能传统产业焕新；\n三、构筑机制变革“催化剂”，激发各类优质生产要素顺畅流动。',
+    note: '产业发展、创新驱动、现代化产业体系策论文高分三段式小标题。',
+    tags: ['新质生产力', '科技创新', '产业升级', '智改数转'],
+    is_star: 1,
+    source: '新华社公文写作精粹',
+    updatedAt: 1718000004
+  },
+  {
+    id: 'mat-05',
+    category: '新质生产力与经济',
+    type: 'golden',
+    title: '发展新质生产力不是忽视、放弃传统产业',
+    content: '发展新质生产力不是忽视、放弃传统产业，要防止一哄而上、泡沫化，也不要搞一种模式。要统筹推进传统产业升级、新兴产业壮大、未来产业培育，坚持以新促质、以智赋能。',
+    note: '议论文驳论辨析段落，避免走入“喜新厌旧”误区的高级思辨论据。',
+    tags: ['传统产业升级', '辩证施策', '防止泡沫化'],
+    is_star: 0,
+    source: '全国两会团组讲话',
+    updatedAt: 1718000005
+  },
+  {
+    id: 'mat-06',
+    category: '基层治理与乡村振兴',
+    type: 'heading',
+    title: '深化新时代基层治理“三治融合”',
+    content: '一、政治引领强根基，发挥基层党组织战斗堡垒核心作用；\n二、自治强基激活力，健全村民议事会与网格协商微治理机制；\n三、法治保障促规范、德治润心树新风，构建共建共治共享治理格局。',
+    note: '社区治理、基层矛盾化解、平安四川建设实施方案对策。',
+    tags: ['基层治理', '三治融合', '枫桥经验', '共建共治'],
+    is_star: 1,
+    source: '新时代“枫桥经验”在川实践',
+    updatedAt: 1718000006
+  },
+  {
+    id: 'mat-07',
+    category: '基层治理与乡村振兴',
+    type: 'mapping',
+    title: '群众诉求与矛盾化解 · 口语转地道公文词',
+    content: '【材料口语】老百姓有牢骚没处说，邻里吵架打架没人管，干部平时坐办公室不下村。\n【公文规范】畅通民意诉求表达渠道，健全矛盾纠纷多元化解机制，深化践行“四下基层”优良传统，推动力量下沉、服务前移，变“坐等群众上门”为“主动靠前服务”。',
+    note: '省考综合分析与公文写作对策提炼转化必备对照。',
+    tags: ['四下基层', '材料转化', '多元化解', '服务前移'],
+    is_star: 1,
+    source: '公文真题答题规范对照',
+    updatedAt: 1718000007
+  },
+  {
+    id: 'mat-08',
+    category: '干部作风与廉洁担当',
+    type: 'heading',
+    title: '锻造忠诚干净担当干部铁军“四严四实”',
+    content: '一、铸牢政治忠诚之魂，把稳思想之舵；\n二、厚植为民造福之本，走好群众路线；\n三、锤炼实干担当之能，发扬斗争精神；\n四、严守纪律规矩之尺，筑牢廉洁底线。',
+    note: '干部作风建设动员讲话、组织工作方案、述职报告高分提纲。',
+    tags: ['干部作风', '忠诚干净担当', '廉洁底线', '实干担当'],
+    is_star: 0,
+    source: '党建论坛范例',
+    updatedAt: 1718000008
+  },
+  {
+    id: 'mat-09',
+    category: '干部作风与廉洁担当',
+    type: 'golden',
+    title: '树牢造福人民的正确政绩观',
+    content: '坚持以实干论英雄、凭实绩用干部，坚决破除“新形象工程”与形式主义、官僚主义，把为民造福作为最大政绩，做到既做让老百姓看得见、摸得着的实事，也做为后人作铺垫、打基础的好事。',
+    note: '评述题、作风整顿专题、大作文分析论证段落黄金点睛句。',
+    tags: ['政绩观', '形式主义', '潜绩与显绩', '为民造福'],
+    is_star: 1,
+    source: '中纪委机关报评论员文章',
+    updatedAt: 1718000009
+  },
+  {
+    id: 'mat-10',
+    category: '营商环境与政务服务',
+    type: 'heading',
+    title: '全力打响“高效办成一件事”政务品牌',
+    content: '一、“一门受理”抓集成，推进政务服务综合窗口全覆盖；\n二、“一网通办”减跑动，打破跨部门“信息孤岛”与数据壁垒；\n三、“一线速办”解急难，依托12345热线构建接诉即办闭环；\n四、“一视同仁”优环境，营造公开透明稳定公平竞争生态。',
+    note: '优化政务服务改革方案、营商环境三年行动计划对仗提纲。',
+    tags: ['高效办成一件事', '一网通办', '接诉即办', '营商环境'],
+    is_star: 1,
+    source: '国务院政务服务指导意见',
+    updatedAt: 1718000010
+  },
+  {
+    id: 'mat-11',
+    category: '营商环境与政务服务',
+    type: 'mapping',
+    title: '审批流程繁杂与办事难 · 口语转地道公文词',
+    content: '【材料口语】企业反映盖章跑断腿，同一个证照来回交好几回，办事窗口人员态度冷淡推脱踢皮球。\n【公文规范】推行“多审合一、多证联办”极简审批模式，实现电子证照互认共享与“免申即享”，严格落实“首问负责制”与“容缺受理机制”，持续减环节、减材料、减时限。',
+    note: '营商环境调研整改报告、推进行动方案核心对策转化。',
+    tags: ['极简审批', '免申即享', '容缺受理', '首问负责'],
+    is_star: 1,
+    source: '省考真题考点提炼',
+    updatedAt: 1718000011
+  },
+  {
+    id: 'mat-12',
+    category: '生态文明与绿色低碳',
+    type: 'heading',
+    title: '筑牢长江黄河上游生态屏障“三坚”',
+    content: '一、坚持精准治污，绘就蓝天碧水净土秀美画卷；\n二、坚持系统修复，厚植大江大河上游绿色底色；\n三、坚持绿色转型，激发清洁能源与低碳发展动能。',
+    note: '四川生态文明建设、筑牢长江黄河上游生态屏障公文主题小标题。',
+    tags: ['生态屏障', '精准治污', '绿色低碳', '长江黄河上游'],
+    is_star: 0,
+    source: '美丽四川建设规划纲要',
+    updatedAt: 1718000012
+  },
+  {
+    id: 'mat-13',
+    category: '生态文明与绿色低碳',
+    type: 'golden',
+    title: '绿水青山就是金山银山在川创新实践',
+    content: '坚定不移走生态优先、绿色低碳的高质量发展道路，把生态高颜值转化为经济高价值，让绿水青山成为富民利民的幸福靠山，实现生态效益、经济效益、社会效益有机统一。',
+    note: '绿色发展大作文、生态文明专题典型发言立意点睛。',
+    tags: ['两山理念', '生态优先', '高颜值高价值'],
+    is_star: 0,
+    source: '省委全会报告摘录',
+    updatedAt: 1718000013
+  },
+  {
+    id: 'mat-14',
+    category: '治蜀兴川与四川省情',
+    type: 'heading',
+    title: '激发县域经济活力“四重奏”',
+    content: '一、特色产业立县，因地制宜打造百亿级特色产业集群；\n二、工业强县拓空间，推动园区扩能增效与要素聚合；\n三、生态活县增后劲，探索生态产品价值实现新路径；\n四、商贸兴县聚人气，繁荣发展现代服务业与县域消费。',
+    note: '全国百强县培育、县域特色发展调研报告措施段。',
+    tags: ['县域经济', '特色产业', '工业强县', '五区共兴'],
+    is_star: 0,
+    source: '四川县域经济高质量发展会议',
+    updatedAt: 1718000014
+  },
+  {
+    id: 'mat-15',
+    category: '基层治理与乡村振兴',
+    type: 'golden',
+    title: '“四下基层”的精神实质与工作方法',
+    content: '把心贴近人民，把根扎在基层。坚持宣传党的路线方针政策下基层、调查研究下基层、信访接待下基层、现场办公下基层，把群众的“呼声”变成政策的“哨声”，在基层一线发现问题、解决问题。',
+    note: '干部下沉、群众路线、走访调研公文材料精辟点题句。',
+    tags: ['四下基层', '现场办公', '调查研究', '群众呼声'],
+    is_star: 1,
+    source: '人民日报头版评论',
+    updatedAt: 1718000015
+  },
+  {
+    id: 'mat-16',
+    category: '干部作风与廉洁担当',
+    type: 'mapping',
+    title: '懒政怠政推脱扯皮 · 口语转地道公文词',
+    content: '【材料口语】有的干部怕担责任不敢签字，遇到难啃的硬骨头绕道走，工作推一下动一下，做一天和尚撞一天钟。\n【公文规范】坚决整治“躺平式”不作为慢作为与“中梗阻”现象，健全容错纠错与尽职免责机制，旗帜鲜明为担当者担当、为负责者负责，坚决破除“干多错多、不干不错”的消极避责心态。',
+    note: '干部作风整肃专项方案、考评通报语言转换对照。',
+    tags: ['容错纠错', '躺平式干部', '激励担当', '材料转化'],
+    is_star: 1,
+    source: '公文真题常考题眼',
+    updatedAt: 1718000016
+  },
+  {
+    id: 'mat-17',
+    category: '治蜀兴川与四川省情',
+    type: 'template',
+    title: '实施方案与通知抓落实及督考结尾模板',
+    content: '各级各部门要切实提高政治站位，强化组织领导，压紧压实主体责任，健全协同联动机制。要坚持台账化管理、节点化推进，加强全过程督导检查与绩效考核。对工作扎实成效显著的予以表彰推广，对履职不力、推诿扯皮的严肃追责问责，确保各项部署不折不扣落地生根、开花结果。',
+    note: '公文结尾压轴万能段，适用于实施方案、工作意见、通知总结。',
+    tags: ['抓落实', '督导问效', '结尾模板', '压实责任'],
+    is_star: 1,
+    source: '四川省政府机关发文规范范本',
+    updatedAt: 1718000017
+  },
+  {
+    id: 'mat-18',
+    category: '治蜀兴川与四川省情',
+    type: 'template',
+    title: '法定公文“批复”标准行文规范结构',
+    content: '【标题】四川省人民政府关于同意设立……的批复\n【主送机关】××市人民政府、省发展改革委：\n【正文】《关于设立……的请示》（×府〔2026〕×号）收悉。经研究，现批复如下：\n一、原则同意……；\n二、请严格按照国家有关法律法规和行业标准周密实施，防范化解各类风险；\n三、省直有关部门要按照职责分工加强业务指导与协调配合。\n【结语】执行中遇到的重大问题，请及时按程序向省政府报告。',
+    note: '省考法定公文“批复”专用结构与标准公文术语。',
+    tags: ['法定公文', '批复格式', '请示答复', '收悉批复'],
+    is_star: 0,
+    source: '党政机关公文格式国标 (GB/T 9704)',
+    updatedAt: 1718000018
+  },
+  {
+    id: 'mat-19',
+    category: '治蜀兴川与四川省情',
+    type: 'template',
+    title: '法定公文“会议纪要”核心用语模板',
+    content: '【正文开篇】2026年×月×日，××领导主持召开专题协调会议，研究推进……重点工作。会议听取了省××厅、××市关于前期筹备情况的汇报，对下一阶段重点任务进行了深入研究讨论。\n【要点段】会议指出……；会议强调……；会议明确……；\n【统筹结语】会议要求，各相关部门要牢固树立“一盘棋”思想，加强横向协同，挂图作战、倒排工期，扎实推动各项部署落地见效。',
+    note: '省考高频法定公文“纪要”行文特征：条理清晰、用词精炼有约束力。',
+    tags: ['法定公文', '会议纪要', '挂图作战', '一盘棋'],
+    is_star: 0,
+    source: '办公厅会议纪要规范范例',
+    updatedAt: 1718000019
+  },
+  {
+    id: 'mat-20',
+    category: '基层治理与乡村振兴',
+    type: 'template',
+    title: '动员号召型倡议书/公开信标准结语',
+    content: '众人拾柴火焰高，涓涓细流汇江海。宏伟蓝图已绘就，奋楫扬帆正当时！让我们迅速行动起来，以主人翁的责任担当、饱满的实干激情，积极投身到……的生动实践中，凝心聚力、携手并肩，共同谱写新时代美丽四川建设的崭新篇章！',
+    note: '宣传动员类公文、公开信、倡议书结尾升华专用。',
+    tags: ['倡议书', '群众动员', '号召结语', '凝心聚力'],
+    is_star: 0,
+    source: '省直机关团工委倡议范本',
+    updatedAt: 1718000020
+  },
+  {
+    id: 'mat-21',
+    category: '新质生产力与经济',
+    type: 'heading',
+    title: '推进工业“智改数转”行动三项攻坚',
+    content: '一、标杆引路促普及，培育一批“灯塔工厂”与数字化转型标杆企业；\n二、数字赋能强链条，深化工业互联网应用与产业链上下游数据贯通；\n三、协同创新聚生态，构建算力网络、数据要素与智造服务综合生态圈。',
+    note: '四川推进新型工业化、制造强省建设核心措施段落。',
+    tags: ['智改数转', '灯塔工厂', '数字四川', '新型工业化'],
+    is_star: 0,
+    source: '四川省制造业数字化转型专项行动',
+    updatedAt: 1718000021
+  },
+  {
+    id: 'mat-22',
+    category: '基层治理与乡村振兴',
+    type: 'heading',
+    title: '提升党建引领“微网实格”治理效能',
+    content: '一、织密“红色微网”强神经末梢，推动党支部建在网格、党小组设在楼栋；\n二、充实“精锐力量”强服务质效，选优配强网格员、微网格长队伍；\n三、贯通“响应闭环”强纾困解难，建立“格内办、社区提、街镇派、联动结”流转机制。',
+    note: '四川特有基层治理高频词“微网实格”，考点命中率极高。',
+    tags: ['微网实格', '党建引领', '网格治理', '四川特色治理'],
+    is_star: 1,
+    source: '四川基层党建与网格化管理典型经验',
+    updatedAt: 1718000022
+  },
+  {
+    id: 'mat-23',
+    category: '营商环境与政务服务',
+    type: 'golden',
+    title: '法治是最好的营商环境',
+    content: '法治是最好的营商环境。要依法平等保护各类经营主体产权和合法权益，规范涉企行政执法行为，严格落实行政裁量权基准，推行包容审慎监管与“首违不罚”，让企业放心投资、安心经营、专心创业。',
+    note: '法治化营商环境综合分析、评论题、对策题高分金句。',
+    tags: ['法治营商', '首违不罚', '包容审慎', '保护产权'],
+    is_star: 1,
+    source: '优化营商环境条例重点论述',
+    updatedAt: 1718000023
+  },
+  {
+    id: 'mat-24',
+    category: '基层治理与乡村振兴',
+    type: 'mapping',
+    title: '乡村旅游千篇一律 · 口语转地道公文词',
+    content: '【材料口语】周边几个村都在搞农家乐、采摘园，卖的土特产一模一样，游客来一次就觉得没意思，生意一年比一年差。\n【公文规范】摒弃低水平同质化竞争，坚持“一村一品、一村一策”，深挖本土非遗与乡土民俗文化IP，推动“文旅+农业+康养”跨界融合，打造沉浸式、体验式高品质乡村旅游新场景新业态。',
+    note: '文旅融合发展、乡村特色产业培育材料提炼对策。',
+    tags: ['文旅融合', '一村一品', '同质化竞争', '场景业态升级'],
+    is_star: 1,
+    source: '金标尺申论模考真题解析萃取',
+    updatedAt: 1718000024
+  },
+  {
+    id: 'mat-25',
+    category: '治蜀兴川与四川省情',
+    type: 'golden',
+    title: '统筹高质量发展和高水平安全',
+    content: '坚持底线思维、极限思维，增强忧患意识。针对四川地形地质与气候特点，深入排查防范化解森林草原防灭火、防汛抗旱、地质灾害等重大风险隐患，下好先手棋、打好主动仗，以高水平安全护航高质量发展。',
+    note: '四川应急管理、防灾减灾救灾、安全生产工作方案点题句。',
+    tags: ['底线思维', '极限思维', '防灾减灾', '高水平安全'],
+    is_star: 1,
+    source: '省委常委会应急管理专题会议',
+    updatedAt: 1718000025
+  },
+  {
+    id: 'mat-26',
+    category: '干部作风与廉洁担当',
+    type: 'heading',
+    title: '牢固树立正确政绩观“三问三思”',
+    content: '一、一问干事创业“为了谁”，站稳为民造福的政治立场；\n二、二问谋划工作“依靠谁”，走深走实群众路线与调查研究；\n三、三问历史长河“留下什么”，创造经得起实践、人民和历史检验的实绩。',
+    note: '年轻干部座谈会发言、纪检谈话、作风研讨小标题。',
+    tags: ['政绩观', '初心使命', '群众立场', '经得起检验'],
+    is_star: 0,
+    source: '中央党校学习时报精要',
+    updatedAt: 1718000026
+  },
+  {
+    id: 'mat-27',
+    category: '新质生产力与经济',
+    type: 'golden',
+    title: '深化科技体制改革 · 激发人才第一资源',
+    content: '破除“唯论文、唯职称、唯学历、唯奖项”顽瘴痼疾，建立以创新价值、能力、贡献为导向的人才评价体系，完善科技成果转化收益分配机制，为科研人员松绑减负，让各类创新人才竞相迸发、各尽其才。',
+    note: '科技体制机制改革、人才强省大作文深度分析。',
+    tags: ['破四唯', '人才强省', '创新驱动', '科技体制改革'],
+    is_star: 0,
+    source: '四川省科技创新激励办法解读',
+    updatedAt: 1718000027
+  },
+  {
+    id: 'mat-28',
+    category: '营商环境与政务服务',
+    type: 'heading',
+    title: '营造亲商安商富商优良环境“四步工作法”',
+    content: '一、“面对面”倾听诉求，健全常态化政企沟通恳谈机制；\n二、“实打实”纾困解难，推动惠企减税降费政策直达快享；\n三、“零距离”要素保障，精准对接企业用地用能用工融资需求；\n四、“心连心”亲清与共，构建亲而有度、清而有为的亲清政商关系。',
+    note: '民营经济高质量发展大会、优化营商环境工作简报小标题。',
+    tags: ['亲清政商', '惠企纾困', '直达快享', '要素保障'],
+    is_star: 0,
+    source: '全省民营经济高质量发展大会讲话',
+    updatedAt: 1718000028
+  },
+  {
+    id: 'mat-29',
+    category: '基层治理与乡村振兴',
+    type: 'golden',
+    title: '用心用情用力办好群众身边“关键小事”',
+    content: '群众利益无小事，一枝一叶总关情。要把群众的柴米油盐、急难愁盼当成大事来抓，把就业、教育、医疗、托育、养老等民生痛点变成政策发力点，一件接着一件办，一年接着一年干，让现代化建设成果更多更公平惠及全省人民。',
+    note: '民生保障、群众工作大作文与宣讲讲话黄金金句。',
+    tags: ['关键小事', '民生痛点', '一枝一叶总关情', '共同富裕'],
+    is_star: 1,
+    source: '四川日报民生热评',
+    updatedAt: 1718000029
+  },
+  {
+    id: 'mat-30',
+    category: '基层治理与乡村振兴',
+    type: 'mapping',
+    title: '政策宣传方式死板 · 口语转地道公文词',
+    content: '【材料口语】政府发的红头文件老百姓看不懂，村干部就照本宣科读一遍，挂几个横幅发点传单没人细看，形式主义严重。\n【公文规范】创新政策宣讲与群众沟通表达形式，善用“乡音土话”通俗解读，依托短视频、微动漫、图解等融媒体矩阵，开展接地气、冒热气、聚人气的互动式宣讲，切实提高政策知晓率与群众认同感。',
+    note: '群众宣传思想工作、法治宣讲对策提炼转化。',
+    tags: ['接地气', '融媒体矩阵', '精准宣讲', '知晓率认同感'],
+    is_star: 1,
+    source: '华图申论模考真题深度萃取',
+    updatedAt: 1718000030
+  },
+  {
+    id: 'mat-31',
+    category: '治蜀兴川与四川省情',
+    type: 'template',
+    title: '法定公文“情况报告”标准结尾期请语',
+    content: '特此报告。下一步，我局（委/办）将紧盯短板弱项，压实工作责任，强化闭环跟踪督办，确保各项任务圆满收官。妥否，请批示。',
+    note: '法定公文“报告”行文规范：不可夹带请示事项，结尾多用“特此报告”、“妥否，请批示”。',
+    tags: ['法定公文', '工作报告', '妥否请批示', '期请结语'],
+    is_star: 0,
+    source: '公文处理工作条例标准结语',
+    updatedAt: 1718000031
+  },
+  {
+    id: 'mat-32',
+    category: '生态文明与绿色低碳',
+    type: 'mapping',
+    title: '乡村黑臭水体与垃圾乱堆 · 口语转地道公文词',
+    content: '【材料口语】村里河道里全是黑臭污水，塑料袋、农药瓶漂得到处都是，村头垃圾堆成小山没人清运，臭气熏天。\n【公文规范】深入开展农村人居环境整治提升行动与黑臭水体排查清零工程，严格压实各级“河湖长制”责任，加快推进农村生活污水截污纳管，健全生活垃圾“户分类、村收集、镇转运、县处理”长效清运处置闭环体系。',
+    note: '环保督察整改、美丽宜居宜业乡村建设公文对策规范表述。',
+    tags: ['河湖长制', '人居环境整治', '截污纳管', '长效机制'],
+    is_star: 1,
+    source: '省考生态环保申论答题要点对照',
+    updatedAt: 1718000032
+  }
+];
+
+// 载入并初始化素材库数据
+function loadMaterials() {
+  const materials = getLocalMaterials();
+  appState.materials = materials;
+  updateMaterialCounters();
+  renderMaterialGallery();
+  renderMaterialFlashcard();
+}
+
+function updateMaterialCounters() {
+  const total = appState.materials.length;
+  const favCount = appState.materials.filter(m => m.is_star).length;
+  const totalEl = document.getElementById('mat-total-count');
+  const favEl = document.getElementById('mat-fav-count');
+  if (totalEl) totalEl.textContent = total;
+  if (favEl) favEl.textContent = favCount;
+}
+
+// 渲染素材卡片全景流
+function renderMaterialGallery() {
+  const container = document.getElementById('materials-container');
+  if (!container) return;
+
+  let list = [...appState.materials];
+
+  // 1. 分类筛选
+  if (appState.activeMatCategory && appState.activeMatCategory !== 'all') {
+    list = list.filter(m => m.category === appState.activeMatCategory);
+  }
+
+  // 2. 类型筛选
+  if (appState.activeMatType && appState.activeMatType !== 'all') {
+    list = list.filter(m => m.type === appState.activeMatType);
+  }
+
+  // 3. 仅看收藏筛选
+  if (appState.activeMatOnlyFav) {
+    list = list.filter(m => m.is_star);
+  }
+
+  // 4. 关键词搜索
+  if (appState.activeMatSearch && appState.activeMatSearch.trim() !== '') {
+    const q = appState.activeMatSearch.trim().toLowerCase();
+    list = list.filter(m => {
+      const matchTitle = (m.title || '').toLowerCase().includes(q);
+      const matchContent = (m.content || '').toLowerCase().includes(q);
+      const matchNote = (m.note || '').toLowerCase().includes(q);
+      const matchTags = (m.tags || []).some(t => t.toLowerCase().includes(q));
+      return matchTitle || matchContent || matchNote || matchTags;
+    });
+  }
+
+  updateMaterialCounters();
+
+  if (list.length === 0) {
+    container.innerHTML = `
+      <div style="grid-column: 1 / -1; text-align: center; padding: 48px 16px; color: var(--text-secondary);">
+        <div style="font-size: 2.2rem; margin-bottom: 8px;">📭</div>
+        <p style="font-size: 0.95rem; font-weight: 600;">暂无符合条件的公文写作素材</p>
+        <p style="font-size: 0.8rem; margin-top: 4px;">您可以尝试清除搜索词，或点击右上角「✨ AI 录入素材/试题」一键萃取！</p>
+      </div>
+    `;
+    return;
+  }
+
+  container.innerHTML = '';
+  list.forEach(item => {
+    container.appendChild(createMaterialCardDOM(item));
+  });
+}
+
+function getMaterialTypeBadge(type) {
+  switch (type) {
+    case 'heading':
+      return '<span class="mat-badge-type mat-type-heading">📌 对仗小标题</span>';
+    case 'golden':
+      return '<span class="mat-badge-type mat-type-golden">💎 政策点睛金句</span>';
+    case 'template':
+      return '<span class="mat-badge-type mat-type-template">📑 规范结构模板</span>';
+    case 'mapping':
+      return '<span class="mat-badge-type mat-type-mapping">🔄 口语转公文</span>';
+    default:
+      return '<span class="mat-badge-type mat-type-golden">📜 写作素材</span>';
+  }
+}
+
+function createMaterialCardDOM(item) {
+  const card = document.createElement('div');
+  card.className = 'material-card';
+  card.id = `mat-card-${item.id}`;
+
+  const typeBadge = getMaterialTypeBadge(item.type);
+  const starClass = item.is_star ? 'active' : '';
+  const starIcon = item.is_star ? '⭐' : '☆';
+
+  // 格式化内容（支持换行、口语与公文高亮对照）
+  let formattedContent = escapeHtml(item.content || '');
+  if (item.type === 'mapping') {
+    formattedContent = formattedContent
+      .replace(/【材料口语】/g, '<span style="color:var(--accent-red); font-weight:700;">【材料口语】</span>')
+      .replace(/【公文规范】/g, '<br><span style="color:var(--accent-green); font-weight:700;">【公文规范】</span>');
+  }
+
+  const tagsHtml = (item.tags || []).map(t => `<span class="mat-tag">#${escapeHtml(t)}</span>`).join('');
+
+  card.innerHTML = `
+    <div class="mat-card-header">
+      <div class="mat-card-meta">
+        ${typeBadge}
+        <span class="mat-cat-pill">${escapeHtml(item.category || '综合公文')}</span>
+      </div>
+      <div class="mat-card-actions">
+        <button class="mat-action-btn mat-btn-copy" title="复制素材内容" onclick="copyMaterialContent('${item.id}')">📋</button>
+        <button class="mat-action-btn mat-btn-star ${starClass}" title="收藏/取消收藏" onclick="toggleMaterialStar('${item.id}')">${starIcon}</button>
+        <button class="mat-action-btn mat-btn-delete" title="删除素材" onclick="deleteMaterial('${item.id}')">🗑️</button>
+      </div>
+    </div>
+    <div class="mat-card-title">${escapeHtml(item.title || '公文写作素材')}</div>
+    <div class="mat-card-body">${formattedContent}</div>
+    ${item.note ? `<div class="mat-card-note">💡 ${escapeHtml(item.note)}</div>` : ''}
+    ${tagsHtml ? `<div class="mat-card-tags">${tagsHtml}</div>` : ''}
+  `;
+
+  return card;
+}
+
+// 复制素材内容
+function copyMaterialContent(id) {
+  const item = appState.materials.find(m => String(m.id) === String(id));
+  if (!item) return;
+
+  const copyText = `${item.title}\n${item.content}${item.note ? `\n(备考点拨: ${item.note})` : ''}`;
+  if (navigator.clipboard && navigator.clipboard.writeText) {
+    navigator.clipboard.writeText(copyText).then(() => {
+      alert('📋 素材已成功复制到剪贴板！');
+    }).catch(() => {
+      prompt('请按 Ctrl+C / Cmd+C 复制素材：', copyText);
+    });
+  } else {
+    prompt('请按 Ctrl+C / Cmd+C 复制素材：', copyText);
+  }
+}
+
+// 切换收藏状态
+function toggleMaterialStar(id) {
+  const list = [...appState.materials];
+  const item = list.find(m => String(m.id) === String(id));
+  if (item) {
+    item.is_star = item.is_star ? 0 : 1;
+    item.updatedAt = Date.now();
+    saveLocalMaterials(list);
+    renderMaterialGallery();
+  }
+}
+
+// 删除素材
+function deleteMaterial(id) {
+  if (!confirm('确定要删除这条素材吗？删除后可通过重新导入或重置恢复。')) return;
+  const list = appState.materials.filter(m => String(m.id) !== String(id));
+  saveLocalMaterials(list);
+  renderMaterialGallery();
+  renderMaterialFlashcard();
+}
+
+// 搜索素材
+function handleMaterialSearch(val) {
+  appState.activeMatSearch = val || '';
+  renderMaterialGallery();
+}
+
+// 仅看收藏切换
+function filterFavoriteMaterials(btn) {
+  appState.activeMatOnlyFav = !appState.activeMatOnlyFav;
+  if (btn) {
+    if (appState.activeMatOnlyFav) {
+      btn.classList.add('active');
+      btn.style.background = 'var(--primary)';
+      btn.style.color = '#fff';
+    } else {
+      btn.classList.remove('active');
+      btn.style.background = '';
+      btn.style.color = '';
+    }
+  }
+  renderMaterialGallery();
+}
+
+/* ==========================================================================
+   ⚡ 闪卡卡片抽背系统 (Duolingo / Anki 沉浸式过筛记忆)
+   ========================================================================== */
+
+function changeFlashcardCategory(cat) {
+  appState.flashcardScope = cat || 'all';
+  appState.flashcardRevealed = false;
+  appState.flashcardCurrentItem = null;
+  renderMaterialFlashcard();
+}
+
+function getFlashcardPool() {
+  let pool = [...appState.materials];
+  if (appState.flashcardScope && appState.flashcardScope !== 'all') {
+    pool = pool.filter(m => m.category === appState.flashcardScope);
+  }
+  return pool;
+}
+
+function renderMaterialFlashcard() {
+  const container = document.getElementById('flashcard-card-box');
+  const countEl = document.getElementById('flashcard-learned-count');
+  if (!container) return;
+
+  const learnedCount = appState.flashcardLearnedIds.length;
+  if (countEl) countEl.textContent = learnedCount;
+
+  const pool = getFlashcardPool();
+  if (pool.length === 0) {
+    container.innerHTML = `
+      <div class="flashcard-main-card" style="text-align:center; padding:40px 20px;">
+        <div style="font-size:2rem; margin-bottom:10px;">🍃</div>
+        <p style="font-weight:700;">该分类下暂无素材可供背诵</p>
+        <p style="font-size:0.85rem; color:var(--text-secondary); margin-top:4px;">请切换到其他分类或添加新素材。</p>
+      </div>
+    `;
+    return;
+  }
+
+  // 如果当前卡片为空，或不在当前 pool 中，则随机挑一张
+  if (!appState.flashcardCurrentItem || !pool.some(m => String(m.id) === String(appState.flashcardCurrentItem.id))) {
+    const unlearned = pool.filter(m => !appState.flashcardLearnedIds.includes(String(m.id)));
+    const targetPool = unlearned.length > 0 ? unlearned : pool;
+    const randomIndex = Math.floor(Math.random() * targetPool.length);
+    appState.flashcardCurrentItem = targetPool[randomIndex];
+    appState.flashcardRevealed = false;
+  }
+
+  const cur = appState.flashcardCurrentItem;
+  const isLearned = appState.flashcardLearnedIds.includes(String(cur.id));
+  const typeBadge = getMaterialTypeBadge(cur.type);
+
+  // 格式化正反面
+  let formattedBackContent = escapeHtml(cur.content || '');
+  if (cur.type === 'mapping') {
+    formattedBackContent = formattedBackContent
+      .replace(/【材料口语】/g, '<span style="color:var(--accent-red); font-weight:700;">【材料口语】</span>')
+      .replace(/【公文规范】/g, '<br><span style="color:var(--accent-green); font-weight:700;">【公文规范】</span>');
+  }
+
+  container.innerHTML = `
+    <div class="flashcard-main-card">
+      <div class="flashcard-header">
+        <div style="display:flex; align-items:center; gap:8px;">
+          ${typeBadge}
+          <span class="mat-cat-pill">${escapeHtml(cur.category)}</span>
+        </div>
+        <div>
+          ${isLearned ? '<span style="font-size:0.75rem; color:var(--accent-green); font-weight:700;">✓ 已标记熟背</span>' : ''}
+        </div>
+      </div>
+
+      <!-- 正面：题干任务与场景提示 -->
+      <div class="flashcard-front">
+        <div class="flashcard-prompt-label">📌 记忆靶心 · 标题/考核场景：</div>
+        <div class="flashcard-prompt-title">${escapeHtml(cur.title)}</div>
+        ${cur.note ? `<div style="font-size:0.85rem; color:var(--text-secondary); margin-top:8px;">🎯 适用场景提示：${escapeHtml(cur.note)}</div>` : ''}
+      </div>
+
+      <!-- 背面：地道表达与公文展开 (点击翻转后显露) -->
+      <div id="flashcard-back-area" class="flashcard-back ${appState.flashcardRevealed ? '' : 'hidden'}">
+        <div class="flashcard-answer-label">💎 地道公文表达 / 对仗提纲规范文本：</div>
+        <div class="flashcard-answer-body">${formattedBackContent}</div>
+      </div>
+
+      <!-- 底部控制按键 -->
+      <div class="flashcard-controls">
+        <button class="btn btn-outline" style="flex:1;" onclick="flipFlashcard()">
+          ${appState.flashcardRevealed ? '🙈 隐藏答案' : '👀 揭晓标准公文表达'}
+        </button>
+        <button class="btn btn-success" style="flex:1;" onclick="markFlashcardLearned()">
+          ${isLearned ? '✨ 已牢记 (下一张)' : '✅ 记住了 (+1)'}
+        </button>
+        <button class="btn btn-primary" style="flex:0.8;" onclick="nextFlashcard()">
+          ⏭️ 下一张
+        </button>
+      </div>
+    </div>
+  `;
+}
+
+// 翻转闪卡
+function flipFlashcard() {
+  appState.flashcardRevealed = !appState.flashcardRevealed;
+  const backArea = document.getElementById('flashcard-back-area');
+  const flipBtn = document.querySelector('.flashcard-controls button:first-child');
+  if (backArea) {
+    if (appState.flashcardRevealed) {
+      backArea.classList.remove('hidden');
+      if (flipBtn) flipBtn.textContent = '🙈 隐藏答案';
+    } else {
+      backArea.classList.add('hidden');
+      if (flipBtn) flipBtn.textContent = '👀 揭晓标准公文表达';
+    }
+  }
+}
+
+// 标记记住了
+function markFlashcardLearned() {
+  if (appState.flashcardCurrentItem) {
+    const idStr = String(appState.flashcardCurrentItem.id);
+    if (!appState.flashcardLearnedIds.includes(idStr)) {
+      appState.flashcardLearnedIds.push(idStr);
+      localStorage.setItem('sc_mat_flashcard_learned', JSON.stringify(appState.flashcardLearnedIds));
+    }
+  }
+  nextFlashcard();
+}
+
+// 切换到下一张闪卡 (优先抽取未背过的)
+function nextFlashcard() {
+  const pool = getFlashcardPool();
+  if (pool.length <= 1) {
+    appState.flashcardRevealed = false;
+    renderMaterialFlashcard();
+    return;
+  }
+
+  const currentId = appState.flashcardCurrentItem ? String(appState.flashcardCurrentItem.id) : null;
+  const otherItems = pool.filter(m => String(m.id) !== currentId);
+  const unlearned = otherItems.filter(m => !appState.flashcardLearnedIds.includes(String(m.id)));
+
+  const targetPool = unlearned.length > 0 ? unlearned : otherItems;
+  const nextItem = targetPool[Math.floor(Math.random() * targetPool.length)];
+
+  appState.flashcardCurrentItem = nextItem;
+  appState.flashcardRevealed = false;
+  renderMaterialFlashcard();
+}
+
+/* ==========================================================================
+   ✨ AI 录入素材与大题拆解 (模式1: 单条金句提炼; 模式2: 整道模考大题拆解)
+   ========================================================================== */
+
+function openAiAddMaterialModal() {
+  const modal = document.getElementById('modal-ai-add-material');
+  if (modal) {
+    modal.classList.add('active');
+    switchMaterialInputMode('quote');
+    const preview = document.getElementById('mat-parsed-preview');
+    if (preview) preview.classList.add('hidden');
+    appState.parsedMaterialDraft = null;
+  }
+}
+
+function closeAiAddMaterialModal() {
+  const modal = document.getElementById('modal-ai-add-material');
+  if (modal) modal.classList.remove('active');
+}
+
+function switchMaterialInputMode(mode) {
+  const btnQuote = document.getElementById('btn-mat-mode-quote');
+  const btnExam = document.getElementById('btn-mat-mode-exam');
+  const paneQuote = document.getElementById('mat-mode-quote-pane');
+  const paneExam = document.getElementById('mat-mode-exam-pane');
+
+  if (mode === 'quote') {
+    if (btnQuote) btnQuote.classList.add('active');
+    if (btnExam) btnExam.classList.remove('active');
+    if (paneQuote) paneQuote.classList.remove('hidden');
+    if (paneExam) paneExam.classList.add('hidden');
+  } else {
+    if (btnQuote) btnQuote.classList.remove('active');
+    if (btnExam) btnExam.classList.add('active');
+    if (paneQuote) paneQuote.classList.add('hidden');
+    if (paneExam) paneExam.classList.remove('hidden');
+  }
+}
+
+function fillSampleMaterialText() {
+  const input = document.getElementById('raw-material-input');
+  if (input) {
+    input.value = `习近平总书记在四川考察时强调，要紧紧围绕高质量发展这个首要任务，完整、准确、全面贯彻新发展理念，坚持把发展特色优势产业和战略性新兴产业作为主攻方向，加快改造提升传统产业，前瞻布局未来产业，着力构建富有四川特色和优势的现代化产业体系。`;
+  }
+}
+
+function fillSampleExamExtract() {
+  const stem = document.getElementById('raw-exam-stem');
+  const mats = document.getElementById('raw-exam-materials');
+  const ans = document.getElementById('raw-exam-answer');
+
+  if (stem) {
+    stem.value = `根据“给定材料”，请你以省发改委工作人员身份，起草一份关于推进新时代县域特色产业高质量发展的实施意见。要求：对仗工整，措施得力，切实可行。`;
+  }
+  if (mats) {
+    mats.value = `【材料1】某县过去走粗放发展老路，小作坊高污染高能耗，虽然经济有一时起色，但环境代价巨大。近年来，该县痛下决心，引进绿色智能化设备，打造高新技术产业园区。\n【材料2】部分乡镇干部反映，各地盲目跟风，隔壁县建锂电池厂，自己县也想搞，结果招商引资恶性竞争，土地闲置，企业入驻后水土不服。\n【材料3】某特色农业县深挖柠檬、花椒等本土优势，建立冷链物流与深加工生产线，打造区域公共品牌，带动3万农户户均增收5000元以上。`;
+  }
+  if (ans) {
+    ans.value = `【参考范文提纲】\n关于推进新时代县域特色产业高质量发展的实施意见\n一、立足本土禀赋，因地制宜绘就产业蓝图。坚决避免一哄而上与同质化无序竞争。\n二、强化创新赋能，聚链成势推动智改数转。推动绿色化低碳化转型，打造智慧园区。\n三、擦亮特色品牌，联农带农共享发展红利。健全冷链物流体系，深化三产跨界融合。\n四、压实责任链条，优化保障构建亲清生态。实行“一窗通办”，强化用地用能金融支持。`;
+  }
+}
+
+// 统一 AI 对话调用接口
+async function callAiDocAssistant(prompt, jsonMode = false) {
+  const settings = getAiSettings();
+
+  // 1. 本地 Ollama 引擎优先
+  if (settings.engine_type === 'ollama') {
+    try {
+      const endpoint = appState.activeTunnelUrl || (window.location.port === '8000' ? '/api/generate' : null);
+      if (endpoint) {
+        const res = await fetch(endpoint, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ prompt: prompt, model: settings.ollama_model || 'qwen2.5:3b' }),
+          signal: AbortSignal.timeout ? AbortSignal.timeout(25000) : undefined
+        });
+        if (res.ok) {
+          const data = await res.json();
+          let text = data.response || '';
+          if (jsonMode) {
+            text = text.replace(/```json/g, '').replace(/```/g, '').trim();
+            return JSON.parse(text);
+          }
+          return text;
+        }
+      }
+    } catch (e) {
+      console.warn('Ollama 调用异常，尝试备用通道:', e);
+    }
+  }
+
+  // 2. 云端 API 引擎 (DeepSeek / SiliconFlow / OpenAI / AliYun)
+  if (settings.api_key) {
+    try {
+      const res = await fetch(settings.api_url || 'https://api.deepseek.com/v1/chat/completions', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${settings.api_key}`
+        },
+        body: JSON.stringify({
+          model: settings.api_model || 'deepseek-chat',
+          messages: [{ role: 'user', content: prompt }],
+          ...(jsonMode ? { response_format: { type: 'json_object' } } : {})
+        }),
+        signal: AbortSignal.timeout ? AbortSignal.timeout(30000) : undefined
+      });
+      if (res.ok) {
+        const data = await res.json();
+        let content = data.choices[0].message.content.trim();
+        if (jsonMode) {
+          content = content.replace(/```json/g, '').replace(/```/g, '').trim();
+          return JSON.parse(content);
+        }
+        return content;
+      }
+    } catch (e) {
+      console.warn('云端 API 调用异常:', e);
+    }
+  }
+
+  return null;
+}
+
+// 执行模式 1: 单条素材 AI 提取与结构化
+async function executeAiParseMaterial() {
+  const text = (document.getElementById('raw-material-input').value || '').trim();
+  if (!text) {
+    alert('请先输入或粘贴需要 AI 提取的素材文本！');
+    return;
+  }
+
+  const btn = document.getElementById('btn-parse-material');
+  if (btn) {
+    btn.disabled = true;
+    btn.textContent = '⏳ AI 正在深度萃取结构化分类...';
+  }
+
+  const prompt = `你是一名资深的四川省考公文写作与申论阅卷考官。请分析以下文本材料，将其萃取为一条高质量的公文写作备考素材，并严格按 JSON 格式返回。
+【材料内容】：
+${text}
+
+【返回 JSON 格式要求】：
+{
+  "category": "所属主题，请严格从以下6项中选一个最符合的：['治蜀兴川与四川省情', '新质生产力与经济', '基层治理与乡村振兴', '干部作风与廉洁担当', '营商环境与政务服务', '生态文明与绿色低碳']",
+  "type": "素材类型，请严格从以下4项中选一个：['heading' (对仗小标题/提纲), 'golden' (政策点睛金句), 'template' (开头结尾规范模板), 'mapping' (材料转规范公文词)]",
+  "title": "简明扼要的素材标题（15字以内）",
+  "content": "萃取出的高质量公文文本，如果是金句则为凝练金句；如果是提纲则为对仗提纲；如果是对比则按【材料口语】与【公文规范】列出",
+  "note": "备考点拨与适用题型/文种场景建议（30字以内）",
+  "tags": ["核心标签1", "核心标签2", "核心标签3"]
+}`;
+
+  try {
+    let result = await callAiDocAssistant(prompt, true);
+
+    // 容错模拟解析：如果离线或未配 AI Key，本地智能归纳
+    if (!result || !result.title) {
+      result = localFallbackParseMaterial(text);
+    }
+
+    fillParsedMaterialPreview(result);
+  } catch (err) {
+    console.error('AI 解析失败:', err);
+    const fallback = localFallbackParseMaterial(text);
+    fillParsedMaterialPreview(fallback);
+  } finally {
+    if (btn) {
+      btn.disabled = false;
+      btn.textContent = '🚀 AI 智能提取并结构化';
+    }
+  }
+}
+
+// 本地离线启发式规则（AI 离线时保障可用性）
+function localFallbackParseMaterial(text) {
+  let category = '治蜀兴川与四川省情';
+  if (text.includes('新质生产力') || text.includes('产业') || text.includes('创新') || text.includes('数字')) {
+    category = '新质生产力与经济';
+  } else if (text.includes('基层') || text.includes('乡村') || text.includes('村民') || text.includes('群众')) {
+    category = '基层治理与乡村振兴';
+  } else if (text.includes('干部') || text.includes('作风') || text.includes('廉洁') || text.includes('形式主义')) {
+    category = '干部作风与廉洁担当';
+  } else if (text.includes('营商') || text.includes('政务') || text.includes('审批') || text.includes('企业')) {
+    category = '营商环境与政务服务';
+  } else if (text.includes('生态') || text.includes('绿色') || text.includes('低碳') || text.includes('环保')) {
+    category = '生态文明与绿色低碳';
+  }
+
+  let type = 'golden';
+  if (text.includes('一、') || text.includes('1.') || text.includes('一是')) {
+    type = 'heading';
+  } else if (text.includes('特制定本') || text.includes('批复如下') || text.includes('特此报告')) {
+    type = 'template';
+  }
+
+  return {
+    category: category,
+    type: type,
+    title: text.slice(0, 18).replace(/\n/g, '') + '...',
+    content: text,
+    note: '适用于四川省考公文写作与申论大作文段落论据支撑。',
+    tags: [category.slice(0, 4), '公文精选']
+  };
+}
+
+// 执行模式 2: 整道模考大题拆解 (题干 + 背景材料 + 范文 ➔ 萃取骨架与材料对照)
+async function executeAiExtractDocExam() {
+  const stem = (document.getElementById('raw-exam-stem').value || '').trim();
+  const mats = (document.getElementById('raw-exam-materials').value || '').trim();
+  const ans = (document.getElementById('raw-exam-answer').value || '').trim();
+
+  if (!stem && !ans) {
+    alert('请至少填入题干任务或参考答案范文！');
+    return;
+  }
+
+  const btn = document.getElementById('btn-extract-exam');
+  if (btn) {
+    btn.disabled = true;
+    btn.textContent = '🧠 AI 正在多维拆解试题核心提纲与材料对照...';
+  }
+
+  const prompt = `你是一名公务员考试申论与公文写作命题专家。考生提供了一道模考试卷或真题（包含题干任务、材料背景及参考范文）。请深度拆解并萃取其中的高分公文写作素材（提纲骨架、材料转化对仗），严格返回 JSON 格式：
+【题干任务】：${stem}
+【背景材料】：${mats}
+【参考范文】：${ans}
+
+【返回 JSON 格式要求】：
+{
+  "category": "所属主题，从以下6项中选：['治蜀兴川与四川省情', '新质生产力与经济', '基层治理与乡村振兴', '干部作风与廉洁担当', '营商环境与政务服务', '生态文明与绿色低碳']",
+  "type": "heading",
+  "title": "提炼出的公文主旨或核心提纲总称（18字以内）",
+  "content": "从范文和材料中萃取出的标准高分三段/四段对仗小标题提纲及核心表述",
+  "note": "此题命题意图、文种格式特征及答题避坑指南（40字以内）",
+  "tags": ["试题拆解", "范文提纲", "省考真题"]
+}`;
+
+  try {
+    let result = await callAiDocAssistant(prompt, true);
+    if (!result || !result.title) {
+      result = {
+        category: '治蜀兴川与四川省情',
+        type: 'heading',
+        title: (stem ? stem.slice(0, 20) : '模考公文真题萃取提纲'),
+        content: ans || mats,
+        note: '从给定模考题中萃取的高分答题要点，便于考场快速迁移。',
+        tags: ['模考真题', '提纲拆解']
+      };
+    }
+    fillParsedMaterialPreview(result);
+  } catch (err) {
+    console.error('试题萃取异常:', err);
+    alert('解析完成，已为您整理初版提纲，请在下方预览微调。');
+  } finally {
+    if (btn) {
+      btn.disabled = false;
+      btn.textContent = '🧠 AI 深度萃取 (提纲+金句+材料对照)';
+    }
+  }
+}
+
+// 回填解析结果到预览编辑区
+function fillParsedMaterialPreview(data) {
+  appState.parsedMaterialDraft = data;
+  const preview = document.getElementById('mat-parsed-preview');
+  if (preview) preview.classList.remove('hidden');
+
+  const catEl = document.getElementById('parsed-mat-category');
+  const typeEl = document.getElementById('parsed-mat-type');
+  const titleEl = document.getElementById('parsed-mat-title');
+  const contentEl = document.getElementById('parsed-mat-content');
+  const noteEl = document.getElementById('parsed-mat-note');
+
+  if (catEl && data.category) catEl.value = data.category;
+  if (typeEl && data.type) typeEl.value = data.type;
+  if (titleEl) titleEl.value = data.title || '';
+  if (contentEl) contentEl.value = data.content || '';
+  if (noteEl) noteEl.value = data.note || '';
+
+  // 滚动到预览区域方便查看
+  if (preview) preview.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+}
+
+// 确认保存录入的素材
+function confirmSaveParsedMaterial() {
+  const category = document.getElementById('parsed-mat-category').value;
+  const type = document.getElementById('parsed-mat-type').value;
+  const title = (document.getElementById('parsed-mat-title').value || '').trim();
+  const content = (document.getElementById('parsed-mat-content').value || '').trim();
+  const note = (document.getElementById('parsed-mat-note').value || '').trim();
+
+  if (!title || !content) {
+    alert('请完善素材的标题与核心内容！');
+    return;
+  }
+
+  const newMaterial = {
+    id: 'mat-' + Date.now(),
+    category: category,
+    type: type,
+    title: title,
+    content: content,
+    note: note,
+    tags: (appState.parsedMaterialDraft && appState.parsedMaterialDraft.tags) ? appState.parsedMaterialDraft.tags : [category.slice(0, 4)],
+    is_star: 0,
+    source: 'AI智能录入',
+    updatedAt: Date.now()
+  };
+
+  const list = [newMaterial, ...appState.materials];
+  saveLocalMaterials(list);
+  renderMaterialGallery();
+  renderMaterialFlashcard();
+  closeAiAddMaterialModal();
+  alert('🎉 素材已成功加入您的公文写作素材库！');
+}
+
+/* ==========================================================================
+   🪄 AI 公文百宝箱 (工具1: 大白话升华器; 工具2: 对仗提纲小标题拟制器)
+   ========================================================================== */
+
+// 工具 1: 大白话 ➔ 地道公文升华器
+async function runColloquialPolish() {
+  const input = (document.getElementById('toolbox-colloquial-input').value || '').trim();
+  if (!input) {
+    alert('请输入您想表达的通俗大白话或想法！');
+    return;
+  }
+
+  const style = document.getElementById('toolbox-polish-style').value;
+  const btn = document.getElementById('btn-run-polish');
+  const resultsBox = document.getElementById('toolbox-polish-results');
+
+  if (btn) {
+    btn.disabled = true;
+    btn.textContent = '⏳ AI 正在升华为地道公文表达...';
+  }
+
+  let styleDesc = '四字对仗、排比有力，符合党政机关规范用语';
+  if (style === 'action') styleDesc = '强力动宾结构、狠抓实干落实、突出抓手与工作举措';
+  if (style === 'philosophy') styleDesc = '融合总书记重要指示与政策理论高度，立意高远';
+
+  const prompt = `你是一名资深的四川省委政策研究室撰稿专家。请将以下这句通俗口语/大白话，升华为 3 个不同侧重点的地道公文规范表达。
+【通俗大白话】：
+${input}
+
+【风格要求】：
+${styleDesc}
+
+【输出要求】：
+直接输出 3 条精选公文升华方案，按以下格式呈现，严禁返回废话：
+方案一 (推荐用语)：...
+方案二 (动宾对仗)：...
+方案三 (宏观立意)：...`;
+
+  try {
+    let output = await callAiDocAssistant(prompt, false);
+    if (!output) {
+      output = `方案一 (推荐用语)：坚持以人民为中心的发展思想，健全常态化下沉走访与一线解难机制，推动矛盾纠纷就地化解。\n方案二 (动宾对仗)：深耕基层一线，倾听群众呼声；破除推诿梗阻，压实为民实效。\n方案三 (宏观立意)：把造福人民作为最大政绩，深化践行新时代群众路线，切实提升人民群众的获得感与幸福感。`;
+    }
+
+    if (resultsBox) {
+      resultsBox.classList.remove('hidden');
+      const escaped = escapeHtml(output).replace(/\n/g, '<br>');
+      resultsBox.innerHTML = `
+        <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:8px;">
+          <strong style="color:var(--primary); font-size:0.9rem;">✨ AI 升华地道公文表达：</strong>
+          <button class="btn btn-outline btn-sm" onclick="savePolishToMaterial()">💾 存入素材库</button>
+        </div>
+        <div id="polished-text-container" style="font-size:0.9rem; line-height:1.7; color:var(--text-main); white-space:pre-wrap; background:var(--bg-main); padding:12px; border-radius:6px; border:1px solid var(--border-subtle);">${escapeHtml(output)}</div>
+      `;
+    }
+  } catch (err) {
+    alert('AI 服务暂时未响应，请检查 AI 引擎配置或网络。');
+  } finally {
+    if (btn) {
+      btn.disabled = false;
+      btn.textContent = '🚀 AI 智能升华';
+    }
+  }
+}
+
+// 将升华结果一键保存为素材
+function savePolishToMaterial() {
+  const container = document.getElementById('polished-text-container');
+  const input = (document.getElementById('toolbox-colloquial-input').value || '').trim();
+  if (!container) return;
+
+  const content = `【日常大白话】\n${input}\n\n【地道公文升华】\n${container.textContent.trim()}`;
+  const newMat = {
+    id: 'mat-' + Date.now(),
+    category: '干部作风与廉洁担当',
+    type: 'mapping',
+    title: '大白话升华公文表达 · ' + (input.slice(0, 12) || '日常表述'),
+    content: content,
+    note: '由 AI 公文百宝箱一键升华生成。',
+    tags: ['大白话升华', '地道公文', '百宝箱'],
+    is_star: 1,
+    source: 'AI公文升华器',
+    updatedAt: Date.now()
+  };
+
+  const list = [newMat, ...appState.materials];
+  saveLocalMaterials(list);
+  renderMaterialGallery();
+  renderMaterialFlashcard();
+  alert('🎉 已成功将升华表达保存至公文写作素材库！');
+}
+
+// 工具 2: 对仗提纲小标题拟制器
+async function runOutlineGenerate() {
+  const topic = (document.getElementById('toolbox-outline-topic').value || '').trim();
+  if (!topic) {
+    alert('请输入公文主题或写作任务！');
+    return;
+  }
+
+  const struct = document.getElementById('toolbox-outline-struct').value;
+  const btn = document.getElementById('btn-run-outline');
+  const resultsBox = document.getElementById('toolbox-outline-results');
+
+  if (btn) {
+    btn.disabled = true;
+    btn.textContent = '⏳ AI 正在拟制工整对仗提纲...';
+  }
+
+  let structDesc = '经典三段并列对仗小标题，字数完全相等，如四字或八字对仗';
+  if (struct === 'step') structDesc = '递进推进式：认识站位 ➔ 制度机制 ➔ 落地实干';
+  if (struct === 'doc') structDesc = '标准实施方案体：提高政治站位 ➔ 聚焦重点攻坚 ➔ 健全长效保障';
+
+  const prompt = `你是一名公务员考试申论大作文与法定公文命题人。请根据以下写作主题，拟定两套工整、高分、契合四川省情的对仗提纲一级小标题：
+【写作任务/主题】：${topic}
+【结构要求】：${structDesc}
+
+【输出规范】：
+按以下格式直接输出两套对仗小标题方案，包含小标题及其核心展开方向，不要有多余寒暄废话：
+【方案 A (推荐)】：
+一、...（对仗小标题）
+展开要点：...
+二、...（对仗小标题）
+展开要点：...
+三、...（对仗小标题）
+展开要点：...
+
+【方案 B (备选)】：
+一、...
+二、...
+三、...`;
+
+  try {
+    let output = await callAiDocAssistant(prompt, false);
+    if (!output) {
+      output = `【方案 A (对仗工整 · 四川高分)】\n一、强基固本筑牢发展之基，凝聚思想共识；\n二、聚链成势激活创新动能，攻坚重点任务；\n三、协同联动健全长效机制，压实落实力度。\n\n【方案 B (递进推进式)】\n一、深化思想认识，把稳行动之舵；\n二、破除壁垒中梗阻，扫清推进之障；\n三、锻造过硬本领，夯实成效之本。`;
+    }
+
+    if (resultsBox) {
+      resultsBox.classList.remove('hidden');
+      resultsBox.innerHTML = `
+        <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:8px;">
+          <strong style="color:var(--primary); font-size:0.9rem;">📐 拟定对仗小标题提纲：</strong>
+          <button class="btn btn-outline btn-sm" onclick="saveOutlineToMaterial()">💾 存入素材库</button>
+        </div>
+        <div id="outlined-text-container" style="font-size:0.9rem; line-height:1.7; color:var(--text-main); white-space:pre-wrap; background:var(--bg-main); padding:12px; border-radius:6px; border:1px solid var(--border-subtle);">${escapeHtml(output)}</div>
+      `;
+    }
+  } catch (err) {
+    alert('AI 服务暂时未响应，请检查 AI 引擎配置。');
+  } finally {
+    if (btn) {
+      btn.disabled = false;
+      btn.textContent = '⚡ 生成对仗小标题';
+    }
+  }
+}
+
+// 保存提纲到素材库
+function saveOutlineToMaterial() {
+  const container = document.getElementById('outlined-text-container');
+  const topic = (document.getElementById('toolbox-outline-topic').value || '').trim();
+  if (!container) return;
+
+  const newMat = {
+    id: 'mat-' + Date.now(),
+    category: '治蜀兴川与四川省情',
+    type: 'heading',
+    title: (topic.slice(0, 18) || '专题公文') + ' · 对仗提纲',
+    content: container.textContent.trim(),
+    note: '由 AI 对仗提纲小标题拟制器生成。',
+    tags: ['对仗提纲', '小标题', '百宝箱'],
+    is_star: 1,
+    source: 'AI提纲拟制器',
+    updatedAt: Date.now()
+  };
+
+  const list = [newMat, ...appState.materials];
+  saveLocalMaterials(list);
+  renderMaterialGallery();
+  renderMaterialFlashcard();
+  alert('🎉 对仗提纲已成功存入公文写作素材库！');
+}
+
+/* ==========================================================================
+   📤 导入与导出 JSON 素材数据
+   ========================================================================== */
+
+function exportMaterialsJSON() {
+  const data = appState.materials;
+  const blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url;
+  a.download = `sichuan_study_materials_${getRealCurrentDateStr()}.json`;
+  a.click();
+  URL.revokeObjectURL(url);
+}
+
+function importMaterialsJSON(file) {
+  if (!file) return;
+  const reader = new FileReader();
+  reader.onload = (e) => {
+    try {
+      const imported = JSON.parse(e.target.result);
+      if (!Array.isArray(imported)) {
+        alert('导入失败：JSON 文件内容必须是素材数组！');
+        return;
+      }
+
+      const map = new Map();
+      appState.materials.forEach(m => map.set(String(m.id), m));
+      imported.forEach(im => {
+        if (im && im.id) map.set(String(im.id), im);
+      });
+
+      const merged = Array.from(map.values());
+      saveLocalMaterials(merged);
+      renderMaterialGallery();
+      renderMaterialFlashcard();
+      alert(`🎉 成功导入素材！当前库中共有 ${merged.length} 条素材。`);
+    } catch (err) {
+      alert('导入失败：文件格式不符合 JSON 规范！');
+    }
+  };
+  reader.readAsText(file);
+}
+
+// 绑定素材库专属分类与形式标签切换点击事件
+document.addEventListener('DOMContentLoaded', () => {
+  // 素材主题分类标签
+  const catContainer = document.getElementById('mat-cat-tabs');
+  if (catContainer) {
+    catContainer.querySelectorAll('.cat-filter-chip').forEach(chip => {
+      chip.addEventListener('click', () => {
+        catContainer.querySelectorAll('.cat-filter-chip').forEach(c => c.classList.remove('active'));
+        chip.classList.add('active');
+        appState.activeMatCategory = chip.getAttribute('data-cat') || 'all';
+        renderMaterialGallery();
+      });
+    });
+  }
+
+  // 素材形态标签
+  const typeContainer = document.getElementById('mat-type-tabs');
+  if (typeContainer) {
+    typeContainer.querySelectorAll('.type-filter-chip').forEach(chip => {
+      chip.addEventListener('click', () => {
+        typeContainer.querySelectorAll('.type-filter-chip').forEach(c => c.classList.remove('active'));
+        chip.classList.add('active');
+        appState.activeMatType = chip.getAttribute('data-type') || 'all';
+        renderMaterialGallery();
+      });
+    });
+  }
+});
+
