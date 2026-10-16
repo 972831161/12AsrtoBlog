@@ -980,10 +980,15 @@
                 <span>粘贴讲话节选、金句、小标题或文章段落：</span>
                 <a href="javascript:void(0)" style="font-size:0.75rem; color:var(--primary);" onclick="fillSampleMaterialText()">📥 载入四川时政金句示例</a>
               </label>
-              <textarea id="raw-material-input" rows="4" class="form-control" placeholder="在此粘贴文本，AI 将自动识别主题分类、素材形态、提炼标题与金句..."></textarea>
+              <textarea id="raw-material-input" rows="5" class="form-control" placeholder="粘贴任意长度的文本，AI 会自动判断主题分类、素材类型并拟好标题；是否凝练内容由下方勾选项决定。"></textarea>
             </div>
-            <div style="margin-top:6px; margin-bottom:12px;">
-              <button class="btn btn-primary btn-sm" id="btn-parse-material" onclick="executeAiParseMaterial()">🚀 AI 智能提取并结构化</button>
+            <div style="display:flex; align-items:center; gap:14px; margin-top:8px; margin-bottom:12px; flex-wrap:wrap;">
+              <button class="btn btn-primary btn-sm" id="btn-parse-material" onclick="executeAiParseMaterial()">🚀 AI 分类识别</button>
+              <label style="display:flex; align-items:center; gap:6px; cursor:pointer; font-size:0.85rem; color:var(--text-main); user-select:none;">
+                <input type="checkbox" id="chk-ai-distill" style="width:15px; height:15px; cursor:pointer;">
+                <span>同时让 AI 提炼精简内容</span>
+                <span style="font-size:0.75rem; color:var(--text-secondary);">（不勾则保留原文，仅做分类）</span>
+              </label>
             </div>
           </div>
 
@@ -1073,6 +1078,6 @@
 
   <script src="https://cdn.jsdelivr.net/npm/qrcode@1.5.3/build/qrcode.min.js"></script>
   <script src="historical_data.js"></script>
-  <script src="app.js?v=20261016_optional_content"></script>
+  <script src="app.js?v=20261016_ai_classify"></script>
 </body>
 </html>

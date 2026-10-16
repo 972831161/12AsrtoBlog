@@ -4926,43 +4926,65 @@ async function executeAiParseMaterial() {
     return;
   }
 
+  const doDistill = document.getElementById('chk-ai-distill')?.checked || false;
+
   const btn = document.getElementById('btn-parse-material');
   if (btn) {
     btn.disabled = true;
-    btn.textContent = '⏳ AI 正在深度萃取结构化分类...';
+    btn.textContent = doDistill ? '⏳ AI 分类 + 提炼中...' : '⏳ AI 分类识别中...';
   }
 
-  const prompt = `你是一名资深的四川省考公文写作与申论阅卷考官。请分析以下文本材料，将其萃取为一条高质量的公文写作备考素材，并严格按 JSON 格式返回。
+  // 仅分类：只判断主题/类型/标题/标签，content 保留原文
+  const promptClassifyOnly = `你是一名四川省考公文写作专家。请分析以下文本，判断其所属主题、素材类型，并拟写简明标题，严格按 JSON 返回，不要输出其他内容。
+【文本】：
+${text}
+
+【返回 JSON 格式】：
+{
+  "category": "从以下6项中选一个最符合的：治蜀兴川与四川省情 / 新质生产力与经济 / 基层治理与乡村振兴 / 干部作风与廉洁担当 / 营商环境与政务服务 / 生态文明与绿色低碳",
+  "type": "从以下4项中选一：heading / golden / template / mapping",
+  "title": "简明标题（15字以内）",
+  "note": "适用场景或备考提示（30字以内）",
+  "tags": ["标签1", "标签2", "标签3"]
+}`;
+
+  // 分类 + 凝练：额外要求 AI 提炼 content
+  const promptDistill = `你是一名资深的四川省考公文写作与申论阅卷考官。请分析以下文本材料，萃取为高质量备考素材并严格按 JSON 返回。
 【材料内容】：
 ${text}
 
-【返回 JSON 格式要求】：
+【返回 JSON 格式】：
 {
-  "category": "所属主题，请严格从以下6项中选一个最符合的：['治蜀兴川与四川省情', '新质生产力与经济', '基层治理与乡村振兴', '干部作风与廉洁担当', '营商环境与政务服务', '生态文明与绿色低碳']",
-  "type": "素材类型，请严格从以下4项中选一个：['heading' (对仗小标题/提纲), 'golden' (政策点睛金句), 'template' (开头结尾规范模板), 'mapping' (材料转规范公文词)]",
-  "title": "简明扼要的素材标题（15字以内）",
-  "content": "萃取出的高质量公文文本，如果是金句则为凝练金句；如果是提纲则为对仗提纲；如果是对比则按【材料口语】与【公文规范】列出",
-  "note": "备考点拨与适用题型/文种场景建议（30字以内）",
+  "category": "从以下6项中选一：治蜀兴川与四川省情 / 新质生产力与经济 / 基层治理与乡村振兴 / 干部作风与廉洁担当 / 营商环境与政务服务 / 生态文明与绿色低碳",
+  "type": "从以下4项中选一：heading(对仗小标题/提纲) / golden(政策点睛金句) / template(开头结尾模板) / mapping(材料转规范公文词)",
+  "title": "简明标题（15字以内）",
+  "content": "提炼后的高质量公文文本（金句则凝练金句；提纲则对仗提纲；口语对比则按【材料口语】【公文规范】格式）",
+  "note": "备考点拨与适用场景（30字以内）",
   "tags": ["核心标签1", "核心标签2", "核心标签3"]
 }`;
 
   try {
-    let result = await callAiDocAssistant(prompt, true);
+    let result = await callAiDocAssistant(doDistill ? promptDistill : promptClassifyOnly, true);
 
-    // 容错模拟解析：如果离线或未配 AI Key，本地智能归纳
     if (!result || !result.title) {
       result = localFallbackParseMaterial(text);
+    }
+
+    // 不提炼时，content 直接用原文
+    if (!doDistill) {
+      result.content = text;
     }
 
     fillParsedMaterialPreview(result);
   } catch (err) {
     console.error('AI 解析失败:', err);
     const fallback = localFallbackParseMaterial(text);
+    if (!doDistill) fallback.content = text;
     fillParsedMaterialPreview(fallback);
   } finally {
     if (btn) {
       btn.disabled = false;
-      btn.textContent = '🚀 AI 智能提取并结构化';
+      btn.textContent = '🚀 AI 分类识别';
     }
   }
 }
