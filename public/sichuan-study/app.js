@@ -5088,8 +5088,8 @@ function confirmSaveParsedMaterial() {
   const content = (document.getElementById('parsed-mat-content').value || '').trim();
   const note = (document.getElementById('parsed-mat-note').value || '').trim();
 
-  if (!title || !content) {
-    alert('请完善素材的标题与核心内容！');
+  if (!title) {
+    alert('请至少填写素材标题！');
     return;
   }
 

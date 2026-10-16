@@ -1042,8 +1042,11 @@
               <input type="text" id="parsed-mat-title" class="form-control">
             </div>
             <div class="form-group">
-              <label>核心金句 / 提纲内容 / 对照文本</label>
-              <textarea id="parsed-mat-content" rows="4" class="form-control"></textarea>
+              <label style="display:flex; justify-content:space-between; align-items:center;">
+                <span>正文内容 / 原文段落 / 金句 / 提纲</span>
+                <span style="font-size:0.75rem; color:var(--text-secondary); font-weight:400;">(可选 · 可直接粘贴长段落原文，无需精简)</span>
+              </label>
+              <textarea id="parsed-mat-content" rows="6" class="form-control" placeholder="可以是金句、提纲、模板、对照文本，也可以是长段原文 — 不需要精简成很短的结果"></textarea>
             </div>
             <div class="form-group">
               <label>适用场景 / 范例说明 / 记忆点</label>
@@ -1070,6 +1073,6 @@
 
   <script src="https://cdn.jsdelivr.net/npm/qrcode@1.5.3/build/qrcode.min.js"></script>
   <script src="historical_data.js"></script>
-  <script src="app.js?v=20261016_fix_modal"></script>
+  <script src="app.js?v=20261016_optional_content"></script>
 </body>
 </html>
