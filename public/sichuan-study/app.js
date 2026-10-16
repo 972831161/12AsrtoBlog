@@ -4926,71 +4926,56 @@ async function executeAiParseMaterial() {
     return;
   }
 
-  const doDistill = document.getElementById('chk-ai-distill')?.checked || false;
+  const optExtract = document.getElementById('mat-opt-ai-extract')?.checked || false;
 
   const btn = document.getElementById('btn-parse-material');
   if (btn) {
     btn.disabled = true;
-    btn.textContent = doDistill ? '⏳ AI 分类 + 提炼中...' : '⏳ AI 分类识别中...';
+    btn.textContent = '⏳ AI 正在智能研判所属主题分类与特征...';
   }
 
-  // 仅分类：只判断主题/类型/标题/标签，content 保留原文
-  const promptClassifyOnly = `你是一名四川省考公文写作专家。请分析以下文本，判断其所属主题、素材类型，并拟写简明标题，严格按 JSON 返回，不要输出其他内容。
-【文本】：
-${text}
-
-【返回 JSON 格式】：
-{
-  "category": "从以下6项中选一个最符合的：治蜀兴川与四川省情 / 新质生产力与经济 / 基层治理与乡村振兴 / 干部作风与廉洁担当 / 营商环境与政务服务 / 生态文明与绿色低碳",
-  "type": "从以下4项中选一：heading / golden / template / mapping",
-  "title": "简明标题（15字以内）",
-  "note": "适用场景或备考提示（30字以内）",
-  "tags": ["标签1", "标签2", "标签3"]
-}`;
-
-  // 分类 + 凝练：额外要求 AI 提炼 content
-  const promptDistill = `你是一名资深的四川省考公文写作与申论阅卷考官。请分析以下文本材料，萃取为高质量备考素材并严格按 JSON 返回。
+  const prompt = `你是一名资深的四川省考公文写作与申论阅卷考官。请分析以下文本材料，重点帮考生准确判断其【所属主题分类】与素材形态，并提炼核心标题与萃取版备考内容。请严格按 JSON 格式返回。
 【材料内容】：
 ${text}
 
-【返回 JSON 格式】：
+【返回 JSON 格式要求】：
 {
-  "category": "从以下6项中选一：治蜀兴川与四川省情 / 新质生产力与经济 / 基层治理与乡村振兴 / 干部作风与廉洁担当 / 营商环境与政务服务 / 生态文明与绿色低碳",
-  "type": "从以下4项中选一：heading(对仗小标题/提纲) / golden(政策点睛金句) / template(开头结尾模板) / mapping(材料转规范公文词)",
-  "title": "简明标题（15字以内）",
-  "content": "提炼后的高质量公文文本（金句则凝练金句；提纲则对仗提纲；口语对比则按【材料口语】【公文规范】格式）",
-  "note": "备考点拨与适用场景（30字以内）",
+  "category": "所属主题，请客观研判并严格从以下6项中选一个最符合的：['治蜀兴川与四川省情', '新质生产力与经济', '基层治理与乡村振兴', '干部作风与廉洁担当', '营商环境与政务服务', '生态文明与绿色低碳']",
+  "type": "素材类型，请严格从以下4项中选一个：['heading' (对仗小标题/提纲), 'golden' (政策点睛金句), 'template' (开头结尾规范模板), 'mapping' (材料转规范公文词)]",
+  "title": "简明扼要的素材标题或主旨概括（15字以内）",
+  "extracted_content": "萃取提炼出的高质量极简公文文本（如凝练金句、对仗提纲、或材料口语转公文规范词对照）",
+  "note": "备考点拨与适用题型/文种场景建议（30字以内）",
   "tags": ["核心标签1", "核心标签2", "核心标签3"]
 }`;
 
   try {
-    let result = await callAiDocAssistant(doDistill ? promptDistill : promptClassifyOnly, true);
+    let result = await callAiDocAssistant(prompt, true);
 
+    // 容错模拟解析：如果离线或未配 AI Key，本地智能归纳
     if (!result || !result.title) {
-      result = localFallbackParseMaterial(text);
-    }
-
-    // 不提炼时，content 直接用原文
-    if (!doDistill) {
-      result.content = text;
+      result = localFallbackParseMaterial(text, optExtract);
+    } else {
+      result.raw_content = text;
+      result.extracted_content = result.extracted_content || result.content || text;
+      // 若用户勾选了“深度萃取”，则正文填入精炼提取内容；否则默认完整保留用户粘贴的原始段落
+      result.content = optExtract ? result.extracted_content : text;
     }
 
     fillParsedMaterialPreview(result);
   } catch (err) {
     console.error('AI 解析失败:', err);
-    const fallback = localFallbackParseMaterial(text);
-    if (!doDistill) fallback.content = text;
+    const fallback = localFallbackParseMaterial(text, optExtract);
     fillParsedMaterialPreview(fallback);
   } finally {
     if (btn) {
       btn.disabled = false;
-      btn.textContent = '🚀 AI 分类识别';
+      btn.textContent = '🚀 AI 智能研判分类并提取';
     }
   }
 }
 
 // 本地离线启发式规则（AI 离线时保障可用性）
-function localFallbackParseMaterial(text) {
+function localFallbackParseMaterial(text, optExtract = false) {
   let category = '治蜀兴川与四川省情';
   if (text.includes('新质生产力') || text.includes('产业') || text.includes('创新') || text.includes('数字')) {
     category = '新质生产力与经济';
@@ -5011,12 +4996,17 @@ function localFallbackParseMaterial(text) {
     type = 'template';
   }
 
+  const cleanFirstLine = text.trim().split('\n')[0] || '';
+  const condensed = cleanFirstLine.length > 25 ? cleanFirstLine.slice(0, 24) + '...' : cleanFirstLine;
+
   return {
     category: category,
     type: type,
-    title: text.slice(0, 18).replace(/\n/g, '') + '...',
-    content: text,
-    note: '适用于四川省考公文写作与申论大作文段落论据支撑。',
+    title: text.slice(0, 16).replace(/\n/g, '') + '...',
+    raw_content: text,
+    extracted_content: condensed || text,
+    content: optExtract ? (condensed || text) : text,
+    note: '适用于四川省考公文写作与申论论据论述支撑。',
     tags: [category.slice(0, 4), '公文精选']
   };
 }
@@ -5060,10 +5050,15 @@ async function executeAiExtractDocExam() {
         category: '治蜀兴川与四川省情',
         type: 'heading',
         title: (stem ? stem.slice(0, 20) : '模考公文真题萃取提纲'),
+        raw_content: ans || mats,
+        extracted_content: ans || mats,
         content: ans || mats,
         note: '从给定模考题中萃取的高分答题要点，便于考场快速迁移。',
         tags: ['模考真题', '提纲拆解']
       };
+    } else {
+      result.raw_content = ans || mats;
+      result.extracted_content = result.content || result.extracted_content || (ans || mats);
     }
     fillParsedMaterialPreview(result);
   } catch (err) {
@@ -5074,6 +5069,24 @@ async function executeAiExtractDocExam() {
       btn.disabled = false;
       btn.textContent = '🧠 AI 深度萃取 (提纲+金句+材料对照)';
     }
+  }
+}
+
+// 切换为 AI 萃取的浓缩金句/对仗提纲
+function toggleMaterialExtractAction() {
+  if (!appState.parsedMaterialDraft) return;
+  const contentEl = document.getElementById('parsed-mat-content');
+  if (contentEl && appState.parsedMaterialDraft.extracted_content) {
+    contentEl.value = appState.parsedMaterialDraft.extracted_content;
+  }
+}
+
+// 还原为输入的原始完整段落
+function restoreOriginalMaterialText() {
+  if (!appState.parsedMaterialDraft) return;
+  const contentEl = document.getElementById('parsed-mat-content');
+  if (contentEl && appState.parsedMaterialDraft.raw_content) {
+    contentEl.value = appState.parsedMaterialDraft.raw_content;
   }
 }
 

@@ -980,15 +980,14 @@
                 <span>粘贴讲话节选、金句、小标题或文章段落：</span>
                 <a href="javascript:void(0)" style="font-size:0.75rem; color:var(--primary);" onclick="fillSampleMaterialText()">📥 载入四川时政金句示例</a>
               </label>
-              <textarea id="raw-material-input" rows="5" class="form-control" placeholder="粘贴任意长度的文本，AI 会自动判断主题分类、素材类型并拟好标题；是否凝练内容由下方勾选项决定。"></textarea>
+              <textarea id="raw-material-input" rows="4" class="form-control" placeholder="在此粘贴文本，AI 将自动识别主题分类、素材形态、提炼标题与金句..."></textarea>
             </div>
-            <div style="display:flex; align-items:center; gap:14px; margin-top:8px; margin-bottom:12px; flex-wrap:wrap;">
-              <button class="btn btn-primary btn-sm" id="btn-parse-material" onclick="executeAiParseMaterial()">🚀 AI 分类识别</button>
-              <label style="display:flex; align-items:center; gap:6px; cursor:pointer; font-size:0.85rem; color:var(--text-main); user-select:none;">
-                <input type="checkbox" id="chk-ai-distill" style="width:15px; height:15px; cursor:pointer;">
-                <span>同时让 AI 提炼精简内容</span>
-                <span style="font-size:0.75rem; color:var(--text-secondary);">（不勾则保留原文，仅做分类）</span>
+            <div style="display:flex; align-items:center; justify-content:space-between; flex-wrap:wrap; gap:8px; margin-top:8px; margin-bottom:12px; background:var(--bg-subtle); padding:8px 12px; border-radius:6px; border:1px solid var(--border-subtle);">
+              <label style="display:inline-flex; align-items:center; gap:6px; font-size:0.85rem; cursor:pointer; margin-bottom:0; color:var(--text-primary);">
+                <input type="checkbox" id="mat-opt-ai-extract" style="cursor:pointer;">
+                <span>✨ 同时启用 AI 深度萃取（提炼对仗提纲/精炼金句；<strong>默认不勾选保留完整原文</strong>）</span>
               </label>
+              <button class="btn btn-primary btn-sm" id="btn-parse-material" onclick="executeAiParseMaterial()">🚀 AI 智能研判分类并提取</button>
             </div>
           </div>
 
@@ -1022,7 +1021,7 @@
             </div>
             <div style="display:grid; grid-template-columns:1fr 1fr; gap:10px;">
               <div class="form-group">
-                <label>所属主题分类</label>
+                <label>所属主题分类 (AI已研判)</label>
                 <select id="parsed-mat-category" class="form-control">
                   <option value="治蜀兴川与四川省情">🏔️ 治蜀兴川与四川省情</option>
                   <option value="新质生产力与经济">⚡ 新质生产力与经济发展</option>
@@ -1047,11 +1046,14 @@
               <input type="text" id="parsed-mat-title" class="form-control">
             </div>
             <div class="form-group">
-              <label style="display:flex; justify-content:space-between; align-items:center;">
-                <span>正文内容 / 原文段落 / 金句 / 提纲</span>
-                <span style="font-size:0.75rem; color:var(--text-secondary); font-weight:400;">(可选 · 可直接粘贴长段落原文，无需精简)</span>
-              </label>
-              <textarea id="parsed-mat-content" rows="6" class="form-control" placeholder="可以是金句、提纲、模板、对照文本，也可以是长段原文 — 不需要精简成很短的结果"></textarea>
+              <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:4px; flex-wrap:wrap; gap:4px;">
+                <label style="margin-bottom:0;">正文内容 / 原文段落 / 金句 / 提纲</label>
+                <div style="display:flex; gap:6px;">
+                  <button type="button" class="btn btn-outline btn-xs" id="btn-toggle-extract" onclick="toggleMaterialExtractAction()" style="padding:2px 8px; font-size:0.75rem;" title="切换为 AI 萃取的浓缩提纲或金句">✨ 切换为 AI 萃取文本</button>
+                  <button type="button" class="btn btn-outline btn-xs" id="btn-restore-raw" onclick="restoreOriginalMaterialText()" style="padding:2px 8px; font-size:0.75rem;" title="恢复原始长段落">↩️ 还原完整原文</button>
+                </div>
+              </div>
+              <textarea id="parsed-mat-content" rows="6" class="form-control" placeholder="可以是原始长段落，也可以是 AI 萃取的金句或提纲"></textarea>
             </div>
             <div class="form-group">
               <label>适用场景 / 范例说明 / 记忆点</label>
@@ -1078,6 +1080,6 @@
 
   <script src="https://cdn.jsdelivr.net/npm/qrcode@1.5.3/build/qrcode.min.js"></script>
   <script src="historical_data.js"></script>
-  <script src="app.js?v=20261016_ai_classify"></script>
+  <script src="app.js?v=20261016_ai_classify_extract_opt"></script>
 </body>
 </html>
