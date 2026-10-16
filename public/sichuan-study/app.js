@@ -4782,17 +4782,23 @@ function nextFlashcard() {
 function openAiAddMaterialModal() {
   const modal = document.getElementById('modal-ai-add-material');
   if (modal) {
+    modal.classList.remove('hidden');
     modal.classList.add('active');
     switchMaterialInputMode('quote');
     const preview = document.getElementById('mat-parsed-preview');
     if (preview) preview.classList.add('hidden');
+    const saveBtn = document.getElementById('btn-save-parsed-material');
+    if (saveBtn) saveBtn.disabled = true;
     appState.parsedMaterialDraft = null;
   }
 }
 
 function closeAiAddMaterialModal() {
   const modal = document.getElementById('modal-ai-add-material');
-  if (modal) modal.classList.remove('active');
+  if (modal) {
+    modal.classList.add('hidden');
+    modal.classList.remove('active');
+  }
 }
 
 function switchMaterialInputMode(mode) {
@@ -4802,13 +4808,25 @@ function switchMaterialInputMode(mode) {
   const paneExam = document.getElementById('mat-mode-exam-pane');
 
   if (mode === 'quote') {
-    if (btnQuote) btnQuote.classList.add('active');
-    if (btnExam) btnExam.classList.remove('active');
+    if (btnQuote) {
+      btnQuote.classList.add('btn-primary');
+      btnQuote.classList.remove('btn-outline');
+    }
+    if (btnExam) {
+      btnExam.classList.remove('btn-primary');
+      btnExam.classList.add('btn-outline');
+    }
     if (paneQuote) paneQuote.classList.remove('hidden');
     if (paneExam) paneExam.classList.add('hidden');
   } else {
-    if (btnQuote) btnQuote.classList.remove('active');
-    if (btnExam) btnExam.classList.add('active');
+    if (btnQuote) {
+      btnQuote.classList.remove('btn-primary');
+      btnQuote.classList.add('btn-outline');
+    }
+    if (btnExam) {
+      btnExam.classList.add('btn-primary');
+      btnExam.classList.remove('btn-outline');
+    }
     if (paneQuote) paneQuote.classList.add('hidden');
     if (paneExam) paneExam.classList.remove('hidden');
   }
@@ -5054,6 +5072,9 @@ function fillParsedMaterialPreview(data) {
   if (titleEl) titleEl.value = data.title || '';
   if (contentEl) contentEl.value = data.content || '';
   if (noteEl) noteEl.value = data.note || '';
+
+  const saveBtn = document.getElementById('btn-save-parsed-material');
+  if (saveBtn) saveBtn.disabled = false;
 
   // 滚动到预览区域方便查看
   if (preview) preview.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
