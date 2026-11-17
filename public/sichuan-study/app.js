@@ -53,7 +53,7 @@ const CATEGORY_OPTIONS = [
 
 const EXAM_DATE = "2026-10-25";
 
-// 持久化主存储键名（锁定固定，永不修改）
+// 持久化主存储键名（全局设置与默认四川选调历史键）
 const STORAGE_KEYS = {
   PLANS_MASTER: 'sichuan_study_plans_master',
   MISTAKES_MASTER: 'sichuan_study_mistakes_master',
@@ -61,8 +61,104 @@ const STORAGE_KEYS = {
   SETTINGS: 'sichuan_ai_settings_master',
   THEME: 'sichuan_study_theme',
   SYNC_SHORT_CODE: 'sichuan_study_sync_short_code',
-  SUPABASE: 'sichuan_study_supabase_config'
+  SUPABASE: 'sichuan_study_supabase_config',
+  PROJECTS_LIST: 'study_projects_meta_v1',
+  ACTIVE_PROJECT_ID: 'study_active_project_id_v1'
 };
+
+const DEFAULT_PROJECT_ID = 'sichuan_2027';
+
+const DEFAULT_SICHUAN_PROJECT = {
+  id: DEFAULT_PROJECT_ID,
+  badge: '川选2027',
+  name: '四川紧缺选调备考系统',
+  subtitle: '中山大学 · 085704 测绘工程 | 目标：成都 ➔ 绵阳 ➔ 环蓉',
+  startDate: '2026-08-18',
+  examDate: EXAM_DATE,
+  categories: [...CATEGORY_OPTIONS],
+  isBuiltin: true,
+  createdAt: 1755475200000
+};
+
+function getProjectsList() {
+  let list = [];
+  try {
+    const raw = localStorage.getItem(STORAGE_KEYS.PROJECTS_LIST);
+    if (raw) list = JSON.parse(raw);
+  } catch (e) {}
+  if (!Array.isArray(list) || list.length === 0) {
+    list = [{ ...DEFAULT_SICHUAN_PROJECT }];
+    localStorage.setItem(STORAGE_KEYS.PROJECTS_LIST, JSON.stringify(list));
+  } else if (!list.some(p => p.id === DEFAULT_PROJECT_ID)) {
+    list.unshift({ ...DEFAULT_SICHUAN_PROJECT });
+    localStorage.setItem(STORAGE_KEYS.PROJECTS_LIST, JSON.stringify(list));
+  }
+  return list;
+}
+
+function saveProjectsList(list) {
+  localStorage.setItem(STORAGE_KEYS.PROJECTS_LIST, JSON.stringify(list));
+}
+
+function getActiveProjectId() {
+  const id = localStorage.getItem(STORAGE_KEYS.ACTIVE_PROJECT_ID);
+  const list = getProjectsList();
+  if (id && list.some(p => p.id === id)) return id;
+  localStorage.setItem(STORAGE_KEYS.ACTIVE_PROJECT_ID, DEFAULT_PROJECT_ID);
+  return DEFAULT_PROJECT_ID;
+}
+
+function setActiveProjectId(id) {
+  localStorage.setItem(STORAGE_KEYS.ACTIVE_PROJECT_ID, id);
+}
+
+function getActiveProject() {
+  const id = getActiveProjectId();
+  const list = getProjectsList();
+  return list.find(p => p.id === id) || list[0] || DEFAULT_SICHUAN_PROJECT;
+}
+
+function isDefaultSichuanProject() {
+  return getActiveProjectId() === DEFAULT_PROJECT_ID;
+}
+
+function getActiveExamDate() {
+  const proj = getActiveProject();
+  return proj.examDate || EXAM_DATE;
+}
+
+function getActiveCategories() {
+  const proj = getActiveProject();
+  if (Array.isArray(proj.categories) && proj.categories.length > 0) {
+    return proj.categories;
+  }
+  return ['专业课', '公共课', '真题演练', '错题复盘', '其他'];
+}
+
+/**
+ * 按当前激活项目返回隔离的本地存储键名：
+ * - 默认四川选调保留原键名，100% 兼容历史数据
+ * - 新建项目全部使用独立命名空间，确保初始完全空白且互不污染
+ */
+function getActiveStorageKeys() {
+  const pid = getActiveProjectId();
+  if (pid === DEFAULT_PROJECT_ID) {
+    return {
+      PLANS: STORAGE_KEYS.PLANS_MASTER,
+      MISTAKES: STORAGE_KEYS.MISTAKES_MASTER,
+      MATERIALS: STORAGE_KEYS.DOC_MATERIALS,
+      FLASHCARD_LEARNED: 'sc_mat_flashcard_learned',
+      CUSTOM_NOTES: 'study_proj_sichuan_2027_notes'
+    };
+  }
+  return {
+    PLANS: `study_proj_${pid}_plans`,
+    MISTAKES: `study_proj_${pid}_mistakes`,
+    MATERIALS: `study_proj_${pid}_materials`,
+    FLASHCARD_LEARNED: `study_proj_${pid}_flashcard_learned`,
+    CUSTOM_NOTES: `study_proj_${pid}_notes`
+  };
+}
 
 function getSupabaseConfig() {
   const raw = localStorage.getItem(STORAGE_KEYS.SUPABASE);
@@ -132,7 +228,7 @@ let appState = {
   flashcardScope: 'all',
   flashcardCurrentItem: null,
   flashcardRevealed: false,
-  flashcardLearnedIds: JSON.parse(localStorage.getItem('sc_mat_flashcard_learned') || '[]'),
+  flashcardLearnedIds: JSON.parse(localStorage.getItem(getActiveStorageKeys().FLASHCARD_LEARNED) || '[]'),
   parsedMaterialDraft: null
 };
 
@@ -155,6 +251,8 @@ function formatChineseDate(dateStr) {
 }
 
 document.addEventListener('DOMContentLoaded', async () => {
+  initProjectSwitcher();
+  applyProjectThemeAndMeta();
   await checkUrlSyncPayload();
   initTheme();
   initRealDateDisplay();
@@ -162,7 +260,9 @@ document.addEventListener('DOMContentLoaded', async () => {
   initSubTabs();
   detectOllamaStatus();
   await loadData();
-  renderKnowledgeArticle('kb-policy');
+  if (isDefaultSichuanProject()) {
+    renderKnowledgeArticle('kb-policy');
+  }
   loadRandomQuiz();
   bindEvents();
   autoPullRemoteSync(); // 自动无感拉取远端最新合并数据
@@ -318,17 +418,22 @@ async function detectOllamaStatus() {
    ========================================================================== */
 
 function getLocalPlans() {
-  // 1. 优先读取主存储键
-  let masterRaw = localStorage.getItem(STORAGE_KEYS.PLANS_MASTER);
+  const keys = getActiveStorageKeys();
+  // 1. 优先读取当前项目的主存储键
+  let masterRaw = localStorage.getItem(keys.PLANS);
   let masterPlans = null;
   if (masterRaw) {
     try { masterPlans = JSON.parse(masterRaw); } catch (e) {}
   }
 
-  // 2. 如果主存储不存在，自动从历史所有键与内嵌底座中扫描找回
+  // 2. 仅默认四川选调项目在主存储为空时自动回灌历史数据；新项目保持全空白
   if (!masterPlans || Object.keys(masterPlans).length === 0) {
-    masterPlans = recoverAndMigrateHistoricalPlans();
-    localStorage.setItem(STORAGE_KEYS.PLANS_MASTER, JSON.stringify(masterPlans));
+    if (isDefaultSichuanProject()) {
+      masterPlans = recoverAndMigrateHistoricalPlans();
+    } else {
+      masterPlans = {};
+    }
+    localStorage.setItem(keys.PLANS, JSON.stringify(masterPlans));
   }
 
   return masterPlans;
@@ -403,6 +508,9 @@ function recoverAndMigrateHistoricalPlans() {
 }
 
 function getDefaultTasksForDate(dStr) {
+  if (!isDefaultSichuanProject()) {
+    return [];
+  }
   if (dStr < '2026-09-10') {
     return [
       { id: 't-1', category: '行测专项', content: '行测言语理解 & 资料分析精练 (花生13技巧)', duration: 3.0, is_done: false },
@@ -425,6 +533,7 @@ function getDefaultTasksForDate(dStr) {
 }
 
 function saveLocalPlan(dateStr, tasks, notes) {
+  const keys = getActiveStorageKeys();
   const plans = getLocalPlans();
   const allDone = tasks.length > 0 && tasks.every(t => t.is_done);
   plans[dateStr] = {
@@ -433,23 +542,28 @@ function saveLocalPlan(dateStr, tasks, notes) {
     notes: notes || '',
     is_completed: allDone ? 1 : 0
   };
-  localStorage.setItem(STORAGE_KEYS.PLANS_MASTER, JSON.stringify(plans));
+  localStorage.setItem(keys.PLANS, JSON.stringify(plans));
   triggerAutoSync(); // 自动无感静默同步！
 }
 
 function getLocalMistakes() {
-  let masterRaw = localStorage.getItem(STORAGE_KEYS.MISTAKES_MASTER);
+  const keys = getActiveStorageKeys();
+  let masterRaw = localStorage.getItem(keys.MISTAKES);
   let masterMistakes = null;
   if (masterRaw) {
     try { masterMistakes = JSON.parse(masterRaw); } catch (e) {}
   }
 
-  if (!masterMistakes || masterMistakes.length === 0) {
-    masterMistakes = recoverAndMigrateHistoricalMistakes();
-    localStorage.setItem(STORAGE_KEYS.MISTAKES_MASTER, JSON.stringify(masterMistakes));
+  if (!masterMistakes || (isDefaultSichuanProject() && masterMistakes.length === 0)) {
+    if (isDefaultSichuanProject()) {
+      masterMistakes = recoverAndMigrateHistoricalMistakes();
+    } else if (!Array.isArray(masterMistakes)) {
+      masterMistakes = [];
+    }
+    localStorage.setItem(keys.MISTAKES, JSON.stringify(masterMistakes));
   }
 
-  return masterMistakes;
+  return Array.isArray(masterMistakes) ? masterMistakes : [];
 }
 
 // 智能找回与合并历史错题记录
@@ -515,31 +629,50 @@ function recoverAndMigrateHistoricalMistakes() {
 }
 
 function saveLocalMistakes(mistakes) {
-  localStorage.setItem(STORAGE_KEYS.MISTAKES_MASTER, JSON.stringify(mistakes));
+  const keys = getActiveStorageKeys();
+  localStorage.setItem(keys.MISTAKES, JSON.stringify(mistakes));
   triggerAutoSync(); // 自动无感静默同步！
 }
 
 function getLocalMaterials() {
-  let masterRaw = localStorage.getItem(STORAGE_KEYS.DOC_MATERIALS);
+  const keys = getActiveStorageKeys();
+  let masterRaw = localStorage.getItem(keys.MATERIALS);
   let masterMaterials = null;
   if (masterRaw) {
     try { masterMaterials = JSON.parse(masterRaw); } catch (e) {}
   }
 
-  if (!masterMaterials || !Array.isArray(masterMaterials) || masterMaterials.length === 0) {
-    masterMaterials = (typeof DEFAULT_DOC_MATERIALS !== 'undefined' && Array.isArray(DEFAULT_DOC_MATERIALS)) 
-      ? JSON.parse(JSON.stringify(DEFAULT_DOC_MATERIALS)) 
-      : [];
-    localStorage.setItem(STORAGE_KEYS.DOC_MATERIALS, JSON.stringify(masterMaterials));
+  if (!masterMaterials || !Array.isArray(masterMaterials) || (isDefaultSichuanProject() && masterMaterials.length === 0)) {
+    if (isDefaultSichuanProject()) {
+      masterMaterials = (typeof DEFAULT_DOC_MATERIALS !== 'undefined' && Array.isArray(DEFAULT_DOC_MATERIALS))
+        ? JSON.parse(JSON.stringify(DEFAULT_DOC_MATERIALS))
+        : [];
+    } else {
+      masterMaterials = [];
+    }
+    localStorage.setItem(keys.MATERIALS, JSON.stringify(masterMaterials));
   }
 
   return masterMaterials;
 }
 
 function saveLocalMaterials(materials) {
-  localStorage.setItem(STORAGE_KEYS.DOC_MATERIALS, JSON.stringify(materials));
+  const keys = getActiveStorageKeys();
+  localStorage.setItem(keys.MATERIALS, JSON.stringify(materials));
   appState.materials = materials;
   triggerAutoSync(); // 自动无感静默同步！
+}
+
+function getCustomProjectNotes() {
+  return localStorage.getItem(getActiveStorageKeys().CUSTOM_NOTES) || '';
+}
+
+function saveCustomProjectNotes() {
+  const el = document.getElementById('kb-custom-notes-input');
+  if (!el) return;
+  localStorage.setItem(getActiveStorageKeys().CUSTOM_NOTES, el.value || '');
+  triggerAutoSync();
+  showAutoSyncIndicator('📝 项目备忘录已保存');
 }
 
 /* ==========================================================================
@@ -563,23 +696,96 @@ function getCloudBinId(shortCode) {
   return code;
 }
 
-// 推送全量数据到云端 (支持指定短码)
+function getProjectCloudKey(baseCode, projectId) {
+  const code = (baseCode || getSyncShortCode()).trim();
+  const pid = projectId || getActiveProjectId();
+  if (pid === DEFAULT_PROJECT_ID) return code;
+  return `${code}::${pid}`;
+}
+
+async function syncProjectsIndexToCloud(shortCode) {
+  const sbCfg = getSupabaseConfig();
+  if (!sbCfg.url || !sbCfg.key) return;
+  const code = (shortCode || getSyncShortCode()).trim();
+  const projects = getProjectsList();
+  try {
+    await fetch(`${sbCfg.url}/rest/v1/sc_study_sync`, {
+      method: 'POST',
+      headers: {
+        'apikey': sbCfg.key,
+        'Authorization': `Bearer ${sbCfg.key}`,
+        'Content-Type': 'application/json',
+        'Prefer': 'resolution=merge-duplicates'
+      },
+      body: JSON.stringify({
+        short_code: `${code}::projects_index`,
+        data: { version: 'projects_v1', updatedAt: Date.now(), projects },
+        updated_at: new Date().toISOString()
+      }),
+      signal: AbortSignal.timeout ? AbortSignal.timeout(3500) : undefined
+    });
+  } catch (e) {}
+}
+
+async function pullProjectsIndexFromCloud(shortCode) {
+  const sbCfg = getSupabaseConfig();
+  if (!sbCfg.url || !sbCfg.key) return false;
+  const code = (shortCode || getSyncShortCode()).trim();
+  try {
+    const res = await fetch(`${sbCfg.url}/rest/v1/sc_study_sync?short_code=eq.${encodeURIComponent(code + '::projects_index')}&select=*`, {
+      headers: {
+        'apikey': sbCfg.key,
+        'Authorization': `Bearer ${sbCfg.key}`
+      },
+      signal: AbortSignal.timeout ? AbortSignal.timeout(3500) : undefined
+    });
+    if (!res.ok) return false;
+    const list = await res.json();
+    if (Array.isArray(list) && list.length > 0 && list[0].data && Array.isArray(list[0].data.projects)) {
+      const localList = getProjectsList();
+      const map = new Map(localList.map(p => [p.id, p]));
+      let changed = false;
+      list[0].data.projects.forEach(rp => {
+        if (!rp || !rp.id) return;
+        const lp = map.get(rp.id);
+        if (!lp || (rp.updatedAt || 0) > (lp.updatedAt || 0)) {
+          map.set(rp.id, rp);
+          changed = true;
+        }
+      });
+      if (changed) {
+        saveProjectsList(Array.from(map.values()));
+        initProjectSwitcher();
+        applyProjectThemeAndMeta();
+      }
+      return true;
+    }
+  } catch (e) {}
+  return false;
+}
+
+// 推送全量数据到云端 (支持指定短码与按项目隔离)
 async function pushDataToCloud(shortCode) {
   const code = (shortCode || getSyncShortCode()).trim();
+  const project = getActiveProject();
+  const cloudKey = getProjectCloudKey(code, project.id);
   const binId = getCloudBinId(code);
   const plans = getLocalPlans();
   const mistakes = getLocalMistakes();
   const materials = getLocalMaterials();
   const payload = {
     version: "2027_v2",
+    project_id: project.id,
+    project_meta: project,
     sync_code: code,
     updatedAt: Date.now(),
     plans: plans,
     mistakes: mistakes,
-    materials: materials
+    materials: materials,
+    custom_notes: getCustomProjectNotes()
   };
 
-  // 1. 最高优先级：若用户配置了 Supabase 专属私有云数据库 (企业级高可靠)
+  // 1. 最高优先级：若用户配置了 Supabase 专属私有云数据库 (按项目复合键隔离)
   const sbCfg = getSupabaseConfig();
   if (sbCfg.url && sbCfg.key) {
     try {
@@ -592,18 +798,24 @@ async function pushDataToCloud(shortCode) {
           'Prefer': 'resolution=merge-duplicates'
         },
         body: JSON.stringify({
-          short_code: code,
+          short_code: cloudKey,
           data: payload,
           updated_at: new Date().toISOString()
         }),
         signal: AbortSignal.timeout ? AbortSignal.timeout(3500) : undefined
       });
       if (sbRes.ok || sbRes.status === 201 || sbRes.status === 204) {
-        return { success: true, channel: 'supabase', code: code };
+        syncProjectsIndexToCloud(code);
+        return { success: true, channel: 'supabase', code: code, projectId: project.id };
       }
     } catch (e) {
       console.warn("Supabase 同步异常，尝试备用通道:", e);
     }
+  }
+
+  // 非默认项目未配置 Supabase 时，不向公共默认 Bin 写入以免污染四川选调旧数据
+  if (!isDefaultSichuanProject()) {
+    return { success: false, code: code, reason: 'custom_project_requires_supabase' };
   }
 
   // 2. 若本地 Python 后端在运行 (端口 8000 或活跃隧道)
@@ -658,9 +870,11 @@ async function pushDataToCloud(shortCode) {
   return { success: cloudSuccess, code: activeBin };
 }
 
-// 从云端拉取全量数据 (支持指定短码)
+// 从云端拉取全量数据 (支持指定短码与按项目隔离)
 async function pullDataFromCloud(shortCode) {
   const code = (shortCode || getSyncShortCode()).trim();
+  const projectId = getActiveProjectId();
+  const cloudKey = getProjectCloudKey(code, projectId);
   const binId = getCloudBinId(code);
   let remoteData = null;
 
@@ -668,7 +882,8 @@ async function pullDataFromCloud(shortCode) {
   const sbCfg = getSupabaseConfig();
   if (sbCfg.url && sbCfg.key) {
     try {
-      const sbRes = await fetch(`${sbCfg.url}/rest/v1/sc_study_sync?short_code=eq.${encodeURIComponent(code)}&select=*`, {
+      await pullProjectsIndexFromCloud(code);
+      const sbRes = await fetch(`${sbCfg.url}/rest/v1/sc_study_sync?short_code=eq.${encodeURIComponent(cloudKey)}&select=*`, {
         headers: {
           'apikey': sbCfg.key,
           'Authorization': `Bearer ${sbCfg.key}`
@@ -684,6 +899,10 @@ async function pullDataFromCloud(shortCode) {
     } catch (e) {
       console.warn("Supabase 拉取异常，尝试备用通道:", e);
     }
+  }
+
+  if (!isDefaultSichuanProject()) {
+    return null;
   }
 
   // 2. 本地后端优先
@@ -740,6 +959,12 @@ async function autoPullRemoteSync() {
 
 // 增量安全合并远端数据，绝不破坏本地修改
 function mergeRemoteDataSafely(remoteData) {
+  if (!remoteData) return;
+  const activePid = getActiveProjectId();
+  if (remoteData.project_id && remoteData.project_id !== activePid) {
+    return;
+  }
+  const keys = getActiveStorageKeys();
   let hasUpdate = false;
 
   // 1. 合并日历打卡
@@ -760,7 +985,7 @@ function mergeRemoteDataSafely(remoteData) {
       }
     });
     if (hasUpdate) {
-      localStorage.setItem(STORAGE_KEYS.PLANS_MASTER, JSON.stringify(localPlans));
+      localStorage.setItem(keys.PLANS, JSON.stringify(localPlans));
     }
   }
 
@@ -791,13 +1016,13 @@ function mergeRemoteDataSafely(remoteData) {
 
     if (mistakeUpdated) {
       const mergedList = Array.from(map.values());
-      localStorage.setItem(STORAGE_KEYS.MISTAKES_MASTER, JSON.stringify(mergedList));
+      localStorage.setItem(keys.MISTAKES, JSON.stringify(mergedList));
       appState.mistakes = mergedList;
       hasUpdate = true;
     }
   }
 
-  // 3. 合并公文素材
+  // 3. 合并素材
   if (remoteData.materials && Array.isArray(remoteData.materials)) {
     const localMaterials = getLocalMaterials();
     const map = new Map();
@@ -824,8 +1049,19 @@ function mergeRemoteDataSafely(remoteData) {
 
     if (matUpdated) {
       const mergedList = Array.from(map.values());
-      localStorage.setItem(STORAGE_KEYS.DOC_MATERIALS, JSON.stringify(mergedList));
+      localStorage.setItem(keys.MATERIALS, JSON.stringify(mergedList));
       appState.materials = mergedList;
+      hasUpdate = true;
+    }
+  }
+
+  // 4. 合并自定义项目笔记
+  if (typeof remoteData.custom_notes === 'string' && remoteData.custom_notes.trim() !== '') {
+    const localNotes = getCustomProjectNotes();
+    if (!localNotes) {
+      localStorage.setItem(keys.CUSTOM_NOTES, remoteData.custom_notes);
+      const notesEl = document.getElementById('kb-custom-notes-input');
+      if (notesEl) notesEl.value = remoteData.custom_notes;
       hasUpdate = true;
     }
   }
@@ -945,29 +1181,34 @@ function initSubTabs() {
 }
 
 async function loadData() {
+  const keys = getActiveStorageKeys();
+  appState.flashcardLearnedIds = JSON.parse(localStorage.getItem(keys.FLASHCARD_LEARNED) || '[]');
+
   const plans = getLocalPlans();
   appState.calendarData = Object.values(plans);
 
-  // 若处于本地后端环境，尝试全量同步 SQLite 数据库记录
-  try {
-    const res = await fetch('/api/calendar');
-    if (res.ok) {
-      const data = await res.json();
-      if (Array.isArray(data.calendar)) {
-        const merged = getLocalPlans();
-        data.calendar.forEach(serverDay => {
-          if (serverDay.date) {
-            const hasDone = (serverDay.tasks || []).some(t => t.is_done) || serverDay.is_completed === 1;
-            if (hasDone || !merged[serverDay.date]) {
-              merged[serverDay.date] = serverDay;
+  // 仅默认四川选调项目在本地后端环境下同步历史 SQLite 记录
+  if (isDefaultSichuanProject()) {
+    try {
+      const res = await fetch('/api/calendar');
+      if (res.ok) {
+        const data = await res.json();
+        if (Array.isArray(data.calendar)) {
+          const merged = getLocalPlans();
+          data.calendar.forEach(serverDay => {
+            if (serverDay.date) {
+              const hasDone = (serverDay.tasks || []).some(t => t.is_done) || serverDay.is_completed === 1;
+              if (hasDone || !merged[serverDay.date]) {
+                merged[serverDay.date] = serverDay;
+              }
             }
-          }
-        });
-        localStorage.setItem(STORAGE_KEYS.PLANS_MASTER, JSON.stringify(merged));
-        appState.calendarData = Object.values(merged);
+          });
+          localStorage.setItem(keys.PLANS, JSON.stringify(merged));
+          appState.calendarData = Object.values(merged);
+        }
       }
-    }
-  } catch (e) {}
+    } catch (e) {}
+  }
 
   calculateAndRenderDashboard();
   renderCalendar();
@@ -978,6 +1219,7 @@ async function loadData() {
 function calculateAndRenderDashboard() {
   const plans = getLocalPlans();
   const planList = Object.values(plans);
+  const proj = getActiveProject();
 
   let completedDays = 0;
   let totalHours = 0.0;
@@ -998,8 +1240,16 @@ function calculateAndRenderDashboard() {
   });
 
   const curDt = new Date(appState.currentDateStr);
-  const examDt = new Date(EXAM_DATE);
+  const examDt = new Date(getActiveExamDate());
   const diffDays = Math.max(0, Math.ceil((examDt - curDt) / (1000 * 60 * 60 * 24)));
+
+  let cycleDays = planList.length;
+  if (proj.startDate && proj.examDate) {
+    const startDt = new Date(proj.startDate);
+    const span = Math.ceil((examDt - startDt) / (1000 * 60 * 60 * 24)) + 1;
+    if (span > 0) cycleDays = Math.max(span, planList.length);
+  }
+  const denomDays = cycleDays > 0 ? cycleDays : 1;
 
   const elNav = document.getElementById('nav-days-left');
   if (elNav) elNav.textContent = diffDays;
@@ -1009,7 +1259,9 @@ function calculateAndRenderDashboard() {
   if (elStat) elStat.textContent = diffDays;
   const elComp = document.getElementById('stat-comp-days');
   if (elComp) elComp.textContent = completedDays;
-  const compRate = planList.length > 0 ? (completedDays / planList.length * 100).toFixed(1) : '0.0';
+  const elTotalDays = document.getElementById('stat-total-days');
+  if (elTotalDays) elTotalDays.textContent = cycleDays;
+  const compRate = (completedDays / denomDays * 100).toFixed(1);
   const elRate = document.getElementById('stat-comp-rate');
   if (elRate) elRate.textContent = compRate;
   const elHours = document.getElementById('stat-hours');
@@ -1094,7 +1346,9 @@ function renderTodayTasksDOM() {
     row.id = `today-task-row-${index}`;
 
     const dur = parseFloat(task.duration) || 0.0;
-    const catOptionsHtml = CATEGORY_OPTIONS.map(c => `
+    const cats = getActiveCategories();
+    const catList = (task.category && !cats.includes(task.category)) ? [...cats, task.category] : cats;
+    const catOptionsHtml = catList.map(c => `
       <option value="${c}" ${task.category === c ? 'selected' : ''}>${c}</option>
     `).join('');
 
@@ -1190,7 +1444,8 @@ function updateTodaySummaryBadges() {
 }
 
 function addNewTaskRow() {
-  appState.todayTasks.push({ id: `task-${Date.now()}`, category: "公基与法律", content: "新复习任务", duration: 1.0, is_done: false });
+  const defaultCat = getActiveCategories()[0] || '其他';
+  appState.todayTasks.push({ id: `task-${Date.now()}`, category: defaultCat, content: "新复习任务", duration: 1.0, is_done: false });
   renderTodayTasksDOM();
 }
 function removeTodayTask(index) {
@@ -1423,7 +1678,9 @@ function renderModalTasksDOM() {
     row.className = `task-edit-row ${task.is_done ? 'is-done' : ''}`;
     row.id = `modal-task-row-${index}`;
 
-    const catOptionsHtml = CATEGORY_OPTIONS.map(c => `
+    const cats = getActiveCategories();
+    const catList = (task.category && !cats.includes(task.category)) ? [...cats, task.category] : cats;
+    const catOptionsHtml = catList.map(c => `
       <option value="${c}" ${task.category === c ? 'selected' : ''}>${c}</option>
     `).join('');
 
@@ -1469,7 +1726,8 @@ function onModalTaskCheck(index, isDone) {
   }
 }
 function addModalTaskRow() {
-  appState.modalTasks.push({ id: `task-${Date.now()}`, category: "公基与法律", content: "新任务项", duration: 1.0, is_done: false });
+  const defaultCat = getActiveCategories()[0] || '其他';
+  appState.modalTasks.push({ id: `task-${Date.now()}`, category: defaultCat, content: "新任务项", duration: 1.0, is_done: false });
   renderModalTasksDOM();
 }
 function removeModalTask(index) {
@@ -1642,8 +1900,10 @@ async function manualPushCloudData() {
   }
 
   if (res && res.success) {
-    alert(`✅ 上传成功！当前全部打卡与错题已安全备份至云端。\n\n📱 在手机端打开网页，输入 6 位短码【${code}】即可一键同步！`);
+    alert(`✅ 上传成功！当前项目【${getActiveProject().name}】的数据已安全备份至云端。\n\n📱 在其他设备输入 6 位短码【${code}】即可一键同步！`);
     showAutoSyncIndicator(`☁️ 已备份 (${code})`);
+  } else if (res && res.reason === 'custom_project_requires_supabase') {
+    alert(`⚠️ 当前为自定义备考项目，为避免与默认公共节点数据混杂，请先在下方展开配置您的 Supabase 私有云数据库！\n\n（数据已在当前设备本地安全保存）`);
   } else {
     alert(`⚠️ 云端中继暂时离线或网络波动。数据已在当前设备完好保存，您也可以使用底部的“导出JSON文件”备份。`);
   }
@@ -1873,7 +2133,7 @@ async function submitChat() {
           body: JSON.stringify({
             model: apiModel,
             messages: [
-              { role: 'system', content: '你是专业的四川省紧缺专业选调生备考指导名师。请回答条理清晰、紧扣四川定向选调考情。' },
+              { role: 'system', content: `你是专业的【${getActiveProject().name}】备考指导名师。请结合该考试特点与科目（${getActiveCategories().join('、')}），条理清晰地解答考生问题。` },
               { role: 'user', content: text }
             ]
           })
@@ -2144,6 +2404,24 @@ const FULL_QUIZ_BANK = [
 ];
 
 function loadRandomQuiz() {
+  if (!isDefaultSichuanProject()) {
+    const mistakes = getLocalMistakes().filter(m => m && m.question);
+    const badge = document.getElementById('quiz-source-badge');
+    if (mistakes.length > 0) {
+      const selected = [...mistakes].sort(() => 0.5 - Math.random()).slice(0, 5);
+      renderQuiz(selected);
+      if (badge) badge.textContent = `🔵 题库源：当前项目错题本随机抽测 (${selected.length}题)`;
+    } else {
+      const container = document.getElementById('quiz-container');
+      if (container) {
+        container.innerHTML = `<div class="quiz-item-card" style="text-align:center; padding:28px; color:var(--text-muted);">
+          🎯 当前为自定义项目【${getActiveProject().name}】，题库尚为空白。<br>点击上方 <b>“✨ AI 现场出题”</b> 即可按本项目的科目自动生成模拟题，或在错题本中录入题目。
+        </div>`;
+      }
+      if (badge) badge.textContent = '⚪ 当前项目暂无本地题目，支持 AI 现场出题';
+    }
+    return;
+  }
   const shuffled = [...FULL_QUIZ_BANK].sort(() => 0.5 - Math.random());
   const selected = shuffled.slice(0, 5);
   renderQuiz(selected);
@@ -2152,19 +2430,22 @@ function loadRandomQuiz() {
 }
 
 async function generateAiQuiz() {
+  const proj = getActiveProject();
   const container = document.getElementById('quiz-container');
   const badge = document.getElementById('quiz-source-badge');
-  if (badge) badge.textContent = '🟢 题库源：本地千问 2.5-3B 现场智能出题中...';
+  if (badge) badge.textContent = '🟢 题库源：AI 现场智能出题中...';
 
   const loadingItem = document.createElement('div');
   loadingItem.className = 'quiz-item-card';
-  loadingItem.innerHTML = `<div style="text-align:center; padding:16px; color:var(--primary); font-size:0.88rem;">✨ 正在调用千问 2.5-3B 模型现场生成 1 道高质量四川选调真题模拟，请稍候约 3~6 秒...</div>`;
+  loadingItem.innerHTML = `<div style="text-align:center; padding:16px; color:var(--primary); font-size:0.88rem;">✨ 正在为【${proj.name}】现场生成 1 道高质量模拟题，请稍候约 3~6 秒...</div>`;
   container.prepend(loadingItem);
 
-  const categories = ["习近平新时代中国特色社会主义思想与时政", "法律常识(行政法/宪法)", "非法律公基(经济/党史)", "公文改错与实务"];
+  const categories = isDefaultSichuanProject()
+    ? ["习近平新时代中国特色社会主义思想与时政", "法律常识(行政法/宪法)", "非法律公基(经济/党史)", "公文改错与实务"]
+    : getActiveCategories();
   const selectedCat = categories[Math.floor(Math.random() * categories.length)];
 
-  const prompt = `你是一个专业的四川省选调生考试命题名师。请围绕【${selectedCat}】板块，现场出一道高质量的单项选择题。
+  const prompt = `你是一个专业的【${proj.name}】考试命题名师。请围绕【${selectedCat}】板块，现场出一道高质量的单项选择题。
 必须返回合法的单一 JSON 对象，不要输出任何 Markdown 标记或多余文字：
 {
   "category": "${selectedCat}",
@@ -3621,7 +3902,7 @@ function refineParsedCategory(category, rawText) {
 }
 
 async function callCloudLlmParseMistake(rawText, settings) {
-  const prompt = `你是一个专业的中国公务员与四川紧缺专业选调生考试智能解析名师。请将以下错题原始文本精准拆解为标准 JSON 格式。
+  const prompt = `你是一个专业的【${getActiveProject().name}】考试智能解析名师。请将以下错题原始文本精准拆解为标准 JSON 格式。
 
 【考试板块精准分类指引 (category 必须严格属于以下5个之一，严禁误判)】:
 1. 习近平新时代中国特色社会主义思想与时政：考查党的二十大/二十届三中全会精神、习近平总书记重要论述、中国式现代化、新质生产力、党纪学习教育、党建党史、重大时政会议新闻。⚠️ 排除：中国近代史历史事件(如鸦片战争/洋务运动/辛亥革命)属于非法律公基文史常识，严禁误选！
@@ -3678,7 +3959,7 @@ ${rawText}`;
 
 // 前端直接调用本地/穿透的 Ollama 接口
 async function callDirectOllamaParseMistake(rawText, settings) {
-  const prompt = `你是一个专业的中国公务员与四川紧缺专业选调生考试智能解析名师。请将以下错题抽取为严格合法的 JSON 对象。
+  const prompt = `你是一个专业的【${getActiveProject().name}】考试智能解析名师。请将以下错题抽取为严格合法的 JSON 对象。
 
 【考试板块精准分类指引 (category 必须严格属于以下5个之一，严禁误判)】:
 1. 习近平新时代中国特色社会主义思想与时政：考查党的二十大/二十届三中全会精神、习近平总书记重要论述、中国式现代化、新质生产力、党纪学习教育、党建党史、重大时政会议新闻。⚠️ 排除：中国近代史历史事件(如鸦片战争/洋务运动/辛亥革命)属于非法律公基文史常识，严禁误选！
@@ -4748,7 +5029,7 @@ function markFlashcardLearned() {
     const idStr = String(appState.flashcardCurrentItem.id);
     if (!appState.flashcardLearnedIds.includes(idStr)) {
       appState.flashcardLearnedIds.push(idStr);
-      localStorage.setItem('sc_mat_flashcard_learned', JSON.stringify(appState.flashcardLearnedIds));
+      localStorage.setItem(getActiveStorageKeys().FLASHCARD_LEARNED, JSON.stringify(appState.flashcardLearnedIds));
     }
   }
   nextFlashcard();
@@ -5377,22 +5658,20 @@ function importMaterialsJSON(file) {
   reader.readAsText(file);
 }
 
-// 绑定素材库专属分类与形式标签切换点击事件
+// 绑定素材库专属分类与形式标签切换点击事件（使用事件委托支持动态项目分类）
 document.addEventListener('DOMContentLoaded', () => {
-  // 素材主题分类标签
   const catContainer = document.getElementById('mat-cat-tabs');
   if (catContainer) {
-    catContainer.querySelectorAll('.cat-filter-chip').forEach(chip => {
-      chip.addEventListener('click', () => {
-        catContainer.querySelectorAll('.cat-filter-chip').forEach(c => c.classList.remove('active'));
-        chip.classList.add('active');
-        appState.activeMatCategory = chip.getAttribute('data-cat') || 'all';
-        renderMaterialGallery();
-      });
+    catContainer.addEventListener('click', (e) => {
+      const chip = e.target.closest('.cat-filter-chip');
+      if (!chip) return;
+      catContainer.querySelectorAll('.cat-filter-chip').forEach(c => c.classList.remove('active'));
+      chip.classList.add('active');
+      appState.activeMatCategory = chip.getAttribute('data-cat') || 'all';
+      renderMaterialGallery();
     });
   }
 
-  // 素材形态标签
   const typeContainer = document.getElementById('mat-type-tabs');
   if (typeContainer) {
     typeContainer.querySelectorAll('.type-filter-chip').forEach(chip => {
@@ -5405,4 +5684,300 @@ document.addEventListener('DOMContentLoaded', () => {
     });
   }
 });
+
+/* ==========================================================================
+   多备考项目切换、自定义创建与视图动态适配引擎
+   ========================================================================== */
+
+const DEFAULT_MAT_CAT_HTML = `
+  <button class="cat-filter-chip active" data-cat="all">全部主题</button>
+  <button class="cat-filter-chip" data-cat="治蜀兴川与四川省情">🏔️ 治蜀兴川省情</button>
+  <button class="cat-filter-chip" data-cat="新质生产力与经济">⚡ 新质生产力</button>
+  <button class="cat-filter-chip" data-cat="基层治理与乡村振兴">🌾 基层治理乡村</button>
+  <button class="cat-filter-chip" data-cat="干部作风与廉洁担当">🛡️ 作风建设担当</button>
+  <button class="cat-filter-chip" data-cat="营商环境与政务服务">🏢 营商政务服务</button>
+  <button class="cat-filter-chip" data-cat="生态文明与绿色低碳">🌿 生态绿色发展</button>
+`;
+
+function initProjectSwitcher() {
+  const sel = document.getElementById('project-switcher');
+  if (!sel) return;
+  const projects = getProjectsList();
+  const activeId = getActiveProjectId();
+  sel.innerHTML = projects.map(p =>
+    `<option value="${p.id}" ${p.id === activeId ? 'selected' : ''}>${p.badge || '备考'} · ${p.name}</option>`
+  ).join('');
+}
+
+function formatShortExamLabel(examDateStr) {
+  if (!examDateStr) return '考试';
+  const parts = examDateStr.split('-');
+  if (parts.length === 3) {
+    return `${parseInt(parts[1])}.${parseInt(parts[2])}`;
+  }
+  return examDateStr;
+}
+
+function applyProjectThemeAndMeta() {
+  const proj = getActiveProject();
+  const isSichuan = isDefaultSichuanProject();
+  const shortDate = formatShortExamLabel(proj.examDate);
+
+  document.title = `${proj.badge || ''} · ${proj.name}`;
+
+  const elBadge = document.getElementById('nav-logo-badge');
+  if (elBadge) elBadge.textContent = proj.badge || '备考';
+  const elTitle = document.getElementById('nav-project-title');
+  if (elTitle) elTitle.textContent = proj.name;
+  const elSub = document.getElementById('nav-project-subtitle');
+  if (elSub) elSub.textContent = proj.subtitle || `自定义备考项目 · 科目：${getActiveCategories().join(' / ')}`;
+
+  const elNavLabel = document.getElementById('nav-exam-label');
+  if (elNavLabel) elNavLabel.textContent = `🎯 距${shortDate}考试`;
+  const elMobLabel = document.getElementById('mobile-exam-label');
+  if (elMobLabel) elMobLabel.textContent = `🎯 距 ${shortDate} 考试仅剩 `;
+  const elMobProfile = document.getElementById('mobile-profile-text');
+  if (elMobProfile) elMobProfile.textContent = proj.badge || proj.name;
+  const elStatLabel = document.getElementById('stat-exam-label');
+  if (elStatLabel) elStatLabel.textContent = `距离 ${shortDate} 考试决战`;
+
+  // 四川选调专属卡片在自定义项目下自动隐藏
+  const timelineCard = document.getElementById('sc-timeline-card');
+  if (timelineCard) timelineCard.style.display = isSichuan ? '' : 'none';
+  const strategyCard = document.getElementById('sc-strategy-card');
+  if (strategyCard) strategyCard.style.display = isSichuan ? '' : 'none';
+
+  // 知识库 / 自定义项目备忘录切换
+  const kbSichuan = document.getElementById('kb-sichuan-view');
+  const kbCustom = document.getElementById('kb-custom-view');
+  if (kbSichuan && kbCustom) {
+    if (isSichuan) {
+      kbSichuan.classList.remove('hidden');
+      kbCustom.classList.add('hidden');
+    } else {
+      kbSichuan.classList.add('hidden');
+      kbCustom.classList.remove('hidden');
+      const kbTitle = document.getElementById('kb-custom-title');
+      if (kbTitle) kbTitle.textContent = `${proj.name} · 考纲与备考备忘录`;
+      const notesEl = document.getElementById('kb-custom-notes-input');
+      if (notesEl) notesEl.value = getCustomProjectNotes();
+    }
+  }
+
+  // AI 助教标题与欢迎语适配
+  const chatTitle = document.getElementById('ai-chat-title');
+  if (chatTitle) chatTitle.textContent = isSichuan ? '四川紧缺选调智能备考助教' : `${proj.name} · 智能备考助教`;
+  const chatWelcome = document.getElementById('ai-chat-welcome-bubble');
+  if (chatWelcome && !isSichuan) {
+    chatWelcome.innerHTML = `<div class="msg-source-tag source-kb">🔵 当前项目：${proj.name}</div>你好！我是你的【${proj.name}】专属备考助教。当前项目科目为：<strong>${getActiveCategories().join('、')}</strong>。你可以随时向我提问知识点解析、制定复习计划或生成模拟题！`;
+  }
+
+  // 素材库标题与主题分类胶囊动态适配
+  const matTitle = document.getElementById('mat-section-title');
+  const matSub = document.getElementById('mat-section-subtitle');
+  const catContainer = document.getElementById('mat-cat-tabs');
+  if (isSichuan) {
+    if (matTitle) matTitle.textContent = '📜 公文写作素材库 · AI 智能分类与升华百宝箱';
+    if (matSub) matSub.textContent = '汇聚高频政策金句、提纲对仗小标题、首尾模板与材料转换对；支持 AI 一键萃取真题、大白话升华与闪卡抽背。';
+    if (catContainer) catContainer.innerHTML = DEFAULT_MAT_CAT_HTML;
+  } else {
+    if (matTitle) matTitle.textContent = `📜 ${proj.badge || proj.name} · 记忆素材与闪卡库`;
+    if (matSub) matSub.textContent = '支持按科目自由录入核心考点、金句模板、背诵要点，配合闪卡抽背高效记忆。';
+    if (catContainer) {
+      const cats = getActiveCategories();
+      catContainer.innerHTML = `<button class="cat-filter-chip active" data-cat="all">全部主题</button>` +
+        cats.map(c => `<button class="cat-filter-chip" data-cat="${c}">${c}</button>`).join('');
+    }
+  }
+  appState.activeMatCategory = 'all';
+}
+
+async function switchProject(projectId) {
+  const list = getProjectsList();
+  if (!list.some(p => p.id === projectId)) return;
+  setActiveProjectId(projectId);
+  initProjectSwitcher();
+  applyProjectThemeAndMeta();
+
+  // 清空临时状态并重新加载新项目数据
+  appState.activeMistakeFilter = 'all';
+  appState.activeMistakeCategory = 'all';
+  appState.activeMatCategory = 'all';
+  appState.duoCurrentItem = null;
+  appState.flashcardCurrentItem = null;
+
+  await loadData();
+  if (isDefaultSichuanProject()) {
+    renderKnowledgeArticle('kb-policy');
+  }
+  loadRandomQuiz();
+  autoPullRemoteSync();
+  showAutoSyncIndicator(`📌 已切换至：${getActiveProject().badge || getActiveProject().name}`);
+}
+
+function openProjectManagerModal() {
+  renderProjectManagerList();
+  resetProjectForm();
+  const modal = document.getElementById('modal-project-manager');
+  if (modal) modal.classList.remove('hidden');
+}
+
+function closeProjectManagerModal() {
+  const modal = document.getElementById('modal-project-manager');
+  if (modal) modal.classList.add('hidden');
+}
+
+function renderProjectManagerList() {
+  const container = document.getElementById('project-manager-list');
+  if (!container) return;
+  const list = getProjectsList();
+  const activeId = getActiveProjectId();
+
+  container.innerHTML = list.map(p => {
+    const isActive = p.id === activeId;
+    return `
+      <div class="project-item-card ${isActive ? 'active' : ''}">
+        <div class="project-item-info" onclick="switchProject('${p.id}'); closeProjectManagerModal();" style="cursor:pointer;">
+          <div class="project-item-title">
+            <span class="badge ${isActive ? 'badge-primary' : ''}" style="font-size:0.7rem;">${p.badge || '项目'}</span>
+            <span>${p.name}</span>
+            ${isActive ? '<span style="font-size:0.7rem; color:var(--primary);">(当前)</span>' : ''}
+          </div>
+          <div class="project-item-meta">考试日期：${p.examDate || '未设置'} · ${(p.categories || []).length} 个科目</div>
+        </div>
+        <div class="project-item-actions">
+          ${!isActive ? `<button class="btn btn-outline btn-xs" onclick="switchProject('${p.id}'); renderProjectManagerList();">切换</button>` : ''}
+          <button class="btn btn-outline btn-xs" onclick="editProjectInForm('${p.id}')">编辑</button>
+          ${!p.isBuiltin ? `<button class="btn btn-outline btn-xs" style="color:var(--accent-red);" onclick="deleteCustomProject('${p.id}')">删除</button>` : ''}
+        </div>
+      </div>
+    `;
+  }).join('');
+}
+
+function resetProjectForm() {
+  const setVal = (id, v) => { const el = document.getElementById(id); if (el) el.value = v; };
+  setVal('pm-edit-id', '');
+  setVal('pm-badge', '');
+  setVal('pm-name', '');
+  setVal('pm-subtitle', '');
+  setVal('pm-start-date', getRealCurrentDateStr());
+  setVal('pm-exam-date', '');
+  setVal('pm-categories', '专业基础, 核心实务, 真题演练, 错题复盘, 冲刺背诵');
+  const titleEl = document.getElementById('project-form-title');
+  if (titleEl) titleEl.textContent = '✨ 新建自定义备考项目';
+  const btnEl = document.getElementById('pm-save-btn');
+  if (btnEl) btnEl.textContent = '💾 创建并切换至该项目';
+}
+
+function editProjectInForm(projectId) {
+  const proj = getProjectsList().find(p => p.id === projectId);
+  if (!proj) return;
+  const setVal = (id, v) => { const el = document.getElementById(id); if (el) el.value = v; };
+  setVal('pm-edit-id', proj.id);
+  setVal('pm-badge', proj.badge || '');
+  setVal('pm-name', proj.name || '');
+  setVal('pm-subtitle', proj.subtitle || '');
+  setVal('pm-start-date', proj.startDate || getRealCurrentDateStr());
+  setVal('pm-exam-date', proj.examDate || '');
+  setVal('pm-categories', (proj.categories || []).join(', '));
+  const titleEl = document.getElementById('project-form-title');
+  if (titleEl) titleEl.textContent = `✏️ 编辑项目：${proj.name}`;
+  const btnEl = document.getElementById('pm-save-btn');
+  if (btnEl) btnEl.textContent = '💾 保存项目修改';
+}
+
+async function saveProjectFromForm() {
+  const editId = (document.getElementById('pm-edit-id')?.value || '').trim();
+  const badge = (document.getElementById('pm-badge')?.value || '').trim() || '新备考';
+  const name = (document.getElementById('pm-name')?.value || '').trim();
+  const subtitle = (document.getElementById('pm-subtitle')?.value || '').trim();
+  const startDate = (document.getElementById('pm-start-date')?.value || '').trim() || getRealCurrentDateStr();
+  const examDate = (document.getElementById('pm-exam-date')?.value || '').trim();
+  const rawCats = (document.getElementById('pm-categories')?.value || '').trim();
+
+  if (!name) {
+    alert('请填写项目全称！');
+    return;
+  }
+  if (!examDate) {
+    alert('请选择目标考试日期！');
+    return;
+  }
+
+  const categories = rawCats
+    .split(/[,，、\n]+/)
+    .map(s => s.trim())
+    .filter(Boolean);
+  if (categories.length === 0) categories.push('综合复习', '真题演练', '其他');
+
+  const list = getProjectsList();
+  let targetId = editId;
+
+  if (editId) {
+    const idx = list.findIndex(p => p.id === editId);
+    if (idx !== -1) {
+      list[idx] = {
+        ...list[idx],
+        badge,
+        name,
+        subtitle,
+        startDate,
+        examDate,
+        categories,
+        updatedAt: Date.now()
+      };
+    }
+  } else {
+    targetId = 'proj_' + Date.now().toString(36);
+    list.push({
+      id: targetId,
+      badge,
+      name,
+      subtitle,
+      startDate,
+      examDate,
+      categories,
+      isBuiltin: false,
+      createdAt: Date.now(),
+      updatedAt: Date.now()
+    });
+  }
+
+  saveProjectsList(list);
+  await syncProjectsIndexToCloud(getSyncShortCode());
+  closeProjectManagerModal();
+  await switchProject(targetId);
+}
+
+async function deleteCustomProject(projectId) {
+  if (projectId === DEFAULT_PROJECT_ID) {
+    alert('默认内置项目不可删除。');
+    return;
+  }
+  const list = getProjectsList();
+  const target = list.find(p => p.id === projectId);
+  if (!target) return;
+  if (!confirm(`确定要删除项目【${target.name}】吗？\n该项目下的本地打卡、错题与素材缓存将被清理。`)) {
+    return;
+  }
+
+  const nextList = list.filter(p => p.id !== projectId);
+  saveProjectsList(nextList);
+
+  // 清理该项目的本地隔离缓存
+  localStorage.removeItem(`study_proj_${projectId}_plans`);
+  localStorage.removeItem(`study_proj_${projectId}_mistakes`);
+  localStorage.removeItem(`study_proj_${projectId}_materials`);
+  localStorage.removeItem(`study_proj_${projectId}_flashcard_learned`);
+  localStorage.removeItem(`study_proj_${projectId}_notes`);
+
+  await syncProjectsIndexToCloud(getSyncShortCode());
+
+  if (getActiveProjectId() === projectId) {
+    await switchProject(DEFAULT_PROJECT_ID);
+  }
+  renderProjectManagerList();
+  initProjectSwitcher();
+}
 

@@ -4,7 +4,7 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>2027四川紧缺选调生 · 智能备考全栈系统</title>
-  <link rel="stylesheet" href="style.css?v=20261016_docmat">
+  <link rel="stylesheet" href="style.css?v=20261117_multiproject">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=Noto+Sans+SC:wght@300;400;500;700;900&display=swap" rel="stylesheet">
@@ -16,16 +16,20 @@
     <header class="navbar-wrapper">
       <div class="navbar">
         <div class="nav-left">
-          <div class="logo-badge">川选2027</div>
+          <div class="logo-badge" id="nav-logo-badge">川选2027</div>
           <div class="nav-title-group">
-            <h1 class="nav-title">四川紧缺选调备考系统</h1>
-            <span class="nav-subtitle">中山大学 · 085704 测绘工程 | 目标：成都 ➔ 绵阳 ➔ 环蓉</span>
+            <h1 class="nav-title" id="nav-project-title">四川紧缺选调备考系统</h1>
+            <span class="nav-subtitle" id="nav-project-subtitle">中山大学 · 085704 测绘工程 | 目标：成都 ➔ 绵阳 ➔ 环蓉</span>
+          </div>
+          <div class="project-switcher-wrap">
+            <select id="project-switcher" class="project-select" onchange="switchProject(this.value)" title="切换备考项目"></select>
+            <button class="btn btn-outline btn-xs project-manage-btn" onclick="openProjectManagerModal()" title="新建或管理备考项目">➕ 项目</button>
           </div>
         </div>
 
         <div class="nav-center">
           <div class="countdown-badge">
-            <span class="cd-label">🎯 距10.25笔试</span>
+            <span class="cd-label" id="nav-exam-label">🎯 距10.25笔试</span>
             <span class="cd-number" id="nav-days-left">64</span>
             <span class="cd-unit">天</span>
           </div>
@@ -47,10 +51,10 @@
       <!-- 移动端专属紧凑状态副条 (高度仅30px，与Navbar融为一体，绝不拥挤) -->
       <div class="mobile-subbar">
         <div class="mobile-cd-info">
-          <span>🎯 距 10.25 笔试仅剩 </span><strong id="mobile-days-left" style="color:var(--accent-red); font-size:0.95rem;">64</strong><span> 天</span>
+          <span id="mobile-exam-label">🎯 距 10.25 笔试仅剩 </span><strong id="mobile-days-left" style="color:var(--accent-red); font-size:0.95rem;">64</strong><span> 天</span>
         </div>
         <div class="mobile-profile-info">
-          <span>中大 测绘专硕 · 成都/绵阳</span>
+          <span id="mobile-profile-text">中大 测绘专硕 · 成都/绵阳</span>
         </div>
       </div>
     </header>
@@ -86,7 +90,7 @@
         <div class="stats-grid">
           <div class="stat-card gradient-red">
             <div class="stat-info">
-              <span class="stat-label">距离 10.25 笔试决战</span>
+              <span class="stat-label" id="stat-exam-label">距离 10.25 笔试决战</span>
               <div class="stat-value"><span id="stat-days-left">68</span> <small>天</small></div>
               <span class="stat-desc" id="stat-current-date-desc">当前日期实时同步</span>
             </div>
@@ -97,7 +101,7 @@
             <div class="stat-info">
               <span class="stat-label">全周期打卡完成率</span>
               <div class="stat-value"><span id="stat-comp-rate">0.0</span> <small>%</small></div>
-              <span class="stat-desc">已完成 <span id="stat-comp-days">0</span> / 69 天计划</span>
+              <span class="stat-desc">已完成 <span id="stat-comp-days">0</span> / <span id="stat-total-days">69</span> 天计划</span>
             </div>
             <div class="stat-deco">📈</div>
           </div>
@@ -122,7 +126,7 @@
         </div>
 
         <!-- 阶段时间线进度条 -->
-        <div class="card timeline-card">
+        <div class="card timeline-card" id="sc-timeline-card">
           <div class="card-header">
             <h3 class="card-title">🚀 备考三阶段全景时间线 (8.18 - 10.25)</h3>
             <span class="badge badge-primary" id="current-stage-badge">当前处于：第一阶段·夯基强化</span>
@@ -184,7 +188,7 @@
               <div class="category-progress-list" id="global-category-progress"></div>
             </div>
 
-            <div class="card strategy-card">
+            <div class="card strategy-card" id="sc-strategy-card">
               <div class="card-header">
                 <h3 class="card-title">🎯 志愿填报政策红利 & 提分锦囊</h3>
               </div>
@@ -237,8 +241,9 @@
       </section>
 
       <!-- 3. 备考全景知识库 -->
+      <!-- 3. 备考全景知识库 -->
       <section id="tab-knowledge" class="tab-pane">
-        <div class="knowledge-layout">
+        <div class="knowledge-layout" id="kb-sichuan-view">
           <div class="card knowledge-sidebar">
             <div class="kb-search-box">
               <input type="text" id="kb-search-input" placeholder="🔍 快速搜索考点/公文/政策..." class="form-control">
@@ -270,6 +275,18 @@
             <div id="kb-content-display"></div>
           </div>
         </div>
+
+        <!-- 自定义项目专属备考备忘录与大纲笔记 -->
+        <div id="kb-custom-view" class="card hidden" style="padding:20px;">
+          <div class="card-header" style="margin-bottom:12px;">
+            <div>
+              <h3 class="card-title">📚 <span id="kb-custom-title">项目考纲与备考备忘录</span></h3>
+              <p class="card-subtitle">记录本考试的报考规则、参考书目、重点考纲或备考心得（自动随项目同步至 Supabase 云端）</p>
+            </div>
+            <button class="btn btn-primary btn-sm" onclick="saveCustomProjectNotes()">💾 保存笔记</button>
+          </div>
+          <textarea id="kb-custom-notes-input" class="form-control" rows="16" placeholder="在这里自由记录本备考项目的考情、科目大纲、参考资料链接、复习策略等..." style="font-size:0.9rem; line-height:1.7; resize:vertical;"></textarea>
+        </div>
       </section>
 
       <!-- 4. 智能助考 & 抽测 -->
@@ -288,7 +305,7 @@
                 <div class="chat-avatar">🤖</div>
                 <div class="chat-title-group">
                   <div style="display:flex; align-items:center; gap:8px; flex-wrap:wrap;">
-                    <h4>四川紧缺选调智能备考助教</h4>
+                    <h4 id="ai-chat-title">四川紧缺选调智能备考助教</h4>
                     <span class="engine-tag-pill" id="chat-engine-status-tag" style="cursor:pointer;" onclick="openAiSettingsModal()" title="点击切换/配置 AI 模型">🟢 本地千问 2.5-3B (Ollama)</span>
                     <button class="btn btn-outline btn-xs" onclick="openAiSettingsModal()" style="padding: 2px 8px; font-size: 0.75rem; border-radius: 12px; cursor: pointer;">⚙️ 设置引擎/Key</button>
                   </div>
@@ -298,7 +315,7 @@
 
               <div class="chat-messages" id="chat-messages-box">
                 <div class="chat-msg bot-msg">
-                  <div class="msg-bubble">
+                  <div class="msg-bubble" id="ai-chat-welcome-bubble">
                     <div class="msg-source-tag source-kb">🔵 来源：本地精准考情知识库</div>
                     同学你好！我是您的四川紧缺选调专属备考助教。我已经对接了您本地运行的 <strong>通义千问 2.5-3B 大模型</strong> 与 <strong>本地金标尺知识库</strong>。您可以随时向我提问，每次回答都会清晰标注数据来源！
                   </div>
@@ -503,8 +520,8 @@
         <div class="card">
           <div class="card-header" style="flex-wrap:wrap; gap:12px;">
             <div>
-              <h3 class="card-title">📜 公文写作素材库 · AI 智能分类与升华百宝箱</h3>
-              <p class="card-subtitle">汇聚高频政策金句、提纲对仗小标题、首尾模板与材料转换对；支持 AI 一键萃取真题、大白话升华与闪卡抽背。</p>
+              <h3 class="card-title" id="mat-section-title">📜 公文写作素材库 · AI 智能分类与升华百宝箱</h3>
+              <p class="card-subtitle" id="mat-section-subtitle">汇聚高频政策金句、提纲对仗小标题、首尾模板与材料转换对；支持 AI 一键萃取真题、大白话升华与闪卡抽背。</p>
             </div>
             <div style="display:flex; gap:8px; align-items:center; flex-wrap:wrap;">
               <button class="btn btn-outline btn-sm" onclick="exportMaterialsJSON()">📤 导出素材</button>
@@ -1068,6 +1085,77 @@
       </div>
     </div>
 
+    <!-- 弹窗 5：备考项目管理与自定义新建 Modal -->
+    <div id="modal-project-manager" class="modal-overlay hidden" onclick="if(event.target===this)closeProjectManagerModal()">
+      <div class="modal-card modal-lg">
+        <div class="modal-header">
+          <h3>🗂️ 备考项目管理 · 切换与自定义新建</h3>
+          <button class="btn-close" onclick="closeProjectManagerModal()">✕</button>
+        </div>
+        <div class="modal-body">
+          <div style="display:grid; grid-template-columns:1fr 1.15fr; gap:16px;" class="project-manager-grid">
+            <!-- 左侧：已有项目列表 -->
+            <div>
+              <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:10px;">
+                <span style="font-weight:700; font-size:0.88rem;">📚 我的备考项目</span>
+                <button class="btn btn-outline btn-xs" onclick="resetProjectForm()">➕ 新建项目</button>
+              </div>
+              <div id="project-manager-list" class="project-manager-list"></div>
+              <div style="font-size:0.74rem; color:var(--text-muted); margin-top:10px; line-height:1.5;">
+                💡 新建项目的数据与「四川选调 2027」<b>完全隔离</b>（本地存储与 Supabase 均按项目独立分区），不会混入任何旧数据。
+              </div>
+            </div>
+
+            <!-- 右侧：新建 / 编辑项目表单 -->
+            <div style="background:var(--bg-subtle); padding:14px; border-radius:var(--radius-sm); border:1px solid var(--border-subtle);">
+              <h4 id="project-form-title" style="margin:0 0 12px 0; font-size:0.92rem;">✨ 新建自定义备考项目</h4>
+              <input type="hidden" id="pm-edit-id" value="">
+
+              <div style="display:grid; grid-template-columns:1fr 1.6fr; gap:8px; margin-bottom:10px;">
+                <div class="form-group" style="margin:0;">
+                  <label style="font-size:0.75rem;">项目徽章 (2~6字)</label>
+                  <input type="text" id="pm-badge" class="form-control" placeholder="如：国考2027" maxlength="10">
+                </div>
+                <div class="form-group" style="margin:0;">
+                  <label style="font-size:0.75rem;">项目全称 *</label>
+                  <input type="text" id="pm-name" class="form-control" placeholder="如：2027 国家公务员考试备考">
+                </div>
+              </div>
+
+              <div class="form-group" style="margin-bottom:10px;">
+                <label style="font-size:0.75rem;">副标题 / 备考目标描述</label>
+                <input type="text" id="pm-subtitle" class="form-control" placeholder="如：行测80+ · 申论75+ | 目标：中央部委/税务系统">
+              </div>
+
+              <div style="display:grid; grid-template-columns:1fr 1fr; gap:8px; margin-bottom:10px;">
+                <div class="form-group" style="margin:0;">
+                  <label style="font-size:0.75rem;">备考起始日期</label>
+                  <input type="date" id="pm-start-date" class="form-control">
+                </div>
+                <div class="form-group" style="margin:0;">
+                  <label style="font-size:0.75rem;">目标考试日期 *</label>
+                  <input type="date" id="pm-exam-date" class="form-control">
+                </div>
+              </div>
+
+              <div class="form-group" style="margin-bottom:12px;">
+                <label style="font-size:0.75rem;">自定义科目 / 任务分类 (用英文或中文逗号分隔)</label>
+                <textarea id="pm-categories" class="form-control" rows="3" placeholder="例如：行测言语, 资料分析, 申论写作, 政治理论, 真题模考, 复盘总结"></textarea>
+              </div>
+
+              <div style="display:flex; justify-content:flex-end; gap:8px;">
+                <button class="btn btn-outline btn-sm" onclick="resetProjectForm()">清空重置</button>
+                <button class="btn btn-primary btn-sm" id="pm-save-btn" onclick="saveProjectFromForm()">💾 创建并切换至该项目</button>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="modal-footer">
+          <button class="btn btn-outline" onclick="closeProjectManagerModal()">关闭</button>
+        </div>
+      </div>
+    </div>
+
     <!-- 全屏大图预览遮罩 Modal -->
     <div id="modal-image-lightbox" class="modal-overlay hidden" onclick="closeImageLightbox()">
       <div style="max-width:92vw; max-height:92vh; display:flex; flex-direction:column; align-items:center; justify-content:center; position:relative;" onclick="event.stopPropagation()">
@@ -1080,6 +1168,6 @@
 
   <script src="https://cdn.jsdelivr.net/npm/qrcode@1.5.3/build/qrcode.min.js"></script>
   <script src="historical_data.js"></script>
-  <script src="app.js?v=20261016_ai_classify_extract_opt"></script>
+  <script src="app.js?v=20261117_multiproject"></script>
 </body>
 </html>

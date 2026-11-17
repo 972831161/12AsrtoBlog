@@ -1562,4 +1562,100 @@ body {
   .materials-grid {
     grid-template-columns: 1fr;
   }
+  .project-manager-grid {
+    grid-template-columns: 1fr !important;
+  }
+}
+
+/* 项目切换器与管理列表 */
+.project-switcher-wrap {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  margin-left: 10px;
+}
+
+.project-select {
+  background: var(--bg-subtle);
+  color: var(--text-primary);
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--radius-sm);
+  padding: 4px 8px;
+  font-size: 0.78rem;
+  font-weight: 600;
+  cursor: pointer;
+  max-width: 170px;
+  outline: none;
+}
+
+.project-select:focus {
+  border-color: var(--primary);
+}
+
+.project-manage-btn {
+  padding: 4px 8px !important;
+  font-size: 0.75rem !important;
+  white-space: nowrap;
+}
+
+.project-manager-list {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  max-height: 330px;
+  overflow-y: auto;
+}
+
+.project-item-card {
+  background: var(--bg-surface);
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--radius-sm);
+  padding: 10px 12px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 8px;
+  transition: all 0.15s ease;
+}
+
+.project-item-card.active {
+  border-color: var(--primary);
+  background: rgba(37, 99, 235, 0.06);
+}
+
+.project-item-info {
+  min-width: 0;
+  flex: 1;
+}
+
+.project-item-title {
+  font-weight: 700;
+  font-size: 0.85rem;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  flex-wrap: wrap;
+}
+
+.project-item-meta {
+  font-size: 0.73rem;
+  color: var(--text-muted);
+  margin-top: 2px;
+}
+
+.project-item-actions {
+  display: flex;
+  gap: 4px;
+  flex-shrink: 0;
+}
+
+@media (max-width: 768px) {
+  .project-switcher-wrap {
+    margin-left: 4px;
+  }
+  .project-select {
+    max-width: 115px;
+    font-size: 0.72rem;
+    padding: 3px 5px;
+  }
 }
